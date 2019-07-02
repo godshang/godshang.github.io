@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="iOS 10中对推送相关的API进行了很大调整，统一了以前杂乱的API，现在可以使用独立的UserNotifications.framework来集中管理和使用iOS系统中通知的功能。之前绝大部分通知相关的API都已经被标记为deprecated。 实现通知的第一步是导入UserNotifications头文件，并实现UNUserNotificationCenterDelegate协议。在AppD">
+<meta name="keywords" content="iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 10 推送适配">
+<meta property="og:url" content="http://www.shangyan.site/2016-10-09-ios-notification/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="iOS 10中对推送相关的API进行了很大调整，统一了以前杂乱的API，现在可以使用独立的UserNotifications.framework来集中管理和使用iOS系统中通知的功能。之前绝大部分通知相关的API都已经被标记为deprecated。 实现通知的第一步是导入UserNotifications头文件，并实现UNUserNotificationCenterDelegate协议。在AppD">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-10-29T10:35:17.171Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS 10 推送适配">
+<meta name="twitter:description" content="iOS 10中对推送相关的API进行了很大调整，统一了以前杂乱的API，现在可以使用独立的UserNotifications.framework来集中管理和使用iOS系统中通知的功能。之前绝大部分通知相关的API都已经被标记为deprecated。 实现通知的第一步是导入UserNotifications头文件，并实现UNUserNotificationCenterDelegate协议。在AppD">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.shangyan.site/2016-10-09-ios-notification/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>iOS 10 推送适配 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">上元君的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静听星空夜语 淡看物是人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2016-10-09-ios-notification/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="alan"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS 10 推送适配
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2016-10-09 00:00:00" itemprop="dateCreated datePublished" datetime="2016-10-09T00:00:00+08:00">2016-10-09</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-10-29 18:35:17" itemprop="dateModified" datetime="2018-10-29T18:35:17+08:00">2018-10-29</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2016-10-09-ios-notification/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2016-10-09-ios-notification/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          <br/>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>iOS 10中对推送相关的API进行了很大调整，统一了以前杂乱的API，现在可以使用独立的UserNotifications.framework来集中管理和使用iOS系统中通知的功能。之前绝大部分通知相关的API都已经被标记为deprecated。</p>
+<p>实现通知的第一步是导入UserNotifications头文件，并实现UNUserNotificationCenterDelegate协议。在AppDelegate中，</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;UserNotifications/UserNotifications.h&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>第二步在 (BOOL)application:(UIApplication <em>)application didFinishLaunchingWithOptions:(NSDictionary </em>)launchOptions 方法中添加 APNs 注册的代码：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">    <span class="keyword">if</span> ([[<span class="built_in">UIDevice</span> currentDevice].systemVersion floatValue] &gt;= <span class="number">10.0</span>) &#123;</span><br><span class="line"><span class="meta">#if __IPHONE_OS_VERSION_MAX_ALLOWED &gt;= __IPHONE_10_0 // Xcode 8编译会调用</span></span><br><span class="line">        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];</span><br><span class="line">        center.delegate = <span class="keyword">self</span>.userNotificationCenterDelegate;</span><br><span class="line">        [center requestAuthorizationWithOptions:(UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionCarPlay) completionHandler:^(<span class="built_in">BOOL</span> granted, <span class="built_in">NSError</span> *_Nullable error) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!error) &#123;</span><br><span class="line">                <span class="built_in">NSLog</span>(<span class="string">@"UNUserNotificationCenter request authorization succeeded!"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;];</span><br><span class="line">        </span><br><span class="line">        [[<span class="built_in">UIApplication</span> sharedApplication] registerForRemoteNotifications];</span><br><span class="line"><span class="meta">#else // Xcode 7编译会调用</span></span><br><span class="line">        <span class="built_in">UIUserNotificationType</span> types = (<span class="built_in">UIUserNotificationTypeAlert</span> | <span class="built_in">UIUserNotificationTypeSound</span> | <span class="built_in">UIUserNotificationTypeBadge</span>);</span><br><span class="line">        <span class="built_in">UIUserNotificationSettings</span> *settings = [<span class="built_in">UIUserNotificationSettings</span> settingsForTypes:types categories:<span class="literal">nil</span>];</span><br><span class="line">        [[<span class="built_in">UIApplication</span> sharedApplication] registerForRemoteNotifications];</span><br><span class="line">        [[<span class="built_in">UIApplication</span> sharedApplication] registerUserNotificationSettings:settings];</span><br><span class="line"><span class="meta">#endif</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([[[<span class="built_in">UIDevice</span> currentDevice] systemVersion] floatValue] &gt;= <span class="number">8.0</span>) &#123;</span><br><span class="line">        <span class="built_in">UIUserNotificationType</span> types = (<span class="built_in">UIUserNotificationTypeAlert</span> | <span class="built_in">UIUserNotificationTypeSound</span> | <span class="built_in">UIUserNotificationTypeBadge</span>);</span><br><span class="line">        <span class="built_in">UIUserNotificationSettings</span> *settings = [<span class="built_in">UIUserNotificationSettings</span> settingsForTypes:types categories:<span class="literal">nil</span>];</span><br><span class="line">        [[<span class="built_in">UIApplication</span> sharedApplication] registerForRemoteNotifications];</span><br><span class="line">        [[<span class="built_in">UIApplication</span> sharedApplication] registerUserNotificationSettings:settings];</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">UIRemoteNotificationType</span> apn_type = (<span class="built_in">UIRemoteNotificationType</span>)(<span class="built_in">UIRemoteNotificationTypeAlert</span> | <span class="built_in">UIRemoteNotificationTypeSound</span> | <span class="built_in">UIRemoteNotificationTypeBadge</span>);</span><br><span class="line">        [[<span class="built_in">UIApplication</span> sharedApplication] registerForRemoteNotificationTypes:apn_type];</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>获取deviceToken的方法和注册失败时的回调方法都没有变化，</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)application:(<span class="built_in">UIApplication</span> *)application</span><br><span class="line">didRegisterForRemoteNotificationsWithDeviceToken:(<span class="built_in">NSData</span> *)deviceToken &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%@"</span>, [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"Device Token: %@"</span>, deviceToken]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)application:(<span class="built_in">UIApplication</span> *)application</span><br><span class="line">didFailToRegisterForRemoteNotificationsWithError:(<span class="built_in">NSError</span> *)error &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"did Fail To Register For Remote Notifications With Error: %@"</span>, error);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在旧版本中，通知的接收方法是：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)application:(<span class="built_in">UIApplication</span> *)application didReceiveRemoteNotification:(<span class="built_in">NSDictionary</span> *)userInfo &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"iOS6及以下系统，收到通知:%@"</span>, [<span class="keyword">self</span> logDic:userInfo]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)application:(<span class="built_in">UIApplication</span> *)application didReceiveRemoteNotification:(<span class="built_in">NSDictionary</span> *)userInfo</span><br><span class="line">fetchCompletionHandler:(<span class="keyword">void</span> (^)(<span class="built_in">UIBackgroundFetchResult</span>))completionHandler &#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"iOS7及以上系统，收到通知:%@"</span>, [<span class="keyword">self</span> logDic:userInfo]);</span><br><span class="line">    completionHandler(<span class="built_in">UIBackgroundFetchResultNewData</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而在iOS 10中接收通知的方法有所不同，UNUserNotificationCenterDelegate中有两个新增的方法用来处理通知的接收和点击事件。此外，苹果把本地通知和远程通知合二为一，用来区分本地通知和远程通知的类型是UNPushNotificationTrigger。</p>
+<p>接收通知的方法如下：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="comment">// iOS 10收到通知</span></span><br><span class="line">- (<span class="keyword">void</span>)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(<span class="keyword">void</span> (^)(UNNotificationPresentationOptions options))completionHandler&#123;</span><br><span class="line">    <span class="built_in">NSDictionary</span> * userInfo = notification.request.content.userInfo;</span><br><span class="line">    UNNotificationRequest *request = notification.request; <span class="comment">// 收到推送的请求</span></span><br><span class="line">    UNNotificationContent *content = request.content; <span class="comment">// 收到推送的消息内容</span></span><br><span class="line">    <span class="built_in">NSNumber</span> *badge = content.badge;  <span class="comment">// 推送消息的角标</span></span><br><span class="line">    <span class="built_in">NSString</span> *body = content.body;    <span class="comment">// 推送消息体</span></span><br><span class="line">    UNNotificationSound *sound = content.sound;  <span class="comment">// 推送消息的声音</span></span><br><span class="line">    <span class="built_in">NSString</span> *subtitle = content.subtitle;  <span class="comment">// 推送消息的副标题</span></span><br><span class="line">    <span class="built_in">NSString</span> *title = content.title;  <span class="comment">// 推送消息的标题</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>([notification.request.trigger isKindOfClass:[UNPushNotificationTrigger <span class="keyword">class</span>]]) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"iOS10 前台收到远程通知:%@"</span>, [<span class="keyword">self</span> logDic:userInfo]);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 判断为本地通知</span></span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"iOS10 前台收到本地通知:&#123;\\\\nbody:%@，\\\\ntitle:%@,\\\\nsubtitle:%@,\\\\nbadge：%@，\\\\nsound：%@，\\\\nuserInfo：%@\\\\n&#125;"</span>,body,title,subtitle,badge,sound,userInfo);</span><br><span class="line">    &#125;</span><br><span class="line">    completionHandler(UNNotificationPresentationOptionBadge|UNNotificationPresentationOptionSound|UNNotificationPresentationOptionAlert); <span class="comment">// 需要执行这个方法，选择是否提醒用户，有Badge、Sound、Alert三种类型可以设置</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>处理通知点击的方法如下：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 通知的点击事件</span></span><br><span class="line">- (<span class="keyword">void</span>)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(<span class="keyword">void</span>(^)())completionHandler&#123;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">NSDictionary</span> * userInfo = response.notification.request.content.userInfo;</span><br><span class="line">    UNNotificationRequest *request = response.notification.request; <span class="comment">// 收到推送的请求</span></span><br><span class="line">    UNNotificationContent *content = request.content; <span class="comment">// 收到推送的消息内容</span></span><br><span class="line">    <span class="built_in">NSNumber</span> *badge = content.badge;  <span class="comment">// 推送消息的角标</span></span><br><span class="line">    <span class="built_in">NSString</span> *body = content.body;    <span class="comment">// 推送消息体</span></span><br><span class="line">    UNNotificationSound *sound = content.sound;  <span class="comment">// 推送消息的声音</span></span><br><span class="line">    <span class="built_in">NSString</span> *subtitle = content.subtitle;  <span class="comment">// 推送消息的副标题</span></span><br><span class="line">    <span class="built_in">NSString</span> *title = content.title;  <span class="comment">// 推送消息的标题</span></span><br><span class="line">    <span class="keyword">if</span>([response.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger <span class="keyword">class</span>]]) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"iOS10 收到远程通知:%@"</span>, [<span class="keyword">self</span> logDic:userInfo]);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 判断为本地通知</span></span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"iOS10 收到本地通知:&#123;\\\\nbody:%@，\\\\ntitle:%@,\\\\nsubtitle:%@,\\\\nbadge：%@，\\\\nsound：%@，\\\\nuserInfo：%@\\\\n&#125;"</span>,body,title,subtitle,badge,sound,userInfo);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Warning: UNUserNotificationCenter delegate received call to -userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: but the completion handler was never called.</span></span><br><span class="line">    completionHandler();  <span class="comment">// 系统要求执行这个方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016-08-10-navigation/" rel="next" title="iOS导航">
+                <i class="fa fa-chevron-left"></i> iOS导航
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016-10-25-ios-device-id/" rel="prev" title="iOS获取设备唯一ID">
+                iOS获取设备唯一ID <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">alan</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">85</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.2.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'nxDDgUe9qKbdtOAROkPiYqbv',
+    appKey: 'fdXWsYyfGRM0IzAVMQgi5ukJ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

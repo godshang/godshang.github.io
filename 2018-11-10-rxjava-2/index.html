@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="运算符mapmap 的基本作用就是将一个 Observable 通过某种函数，转换为另一种 Observable 。 Observable.create(new ObservableOnSubscribe&amp;lt;Integer&amp;gt;() &amp;#123;    @Override    public void subscribe(ObservableEmitter&amp;lt;Integer&amp;gt; ob">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RxJava之二">
+<meta property="og:url" content="http://www.shangyan.site/2018-11-10-rxjava-2/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="运算符mapmap 的基本作用就是将一个 Observable 通过某种函数，转换为另一种 Observable 。 Observable.create(new ObservableOnSubscribe&amp;lt;Integer&amp;gt;() &amp;#123;    @Override    public void subscribe(ObservableEmitter&amp;lt;Integer&amp;gt; ob">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-11T12:09:07.108Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RxJava之二">
+<meta name="twitter:description" content="运算符mapmap 的基本作用就是将一个 Observable 通过某种函数，转换为另一种 Observable 。 Observable.create(new ObservableOnSubscribe&amp;lt;Integer&amp;gt;() &amp;#123;    @Override    public void subscribe(ObservableEmitter&amp;lt;Integer&amp;gt; ob">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.shangyan.site/2018-11-10-rxjava-2/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>RxJava之二 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">上元君的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静听星空夜语 淡看物是人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2018-11-10-rxjava-2/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="alan"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RxJava之二
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-11-10 00:00:00" itemprop="dateCreated datePublished" datetime="2018-11-10T00:00:00+08:00">2018-11-10</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-06-11 20:09:07" itemprop="dateModified" datetime="2019-06-11T20:09:07+08:00">2019-06-11</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2018-11-10-rxjava-2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2018-11-10-rxjava-2/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          <br/>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h2><h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><p>map 的基本作用就是将一个 Observable 通过某种函数，转换为另一种 Observable 。</p>
+<figure class="highlight lasso"><table><tr><td class="code"><pre><span class="line">Observable.create(<span class="literal">new</span> ObservableOnSubscribe&lt;<span class="built_in">Integer</span>&gt;() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="literal">void</span> subscribe(ObservableEmitter&lt;<span class="built_in">Integer</span>&gt; observableEmitter) throws Exception &#123;</span><br><span class="line">        observableEmitter.onNext(<span class="number">1</span>);</span><br><span class="line">        observableEmitter.onNext(<span class="number">2</span>);</span><br><span class="line">        observableEmitter.onNext(<span class="number">3</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;).<span class="built_in">map</span>(<span class="literal">new</span> Function&lt;<span class="built_in">Integer</span>, <span class="built_in">String</span>&gt;() &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">String</span> apply(<span class="built_in">Integer</span> <span class="built_in">integer</span>) throws Exception &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"This is result "</span> + <span class="built_in">integer</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;).subscribe(<span class="literal">new</span> Consumer&lt;<span class="built_in">String</span>&gt;() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="literal">void</span> accept(<span class="built_in">String</span> s) throws Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">"accept: "</span> + s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight ada"><table><tr><td class="code"><pre><span class="line"><span class="keyword">accept</span>: This <span class="keyword">is</span> result <span class="number">1</span></span><br><span class="line"><span class="keyword">accept</span>: This <span class="keyword">is</span> result <span class="number">2</span></span><br><span class="line"><span class="keyword">accept</span>: This <span class="keyword">is</span> result <span class="number">3</span></span><br></pre></td></tr></table></figure>
+<h3 id="zip"><a href="#zip" class="headerlink" title="zip"></a>zip</h3><p>zip 专用于合并事件，该合并不是连接，而是两两配对，也就意味着，最终配对出的 Observable 发射事件数目只和少的那个相同。</p>
+<figure class="highlight lasso"><table><tr><td class="code"><pre><span class="line">Observable&lt;<span class="built_in">String</span>&gt; stringObservable = Observable.create(<span class="literal">new</span> ObservableOnSubscribe&lt;<span class="built_in">String</span>&gt;() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="literal">void</span> subscribe(ObservableEmitter&lt;<span class="built_in">String</span>&gt; observableEmitter) throws Exception &#123;</span><br><span class="line">        <span class="keyword">if</span> (!observableEmitter.isDisposed()) &#123;</span><br><span class="line">            observableEmitter.onNext(<span class="string">"A"</span>);</span><br><span class="line">            observableEmitter.onNext(<span class="string">"B"</span>);</span><br><span class="line">            observableEmitter.onNext(<span class="string">"C"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">Observable&lt;<span class="built_in">Integer</span>&gt; integerObservable = Observable.create(<span class="literal">new</span> ObservableOnSubscribe&lt;<span class="built_in">Integer</span>&gt;() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="literal">void</span> subscribe(ObservableEmitter&lt;<span class="built_in">Integer</span>&gt; observableEmitter) throws Exception &#123;</span><br><span class="line">        <span class="keyword">if</span> (!observableEmitter.isDisposed()) &#123;</span><br><span class="line">            observableEmitter.onNext(<span class="number">1</span>);</span><br><span class="line">            observableEmitter.onNext(<span class="number">2</span>);</span><br><span class="line">            observableEmitter.onNext(<span class="number">3</span>);</span><br><span class="line">            observableEmitter.onNext(<span class="number">4</span>);</span><br><span class="line">            observableEmitter.onNext(<span class="number">5</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">Observable.zip(stringObservable, integerObservable, <span class="literal">new</span> BiFunction&lt;<span class="built_in">String</span>, <span class="built_in">Integer</span>, <span class="built_in">String</span>&gt;() &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">String</span> apply(<span class="built_in">String</span> s, <span class="built_in">Integer</span> <span class="built_in">integer</span>) throws Exception &#123;</span><br><span class="line">        <span class="keyword">return</span> s + <span class="built_in">integer</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;).subscribe(<span class="literal">new</span> Consumer&lt;<span class="built_in">String</span>&gt;() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="literal">void</span> accept(<span class="built_in">String</span> s) throws Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">"accept: "</span> + s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight ada"><table><tr><td class="code"><pre><span class="line"><span class="keyword">accept</span>: A1</span><br><span class="line"><span class="keyword">accept</span>: B2</span><br><span class="line"><span class="keyword">accept</span>: C3</span><br></pre></td></tr></table></figure>
+<h3 id="concat"><a href="#concat" class="headerlink" title="concat"></a>concat</h3><p>concat 用于将两个 Observable 合并成一个。</p>
+<figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">Observable.concat(Observable.just(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), Observable.just(<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>))</span><br><span class="line">        .subscribe(new Consumer&lt;Integer&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void accept(Integer <span class="type">integer</span>) throws Exception &#123;</span><br><span class="line">                System.out.println(<span class="string">"accept: "</span> + <span class="type">integer</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight ada"><table><tr><td class="code"><pre><span class="line"><span class="keyword">accept</span>: <span class="number">1</span></span><br><span class="line"><span class="keyword">accept</span>: <span class="number">2</span></span><br><span class="line"><span class="keyword">accept</span>: <span class="number">3</span></span><br><span class="line"><span class="keyword">accept</span>: <span class="number">4</span></span><br><span class="line"><span class="keyword">accept</span>: <span class="number">5</span></span><br><span class="line"><span class="keyword">accept</span>: <span class="number">6</span></span><br></pre></td></tr></table></figure>
+<h3 id="flatMap"><a href="#flatMap" class="headerlink" title="flatMap"></a>flatMap</h3><p>flatMap 可以把一个 Observable 通过某种方法转换为多个 Observables，然后再把这些分散的 Observables 装进一个单一的 Observable 。 需要注意的是，flatMap 并不能保证事件的顺序，如果需要保证，需要用到下面要讲的 ConcatMap。</p>
+<figure class="highlight lasso"><table><tr><td class="code"><pre><span class="line">Observable.create(<span class="literal">new</span> ObservableOnSubscribe&lt;<span class="built_in">Integer</span>&gt;() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="literal">void</span> subscribe(ObservableEmitter&lt;<span class="built_in">Integer</span>&gt; observableEmitter) throws Exception &#123;</span><br><span class="line">        observableEmitter.onNext(<span class="number">1</span>);</span><br><span class="line">        observableEmitter.onNext(<span class="number">2</span>);</span><br><span class="line">        observableEmitter.onNext(<span class="number">3</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;).flatMap(<span class="literal">new</span> Function&lt;<span class="built_in">Integer</span>, ObservableSource&lt;<span class="built_in">String</span>&gt;&gt;() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> ObservableSource&lt;<span class="built_in">String</span>&gt; apply(<span class="built_in">Integer</span> <span class="built_in">integer</span>) throws Exception &#123;</span><br><span class="line">        <span class="built_in">List</span>&lt;<span class="built_in">String</span>&gt; <span class="built_in">list</span> = <span class="literal">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        for (int i = <span class="number">0</span>; i &lt; <span class="built_in">integer</span>; i++) &#123;</span><br><span class="line">            <span class="built_in">list</span>.add(<span class="string">"I am value "</span> + <span class="built_in">integer</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Observable.fromIterable(<span class="built_in">list</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;).subscribe(<span class="literal">new</span> Consumer&lt;<span class="built_in">String</span>&gt;() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="literal">void</span> accept(<span class="built_in">String</span> s) throws Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">"accept: "</span> + s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line">accep<span class="variable">t:</span> I <span class="keyword">am</span> value <span class="number">1</span></span><br><span class="line">accep<span class="variable">t:</span> I <span class="keyword">am</span> value <span class="number">2</span></span><br><span class="line">accep<span class="variable">t:</span> I <span class="keyword">am</span> value <span class="number">2</span></span><br><span class="line">accep<span class="variable">t:</span> I <span class="keyword">am</span> value <span class="number">3</span></span><br><span class="line">accep<span class="variable">t:</span> I <span class="keyword">am</span> value <span class="number">3</span></span><br><span class="line">accep<span class="variable">t:</span> I <span class="keyword">am</span> value <span class="number">3</span></span><br></pre></td></tr></table></figure>
+<h3 id="concatMap"><a href="#concatMap" class="headerlink" title="concatMap"></a>concatMap</h3><p>concatMap 与 FlatMap 的唯一区别就是 concatMap 保证了顺序。</p>
+<h3 id="distinct"><a href="#distinct" class="headerlink" title="distinct"></a>distinct</h3><p>顾名思义，distinct 会对事件进行滤重。</p>
+<figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">Observable.just(<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">4</span>)</span><br><span class="line">        .distinct()</span><br><span class="line">        .subscribe(new Consumer&lt;Integer&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void accept(Integer <span class="type">integer</span>) throws Exception &#123;</span><br><span class="line">                System.out.println(<span class="string">"accept: "</span> + <span class="type">integer</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight ada"><table><tr><td class="code"><pre><span class="line"><span class="keyword">accept</span>: <span class="number">1</span></span><br><span class="line"><span class="keyword">accept</span>: <span class="number">2</span></span><br><span class="line"><span class="keyword">accept</span>: <span class="number">3</span></span><br><span class="line"><span class="keyword">accept</span>: <span class="number">4</span></span><br></pre></td></tr></table></figure>
+<h3 id="filter"><a href="#filter" class="headerlink" title="filter"></a>filter</h3><p>filter 可以接受一个参数，让其过滤掉不符合我们条件的值。</p>
+<figure class="highlight lasso"><table><tr><td class="code"><pre><span class="line">Observable.just(<span class="number">1</span>, <span class="number">20</span>, <span class="number">65</span>, <span class="number">-56</span>, <span class="number">7</span>, <span class="number">19</span>)</span><br><span class="line">        .filter(<span class="literal">new</span> Predicate&lt;<span class="built_in">Integer</span>&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="built_in">boolean</span> test(<span class="built_in">Integer</span> <span class="built_in">integer</span>) throws Exception &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">integer</span> &gt; <span class="number">10</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        .subscribe(<span class="literal">new</span> Consumer&lt;<span class="built_in">Integer</span>&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            <span class="keyword">public</span> <span class="literal">void</span> accept(<span class="built_in">Integer</span> <span class="built_in">integer</span>) throws Exception &#123;</span><br><span class="line">                System.out.println(<span class="string">"accept: "</span> + <span class="built_in">integer</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight ada"><table><tr><td class="code"><pre><span class="line"><span class="keyword">accept</span>: <span class="number">20</span></span><br><span class="line"><span class="keyword">accept</span>: <span class="number">65</span></span><br><span class="line"><span class="keyword">accept</span>: <span class="number">19</span></span><br></pre></td></tr></table></figure>
+<h3 id="buffer"><a href="#buffer" class="headerlink" title="buffer"></a>buffer</h3><p>buffer 操作符接受两个参数，buffer(count,skip)，作用是将 Observable 中的数据按 skip (步长) 分成最大不超过 count 的 buffer ，然后生成一个  Observable 。</p>
+<figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line">Observable.just(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)</span><br><span class="line">        .buffer(<span class="number">3</span>, <span class="number">2</span>)</span><br><span class="line">        .subscribe(new Consumer&lt;List&lt;Integer&gt;&gt;() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void accept(List&lt;Integer&gt; integers) throws Exception &#123;</span><br><span class="line">                System.out.println(<span class="string">"accept: "</span> + integers);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight accesslog"><table><tr><td class="code"><pre><span class="line">accept: <span class="string">[1, 2, 3]</span></span><br><span class="line">accept: <span class="string">[3, 4, 5]</span></span><br><span class="line">accept: <span class="string">[5, 6]</span></span><br></pre></td></tr></table></figure>
+<h3 id="timer"><a href="#timer" class="headerlink" title="timer"></a>timer</h3><p>timer 相当于一个定时任务。在 1.x 中它还可以执行间隔逻辑，但在 2.x 中此功能被交给了 interval，下一个会介绍。但需要注意的是，timer 和 interval 均默认在新线程。</p>
+<h3 id="interval"><a href="#interval" class="headerlink" title="interval"></a>interval</h3><p>如同我们上面可说，interval 操作符用于间隔时间执行某个操作，其接受三个参数，分别是第一次发送延迟，间隔时间，时间单位。</p>
+<h3 id="skip"><a href="#skip" class="headerlink" title="skip"></a>skip</h3><p>skip 作用就和字面意思一样，接受一个 long 型参数 count ，代表跳过 count 个数目开始接收。</p>
+<h3 id="take"><a href="#take" class="headerlink" title="take"></a>take</h3><p>take，接受一个 long 型参数 count ，代表至多接收 count 个数据。</p>
+<h3 id="just"><a href="#just" class="headerlink" title="just"></a>just</h3><p>just，没什么好说的，其实在前面各种例子都说明了，就是一个简单的发射器依次调用 onNext() 方法。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-11-08-rxjava-1/" rel="next" title="RxJava之一">
+                <i class="fa fa-chevron-left"></i> RxJava之一
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018-11-29-6.824-lab1/" rel="prev" title="6.824 Lab1">
+                6.824 Lab1 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">alan</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">85</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#运算符"><span class="nav-number">1.</span> <span class="nav-text">运算符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#map"><span class="nav-number">1.1.</span> <span class="nav-text">map</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#zip"><span class="nav-number">1.2.</span> <span class="nav-text">zip</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#concat"><span class="nav-number">1.3.</span> <span class="nav-text">concat</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flatMap"><span class="nav-number">1.4.</span> <span class="nav-text">flatMap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#concatMap"><span class="nav-number">1.5.</span> <span class="nav-text">concatMap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#distinct"><span class="nav-number">1.6.</span> <span class="nav-text">distinct</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#filter"><span class="nav-number">1.7.</span> <span class="nav-text">filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#buffer"><span class="nav-number">1.8.</span> <span class="nav-text">buffer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#timer"><span class="nav-number">1.9.</span> <span class="nav-text">timer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#interval"><span class="nav-number">1.10.</span> <span class="nav-text">interval</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#skip"><span class="nav-number">1.11.</span> <span class="nav-text">skip</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#take"><span class="nav-number">1.12.</span> <span class="nav-text">take</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#just"><span class="nav-number">1.13.</span> <span class="nav-text">just</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.2.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'nxDDgUe9qKbdtOAROkPiYqbv',
+    appKey: 'fdXWsYyfGRM0IzAVMQgi5ukJ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

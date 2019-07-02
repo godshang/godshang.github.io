@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Rsync的参数详细解释 -v, --verbose 详细模式输出-q, --quiet 精简输出模式-c, --checksum 打开校验开关，强制对文件传输进行校验-a, --archive 归档模式，表示以递归方式传输文件，并保持所有文件属性，等于-rlptgoD-r, --recursive 对子目录以递归模式处理-R, --relative 使用相对路径信息-b, --backup 创建">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rsync参数详解">
+<meta property="og:url" content="http://www.shangyan.site/2013-07-08-rsync/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="Rsync的参数详细解释 -v, --verbose 详细模式输出-q, --quiet 精简输出模式-c, --checksum 打开校验开关，强制对文件传输进行校验-a, --archive 归档模式，表示以递归方式传输文件，并保持所有文件属性，等于-rlptgoD-r, --recursive 对子目录以递归模式处理-R, --relative 使用相对路径信息-b, --backup 创建">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-10-29T10:32:27.538Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="rsync参数详解">
+<meta name="twitter:description" content="Rsync的参数详细解释 -v, --verbose 详细模式输出-q, --quiet 精简输出模式-c, --checksum 打开校验开关，强制对文件传输进行校验-a, --archive 归档模式，表示以递归方式传输文件，并保持所有文件属性，等于-rlptgoD-r, --recursive 对子目录以递归模式处理-R, --relative 使用相对路径信息-b, --backup 创建">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.shangyan.site/2013-07-08-rsync/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>rsync参数详解 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">上元君的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静听星空夜语 淡看物是人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2013-07-08-rsync/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="alan"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">rsync参数详解
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2013-07-08 00:00:00" itemprop="dateCreated datePublished" datetime="2013-07-08T00:00:00+08:00">2013-07-08</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-10-29 18:32:27" itemprop="dateModified" datetime="2018-10-29T18:32:27+08:00">2018-10-29</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2013-07-08-rsync/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2013-07-08-rsync/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          <br/>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Rsync的参数详细解释</p>
+<figure class="highlight haml"><table><tr><td class="code"><pre><span class="line">-<span class="ruby">v, --verbose 详细模式输出</span></span><br><span class="line"><span class="ruby">-q, --quiet 精简输出模式</span></span><br><span class="line"><span class="ruby">-c, --checksum 打开校验开关，强制对文件传输进行校验</span></span><br><span class="line"><span class="ruby">-a, --archive 归档模式，表示以递归方式传输文件，并保持所有文件属性，等于-rlptgoD</span></span><br><span class="line"><span class="ruby">-r, --recursive 对子目录以递归模式处理</span></span><br><span class="line"><span class="ruby">-R, --relative 使用相对路径信息</span></span><br><span class="line"><span class="ruby">-b, --backup 创建备份，也就是对于目的已经存在有同样的文件名时，将老的文件重新命名为~filename。可以使用--suffix选项来指定不同的备份文件前缀。</span></span><br><span class="line"><span class="ruby">--backup-dir 将备份文件(如~filename)存放在在目录下。</span></span><br><span class="line"><span class="ruby">-suffix=SUFFIX 定义备份文件前缀</span></span><br><span class="line"><span class="ruby">-u, --update 仅仅进行更新，也就是跳过所有已经存在于DST，并且文件时间晚于要备份的文件。(不覆盖更新的文件)</span></span><br><span class="line"><span class="ruby">-l, --links 保留软链结</span></span><br><span class="line"><span class="ruby">-L, --copy-links 想对待常规文件一样处理软链结</span></span><br><span class="line"><span class="ruby">--copy-unsafe-links 仅仅拷贝指向SRC路径目录树以外的链结</span></span><br><span class="line"><span class="ruby">--safe-links 忽略指向SRC路径目录树以外的链结</span></span><br><span class="line"><span class="ruby">-H, --hard-links 保留硬链结</span></span><br><span class="line"><span class="ruby">-p, --perms 保持文件权限</span></span><br><span class="line"><span class="ruby">-o, --owner 保持文件属主信息</span></span><br><span class="line"><span class="ruby">-g, --group 保持文件属组信息</span></span><br><span class="line"><span class="ruby">-D, --devices 保持设备文件信息</span></span><br><span class="line"><span class="ruby">-t, --times 保持文件时间信息</span></span><br><span class="line"><span class="ruby">-S, --sparse 对稀疏文件进行特殊处理以节省DST的空间</span></span><br><span class="line"><span class="ruby">-n, --dry-run 现实哪些文件将被传输</span></span><br><span class="line"><span class="ruby">-W, --whole-file 拷贝文件，不进行增量检测</span></span><br><span class="line"><span class="ruby">-x, --one-file-system 不要跨越文件系统边界</span></span><br><span class="line"><span class="ruby">-B, --block-size=SIZE 检验算法使用的块尺寸，默认是<span class="number">700</span>字节</span></span><br><span class="line"><span class="ruby">-e, --rsh=COMMAND 指定使用rsh、ssh方式进行数据同步</span></span><br><span class="line"><span class="ruby">--rsync-path=PATH 指定远程服务器上的rsync命令所在路径信息</span></span><br><span class="line"><span class="ruby">-C, --cvs-exclude 使用和CVS一样的方法自动忽略文件，用来排除那些不希望传输的文件</span></span><br><span class="line"><span class="ruby">--existing 仅仅更新那些已经存在于DST的文件，而不备份那些新创建的文件</span></span><br><span class="line"><span class="ruby">--delete 删除那些DST中SRC没有的文件</span></span><br><span class="line"><span class="ruby">--delete-excluded 同样删除接收端那些被该选项指定排除的文件</span></span><br><span class="line"><span class="ruby">--delete-after 传输结束以后再删除</span></span><br><span class="line"><span class="ruby">--ignore-errors 及时出现IO错误也进行删除</span></span><br><span class="line"><span class="ruby">--max-delete=NUM 最多删除NUM个文件</span></span><br><span class="line"><span class="ruby">--partial 保留那些因故没有完全传输的文件，以是加快随后的再次传输</span></span><br><span class="line"><span class="ruby">--force 强制删除目录，即使不为空</span></span><br><span class="line"><span class="ruby">--numeric-ids 不将数字的用户和组ID匹配为用户名和组名</span></span><br><span class="line"><span class="ruby">--timeout=TIME IP 超时时间，单位为秒</span></span><br><span class="line"><span class="ruby">-I, --ignore-times 不跳过那些有同样的时间和长度的文件</span></span><br><span class="line"><span class="ruby">--size-only 当决定是否要备份文件时，仅仅察看文件大小而不考虑文件时间</span></span><br><span class="line"><span class="ruby">--modify-window=NUM 决定文件是否时间相同时使用的时间戳窗口，默认为<span class="number">0</span></span></span><br><span class="line"><span class="ruby">-T --temp-dir=DIR 在DIR中创建临时文件</span></span><br><span class="line"><span class="ruby">--compare-dest=DIR 同样比较DIR中的文件来决定是否需要备份</span></span><br><span class="line"><span class="ruby">-P 等同于 --partial</span></span><br><span class="line"><span class="ruby">--progress 显示备份过程</span></span><br><span class="line"><span class="ruby">-z, --compress 对备份的文件在传输时进行压缩处理</span></span><br><span class="line"><span class="ruby">--exclude=PATTERN 指定排除不需要传输的文件模式</span></span><br><span class="line"><span class="ruby">--<span class="keyword">include</span>=PATTERN 指定不排除而需要传输的文件模式</span></span><br><span class="line"><span class="ruby">--exclude-from=FILE 排除FILE中指定模式的文件</span></span><br><span class="line"><span class="ruby">--<span class="keyword">include</span>-from=FILE 不排除FILE指定模式匹配的文件</span></span><br><span class="line"><span class="ruby">--version 打印版本信息</span></span><br><span class="line"><span class="ruby">--address 绑定到特定的地址</span></span><br><span class="line"><span class="ruby">--config=FILE 指定其他的配置文件，不使用默认的rsyncd.conf文件</span></span><br><span class="line"><span class="ruby">--port=PORT 指定其他的rsync服务端口</span></span><br><span class="line"><span class="ruby">--blocking-io 对远程shell使用阻塞IO</span></span><br><span class="line"><span class="ruby">-stats 给出某些文件的传输状态</span></span><br><span class="line"><span class="ruby">--progress 在传输时现实传输过程</span></span><br><span class="line"><span class="ruby">--log-format=formAT 指定日志文件格式</span></span><br><span class="line"><span class="ruby">--password-file=FILE 从FILE中得到密码</span></span><br><span class="line"><span class="ruby">--bwlimit=KBPS 限制I/O带宽，KBytes per second</span></span><br><span class="line"><span class="ruby">-h, --help 显示帮助信息</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013-04-25-log4j-note/" rel="next" title="log4j 的配置文件">
+                <i class="fa fa-chevron-left"></i> log4j 的配置文件
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013-10-09-mysql-datatype/" rel="prev" title="MySQL技术内幕：SQL编程——数据类型小结">
+                MySQL技术内幕：SQL编程——数据类型小结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">alan</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">85</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.2.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'nxDDgUe9qKbdtOAROkPiYqbv',
+    appKey: 'fdXWsYyfGRM0IzAVMQgi5ukJ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

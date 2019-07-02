@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Spring框架从2.0版本开始，支持基于Schema的XML扩展机制，允许开发者自定义XML标签。下面以一个小例子，说明如何实现自定义XML配置，并使Spring将我们自定义的XML解析为bean。 我们首先看一下，希望在Spring的XML配置中，添加的新标签： &amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;?&amp;gt;&amp;l">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring解析自定义XML">
+<meta property="og:url" content="http://www.shangyan.site/2015-04-30-spring-custom-xml/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="Spring框架从2.0版本开始，支持基于Schema的XML扩展机制，允许开发者自定义XML标签。下面以一个小例子，说明如何实现自定义XML配置，并使Spring将我们自定义的XML解析为bean。 我们首先看一下，希望在Spring的XML配置中，添加的新标签： &amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;?&amp;gt;&amp;l">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-10-29T10:33:19.056Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring解析自定义XML">
+<meta name="twitter:description" content="Spring框架从2.0版本开始，支持基于Schema的XML扩展机制，允许开发者自定义XML标签。下面以一个小例子，说明如何实现自定义XML配置，并使Spring将我们自定义的XML解析为bean。 我们首先看一下，希望在Spring的XML配置中，添加的新标签： &amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;?&amp;gt;&amp;l">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.shangyan.site/2015-04-30-spring-custom-xml/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Spring解析自定义XML | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">上元君的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静听星空夜语 淡看物是人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2015-04-30-spring-custom-xml/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="alan"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spring解析自定义XML
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2015-04-30 00:00:00" itemprop="dateCreated datePublished" datetime="2015-04-30T00:00:00+08:00">2015-04-30</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-10-29 18:33:19" itemprop="dateModified" datetime="2018-10-29T18:33:19+08:00">2018-10-29</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2015-04-30-spring-custom-xml/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2015-04-30-spring-custom-xml/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          <br/>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Spring框架从2.0版本开始，支持基于Schema的XML扩展机制，允许开发者自定义XML标签。下面以一个小例子，说明如何实现自定义XML配置，并使Spring将我们自定义的XML解析为bean。</p>
+<p>我们首先看一下，希望在Spring的XML配置中，添加的新标签：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;</span><br><span class="line">    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">    xmlns:d=&quot;http://www.longingfuture.com/schema/demo&quot;</span><br><span class="line">    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd</span><br><span class="line">    http://www.longingfuture.com/schema/demo http://www.longingfuture.com/schema/demo.xsd&quot;&gt;</span><br><span class="line"></span><br><span class="line">    &lt;d:parent id=&quot;testParent&quot; name=&quot;testParent001&quot;&gt;  </span><br><span class="line">        &lt;d:child name=&quot;child01&quot; age=&quot;22&quot; /&gt;</span><br><span class="line">        &lt;d:child name=&quot;child03&quot; age=&quot;24&quot; /&gt;</span><br><span class="line">    &lt;/d:parent&gt;</span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
+<p>命名空间d下的parent和child两个元素，是我们增加的新标签。我们需要一个Schema文件，用来说明自定义标签的各个约束，Spring会用这个Schema文件对XML中的标签进行验证：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="tag">&lt;<span class="name">xsd:schema</span> <span class="attr">xmlns</span>=<span class="string">"http://www.w3.org/2001/XMLSchema"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsd</span>=<span class="string">"http://www.w3.org/2001/XMLSchema"</span> </span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:beans</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:tns</span>=<span class="string">"http://www.longingfuture.com/schema/demo"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">targetNamespace</span>=<span class="string">"http://www.longingfuture.com/schema/demo"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">elementFormDefault</span>=<span class="string">"qualified"</span> <span class="attr">attributeFormDefault</span>=<span class="string">"unqualified"</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">xsd:import</span> <span class="attr">namespace</span>=<span class="string">"http://www.springframework.org/schema/beans"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">"parent"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">xsd:complexType</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">xsd:complexContent</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">xsd:extension</span> <span class="attr">base</span>=<span class="string">"beans:identifiedType"</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">xsd:sequence</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">xsd:element</span> <span class="attr">name</span>=<span class="string">"child"</span> <span class="attr">type</span>=<span class="string">"tns:child"</span> <span class="attr">maxOccurs</span>=<span class="string">"unbounded"</span> /&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">xsd:sequence</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">xsd:attribute</span> <span class="attr">name</span>=<span class="string">"name"</span> <span class="attr">type</span>=<span class="string">"xsd:string"</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">xsd:extension</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">xsd:complexContent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">xsd:complexType</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">xsd:element</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">xsd:complexType</span> <span class="attr">name</span>=<span class="string">"child"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">xsd:attribute</span> <span class="attr">name</span>=<span class="string">"name"</span> <span class="attr">type</span>=<span class="string">"xsd:string"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">xsd:attribute</span> <span class="attr">name</span>=<span class="string">"age"</span> <span class="attr">type</span>=<span class="string">"xsd:decimal"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">xsd:complexType</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">xsd:schema</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在这个Schema文件中，我们定义了parent元素和child元素。parent元素有一个名为name的属性，以及一个child类型的列表。注意，我们为这两个新元素声明了一个名为<a href="http://www.longingfuture.com/schema/demo的命名空间。在Spring的XML配置文件中，需要保证这个命名空间的正确。" target="_blank" rel="noopener">http://www.longingfuture.com/schema/demo的命名空间。在Spring的XML配置文件中，需要保证这个命名空间的正确。</a></p>
+<p>接下来，我们添加一个NamespaceHandler，来支持对新定义的命名空间元素的解析：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">MyNamespaceHandler</span> <span class="keyword">extends</span> <span class="title">NamespaceHandlerSupport</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    public void init() &#123;</span><br><span class="line">        registerBeanDefinitionParser(<span class="string">"parent"</span>, <span class="keyword">new</span> <span class="type">MyBeanDefinitorParse</span>());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>MyNamespaceHandler继承了NamespaceHandlerSupport，并重载了init方法。在init方法中，用registerBeanDefinitionParser方法向Spring注册了一个解析器，当遇到XML配置中的parent元素中，就调用这个解析器进行解析。</p>
+<p>MyBeanDefinitorParse继承了AbstractBeanDefinitionParser，并重载parseInternal这个方法。在parseInternal方法中，实现具体的解析逻辑：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">MyBeanDefinitorParse</span> <span class="keyword">extends</span> <span class="title">AbstractBeanDefinitionParser</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">AbstractBeanDefinition</span> parseInternal(<span class="type">Element</span> element, <span class="type">ParserContext</span> parserContext) &#123;</span><br><span class="line">        <span class="type">BeanDefinitionBuilder</span> parentBeanDefinitionBuilder = <span class="type">BeanDefinitionBuilder</span>.rootBeanDefinition(<span class="type">Parent</span>.<span class="keyword">class</span>);</span><br><span class="line">        parentBeanDefinitionBuilder.addPropertyValue(<span class="string">"name"</span>, element.getAttribute(<span class="string">"name"</span>));</span><br><span class="line"></span><br><span class="line">        <span class="type">List</span>&lt;<span class="type">Element</span>&gt; childElements = <span class="type">DomUtils</span>.getChildElementsByTagName(element, <span class="string">"child"</span>);</span><br><span class="line">        <span class="type">List</span>&lt;<span class="type">BeanDefinition</span>&gt; childBeanDefinitions = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;<span class="type">BeanDefinition</span>&gt;(childElements.size());</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">Iterator</span> iterator = childElements.iterator(); iterator.hasNext();) &#123;</span><br><span class="line">            <span class="type">Element</span> childElement = (<span class="type">Element</span>) iterator.next();</span><br><span class="line">            <span class="type">BeanDefinitionBuilder</span> childBeanDefinitionBuilder = <span class="type">BeanDefinitionBuilder</span>.genericBeanDefinition(<span class="type">Child</span>.<span class="keyword">class</span>);</span><br><span class="line">            </span><br><span class="line">            childBeanDefinitionBuilder.addPropertyValue(<span class="type">Conventions</span>.attributeNameToPropertyName(<span class="string">"name"</span>), childElement.getAttribute(<span class="string">"name"</span>));</span><br><span class="line">            childBeanDefinitionBuilder.addPropertyValue(<span class="type">Conventions</span>.attributeNameToPropertyName(<span class="string">"age"</span>), childElement.getAttribute(<span class="string">"age"</span>));</span><br><span class="line"></span><br><span class="line">            childBeanDefinitions.add(childBeanDefinitionBuilder.getBeanDefinition());</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">ManagedList</span> list = <span class="keyword">new</span> <span class="type">ManagedList</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">BeanDefinition</span> beanDefinition : childBeanDefinitions) &#123;</span><br><span class="line">            list.add(beanDefinition);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        parentBeanDefinitionBuilder.addPropertyValue(<span class="string">"children"</span>, list);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> parentBeanDefinitionBuilder.getBeanDefinition();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>完成上述过程后，为了能让Spring知道我们新加入的handler和parser，还需要向Spring进行注册，这需要在classpath下的META-INF文件夹下，新增spring.handlers和spring.schemas两个文件。</p>
+<p>在spring.handlers文件中，指明了当遇到自定义的命名空间时需要调用哪个handler：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line">http\<span class="symbol">://www</span>.longingfuture.com/schema/demo=com.longingfuture.demo.spring.customtag.MyNamespaceHandler</span><br></pre></td></tr></table></figure>
+<p>在spring.schemas文件中，指明了Schema文件的具体包位置：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">http\:<span class="regexp">//</span>www.longingfuture.com<span class="regexp">/schema/</span>demo.xsd=com<span class="regexp">/longingfuture/</span>demo<span class="regexp">/spring/</span>customtag<span class="regexp">/demo.xsd</span></span><br></pre></td></tr></table></figure>
+<p>完成上述后，我们就可以正常的从Spring中获取我们的bean了：</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> void main(String[] args) throws <span class="keyword">Exception</span> &#123;</span><br><span class="line">        ApplicationContext ctx = <span class="keyword">new</span> ClassPathXmlApplicationContext(</span><br><span class="line">                <span class="keyword">new</span> String[] &#123; <span class="string">"appContext-customtag.xml"</span> &#125;);</span><br><span class="line">        <span class="keyword">Parent</span> <span class="keyword">parent</span> = ctx.getBean(<span class="keyword">Parent</span>.class);</span><br><span class="line">        System.out.println(<span class="keyword">parent</span>.getName());</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> (Child child : <span class="keyword">parent</span>.getChildren()) &#123;</span><br><span class="line">            System.out.println(child.getName() + <span class="string">":"</span> + child.getAge());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015-04-16-spring-dynamic-datasource/" rel="next" title="Spring动态数据源切换实现读写分离">
+                <i class="fa fa-chevron-left"></i> Spring动态数据源切换实现读写分离
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015-05-28-kaptcha/" rel="prev" title="使用Kaptcha生成验证码">
+                使用Kaptcha生成验证码 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">alan</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">85</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.2.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'nxDDgUe9qKbdtOAROkPiYqbv',
+    appKey: 'fdXWsYyfGRM0IzAVMQgi5ukJ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

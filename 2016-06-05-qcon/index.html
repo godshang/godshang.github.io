@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="编程语言演变对开发者的意义上午的keynote是由《七周七语言》一书的作者 Paul Butcher 带来。老外做演讲还是挺有意思的，幽默、有条理。Paul介绍了70年代以来各种编程语言的发展和变迁。历史上，曾经出现过许多的五花八门的编程语言，有些已经远离了人们的视线，成为供历史缅怀的尘埃，有些则依然活跃在现如今人们的视野中。在90年代的时候，编程语言曾经出现过一个跳跃式的发展，原因是网络的出现。">
+<meta name="keywords" content="QCon">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2016 QCon 小结">
+<meta property="og:url" content="http://www.shangyan.site/2016-06-05-qcon/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="编程语言演变对开发者的意义上午的keynote是由《七周七语言》一书的作者 Paul Butcher 带来。老外做演讲还是挺有意思的，幽默、有条理。Paul介绍了70年代以来各种编程语言的发展和变迁。历史上，曾经出现过许多的五花八门的编程语言，有些已经远离了人们的视线，成为供历史缅怀的尘埃，有些则依然活跃在现如今人们的视野中。在90年代的时候，编程语言曾经出现过一个跳跃式的发展，原因是网络的出现。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-10-29T10:34:48.532Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2016 QCon 小结">
+<meta name="twitter:description" content="编程语言演变对开发者的意义上午的keynote是由《七周七语言》一书的作者 Paul Butcher 带来。老外做演讲还是挺有意思的，幽默、有条理。Paul介绍了70年代以来各种编程语言的发展和变迁。历史上，曾经出现过许多的五花八门的编程语言，有些已经远离了人们的视线，成为供历史缅怀的尘埃，有些则依然活跃在现如今人们的视野中。在90年代的时候，编程语言曾经出现过一个跳跃式的发展，原因是网络的出现。">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.shangyan.site/2016-06-05-qcon/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>2016 QCon 小结 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">上元君的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静听星空夜语 淡看物是人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2016-06-05-qcon/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="alan"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">2016 QCon 小结
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2016-06-05 00:00:00" itemprop="dateCreated datePublished" datetime="2016-06-05T00:00:00+08:00">2016-06-05</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-10-29 18:34:48" itemprop="dateModified" datetime="2018-10-29T18:34:48+08:00">2018-10-29</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2016-06-05-qcon/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2016-06-05-qcon/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          <br/>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="编程语言演变对开发者的意义"><a href="#编程语言演变对开发者的意义" class="headerlink" title="编程语言演变对开发者的意义"></a>编程语言演变对开发者的意义</h2><p>上午的keynote是由《七周七语言》一书的作者 Paul Butcher 带来。老外做演讲还是挺有意思的，幽默、有条理。Paul介绍了70年代以来各种编程语言的发展和变迁。历史上，曾经出现过许多的五花八门的编程语言，有些已经远离了人们的视线，成为供历史缅怀的尘埃，有些则依然活跃在现如今人们的视野中。在90年代的时候，编程语言曾经出现过一个跳跃式的发展，原因是网络的出现。下一个重大的变化趋势是什么呢？一个是函数式编程语言，另一个是并发/并行的编程语言。那作为开发者如何应对这种变化呢？Paul的答案也是简单粗暴，你去学就好了嘛。学个函数式编程语言，学个并发编程语言，体会下不同的编程思想。作为程序员，也要与时俱进。</p>
+<h2 id="JDK9，变化与未来"><a href="#JDK9，变化与未来" class="headerlink" title="JDK9，变化与未来"></a>JDK9，变化与未来</h2><p>主讲人是来自Oracle的范学雷，主要介绍了JDK9中的一些新特性，着重介绍了模块化系统。</p>
+<p>一些feature还是比较有意思的，比如版本号命名的变更，JDK9中将版本号的格式规定为 $MAJOR-$MINOR-$SECURITY，OP可以通过最后一位版本号来判断新公布的JDK更新是否解决了某些安全问题，来决定是否升级JDK。比如Java Shell，以前写一些简单的demo，或者测试一些api的时候，我们需要经历新建一个文件、创建个Class、再写main方法等等一系列步骤，有了Java Shell，就可以想Python、NodeJS中的shell一样，直接可以执行输入的命令。此外，还有注入对HTTP/2的支持、比如新的logging api等等feature，值得期待和尝试。</p>
+<p>着重讲的一个是模块化框架。模块化开发可能是未来的趋势，和普通JVM程序相比，模块化、动态化得特性非常诱人。现在广泛使用的模块化规范是OSGi，但OSGi陡峭的学习曲线和使用上的复杂性，对学习者和使用者都是极大的挑战。阿里在HSF中曾经尝试使用过OSGi，最后哈市放弃了。JDK原生提供的模块化框架，是不是可以降低使用成本，为应用的开发和部署带来更大方便，还需要拭目以待。</p>
+<h2 id="基于Java容器的多应用部署技术实践"><a href="#基于Java容器的多应用部署技术实践" class="headerlink" title="基于Java容器的多应用部署技术实践"></a>基于Java容器的多应用部署技术实践</h2><p>主讲人是来自阿里的魏鹏，花名豫楚。主要带来了阿里Java容器架构，以及应用的合并部署和多版本部署等方面的分享。</p>
+<p>随着引用的复杂度提高，我们一般会进行系统模块的拆解，将功能一个个的分离成独立的服务，各个模块以RPC的方式调用服务。这种soa的方式当然很好，但是随着复杂度继续提高，一个前端页面上的请求，有可能后端会经过很长的服务请求链路，网络开销增大。阿里的做法是合并部署，基于自己实现的Java容器，将核心请求链路上的多个应用部署在同一个容器内，将核心链路上的远程调用转为本地调用，从而降低了网络请求的开销。</p>
+<p>基于这个Java容器，还可以做到多版本部署。在容器内，可以为一个应用部署多个版本，一个服务的标识变成了App+Version。这样当部署到新版本或者回滚老版本时候，可以做到外部的访问不断，容器内部进行请求的切分。带来的好处就是应用的发布提速、回滚可以做到秒级。</p>
+<p>阿里的Java容器的这些特性还是比较吸引人，从双十一的数据也能看出来是经得住考验的。目前来看一是并未开源，二是相关资料较少，值得持续关注。</p>
+<h2 id="OS-造成的长时间非典型-JVM-GC-停顿"><a href="#OS-造成的长时间非典型-JVM-GC-停顿" class="headerlink" title="OS 造成的长时间非典型 JVM GC 停顿"></a>OS 造成的长时间非典型 JVM GC 停顿</h2><p>主讲人是来自LinkedIn的庄振运，演讲内容关注由于OS操作系统通过和JMV的跨层互动造成的JVM出现 Stop-The-World JVM GC 停顿，以及相应的优化方法。内容偏技术向和实践向，如果对于JVM优化有深入了解的话，这个演讲是很有收获的。</p>
+<h2 id="高盛如何使用Java"><a href="#高盛如何使用Java" class="headerlink" title="高盛如何使用Java"></a>高盛如何使用Java</h2><p>主讲人来自是来自高盛的林文。演讲挺水的，从演讲质量和内容都很难令人满意，虽然她是这次专题中title最高的一位。主要介绍 Eclipse Collections 这个集合框架。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/QCon/" rel="tag"># QCon</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016-04-17-diary/" rel="next" title="悟空">
+                <i class="fa fa-chevron-left"></i> 悟空
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016-07-15-ios-crashlog/" rel="prev" title="iOS崩溃日志收集">
+                iOS崩溃日志收集 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">alan</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">85</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#编程语言演变对开发者的意义"><span class="nav-number">1.</span> <span class="nav-text">编程语言演变对开发者的意义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK9，变化与未来"><span class="nav-number">2.</span> <span class="nav-text">JDK9，变化与未来</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于Java容器的多应用部署技术实践"><span class="nav-number">3.</span> <span class="nav-text">基于Java容器的多应用部署技术实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OS-造成的长时间非典型-JVM-GC-停顿"><span class="nav-number">4.</span> <span class="nav-text">OS 造成的长时间非典型 JVM GC 停顿</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#高盛如何使用Java"><span class="nav-number">5.</span> <span class="nav-text">高盛如何使用Java</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.2.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'nxDDgUe9qKbdtOAROkPiYqbv',
+    appKey: 'fdXWsYyfGRM0IzAVMQgi5ukJ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="数据类型和运算符标识符Objective-C语言的标识符必须以字母、下划线（）、美元符（$）开头，后面可以跟任意数目的字母、数字、下划线（）和美元符（$）。标识符中不能包括空格，不能使用关键字，标识符的长度没有限制。 Objective-C语言区分大小写，因此abc和ABC是两个不同的标识符。 数据类型分类Objective-C语言要求所有变量必须先声明后使用。 数据类型包括基本类型、构造类型和指">
+<meta name="keywords" content="Objective-C">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Objective-C学习笔记（1）">
+<meta property="og:url" content="http://www.shangyan.site/2015-09-29-objective-c-note-1/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="数据类型和运算符标识符Objective-C语言的标识符必须以字母、下划线（）、美元符（$）开头，后面可以跟任意数目的字母、数字、下划线（）和美元符（$）。标识符中不能包括空格，不能使用关键字，标识符的长度没有限制。 Objective-C语言区分大小写，因此abc和ABC是两个不同的标识符。 数据类型分类Objective-C语言要求所有变量必须先声明后使用。 数据类型包括基本类型、构造类型和指">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-10-29T10:33:45.781Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Objective-C学习笔记（1）">
+<meta name="twitter:description" content="数据类型和运算符标识符Objective-C语言的标识符必须以字母、下划线（）、美元符（$）开头，后面可以跟任意数目的字母、数字、下划线（）和美元符（$）。标识符中不能包括空格，不能使用关键字，标识符的长度没有限制。 Objective-C语言区分大小写，因此abc和ABC是两个不同的标识符。 数据类型分类Objective-C语言要求所有变量必须先声明后使用。 数据类型包括基本类型、构造类型和指">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.shangyan.site/2015-09-29-objective-c-note-1/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Objective-C学习笔记（1） | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">上元君的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静听星空夜语 淡看物是人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2015-09-29-objective-c-note-1/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="alan"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Objective-C学习笔记（1）
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2015-09-29 00:00:00" itemprop="dateCreated datePublished" datetime="2015-09-29T00:00:00+08:00">2015-09-29</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-10-29 18:33:45" itemprop="dateModified" datetime="2018-10-29T18:33:45+08:00">2018-10-29</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2015-09-29-objective-c-note-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2015-09-29-objective-c-note-1/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          <br/>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="数据类型和运算符"><a href="#数据类型和运算符" class="headerlink" title="数据类型和运算符"></a>数据类型和运算符</h2><h3 id="标识符"><a href="#标识符" class="headerlink" title="标识符"></a>标识符</h3><p>Objective-C语言的标识符必须以字母、下划线（<em>）、美元符（$）开头，后面可以跟任意数目的字母、数字、下划线（</em>）和美元符（$）。标识符中不能包括空格，不能使用关键字，标识符的长度没有限制。</p>
+<p>Objective-C语言区分大小写，因此abc和ABC是两个不同的标识符。</p>
+<h3 id="数据类型分类"><a href="#数据类型分类" class="headerlink" title="数据类型分类"></a>数据类型分类</h3><p>Objective-C语言要求所有变量必须先声明后使用。</p>
+<p>数据类型包括基本类型、构造类型和指针类型。基本类型包括整型、浮点型、字符型和枚举型4类。构造类型包括数组类型、结构体类型和共用体类型3类。指针类型既是C语言最重要的数据类型，也是Objective-C最重要的类型，所有的系统类、自定义类的本质都是指针类型。</p>
+<p>除此之外，还有一种特殊的空类型（null type），空类型就是nil值的类型，这种类型没有名称。因为空类型没有名称，所以不能声明一个空类型的变量，或将变量转换成空类型。空引用（nil）是空类型变量唯一的值。空引用（nil）可以转换为任何引用类型。</p>
+<h3 id="基本数据类型"><a href="#基本数据类型" class="headerlink" title="基本数据类型"></a>基本数据类型</h3><h4 id="整型"><a href="#整型" class="headerlink" title="整型"></a>整型</h4><p>整型包括如下几种类型。</p>
+<ul>
+<li>short int（简称int）：short型整数在内存中通常占用16位</li>
+<li>int：int型整数在内存中通常占用32位</li>
+<li>long int：long型整数在内存中占用64位</li>
+<li>long long：long long型整数在内存中占64位</li>
+</ul>
+<p>Objective-C语言并没有硬性规定各种整数在内存中所占用的空间。通常来说，要求long long型所占内存空间不小于long所占内存空间，long型所占的内存空间应该不小于int所占的内存空间，int型所占的内存空间应该不小于short型所占用的内存空间。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">测试结果：</span><br><span class="line">在<span class="number">64</span>位的Mac系统上，<span class="keyword">short</span> <span class="keyword">int</span>占<span class="number">2</span>字节，<span class="keyword">int</span>占<span class="number">4</span>字节，<span class="keyword">long</span> <span class="keyword">int</span>占<span class="number">8</span>字节，<span class="keyword">long</span> <span class="keyword">long</span>占<span class="number">8</span>字节；</span><br><span class="line">在iOS系统上，<span class="keyword">short</span> <span class="keyword">int</span>占<span class="number">2</span>字节，<span class="keyword">int</span>占<span class="number">4</span>字节，<span class="keyword">long</span> <span class="keyword">int</span>占<span class="number">4</span>字节，<span class="keyword">long</span> <span class="keyword">long</span>占<span class="number">8</span>字节。</span><br></pre></td></tr></table></figure>
+<p>整数有3种表示方式：十进制、八进制和十六进制，其中八进制的整数常量以0开头，十六进制的整数以0x或者0X开头，其中10~15分别以a~f或A~F来表示。</p>
+<p>在4种整型前面添加unsigned关键字，可将它们变成无符号整型。无符号整型的最高位不是符号位，而是数值位，因此无符号整数不能表示负数。但与此同时，无符号整型的最大值比对应的普通整型的最大值大一倍。</p>
+<h4 id="NSLog输出函数及格式字符"><a href="#NSLog输出函数及格式字符" class="headerlink" title="NSLog输出函数及格式字符"></a>NSLog输出函数及格式字符</h4><p>NSLog是Foundation提供的饿一个功能非常强大的输出函数，不仅可以输出字符串，也可以输出整数、C风格的字符串和Objective-C对象。</p>
+<p>NSLog函数的第一个参数是一个字符串常量，改字符串中可使用%格式的占位符，这个占位符将会有对应的变量填充。</p>
+<p>NSLog支持的格式字符如下所示</p>
+<figure class="highlight llvm"><table><tr><td class="code"><pre><span class="line">d       以带符号的十进制形式输出整数（整数不输出符号）</span><br><span class="line">o       以八进制无符号形式输出整数（不输出<span class="number">0</span>前缀）</span><br><span class="line"><span class="keyword">x</span>       以十六进制无符号形式输出整数（不输出<span class="number">0</span><span class="keyword">x</span>前缀）</span><br><span class="line">u       以无符号十进制形式输出整数</span><br><span class="line"><span class="keyword">c</span>       以字符形式输出，只输出一个字符</span><br><span class="line">s       输出C风格的字符串</span><br><span class="line">f       以小数形式输出浮点数，默认输出<span class="number">6</span>位小数</span><br><span class="line">e       以指数形式输出浮点数，数字部分默认输出<span class="number">6</span>位小数</span><br><span class="line">g       自动选用<span class="symbol">%f</span>或<span class="symbol">%e</span>其中之一，保证输出宽度较短的格式，并且不会输出无意义的<span class="number">0</span></span><br><span class="line">p       以十六进制形式输出指针变量所代表的地址</span><br><span class="line">@       输出Objective-C的对象</span><br></pre></td></tr></table></figure>
+<p>在%与格式字符之间，还可插入下标所示的附加符号</p>
+<figure class="highlight asciidoc"><table><tr><td class="code"><pre><span class="line">l（字母）               可在格式字符d、o、x、u之前，用于输出长整型整数；也可在f、e、g之前，用于输出长浮点型整数</span><br><span class="line">m（代表一个正整数）     指定输出数据所占的最小宽度</span><br><span class="line"><span class="title">.n                      对于浮点数，表示输出n位小数；对于字符串，表示截取的字符个数</span></span><br><span class="line"><span class="bullet">-                       </span>表示输出的数值向左边对齐</span><br></pre></td></tr></table></figure>
+<h4 id="字符型"><a href="#字符型" class="headerlink" title="字符型"></a>字符型</h4><p>字符型用于表示单个的字符，字符常量必须使用单引号引起来。每个字符占用1个字节。</p>
+<p>字符型常量有两种表现形式，一个是直接通过单个字符来指定字符常量，例如’A’、’0’等；另一个是通过转义字符表示特殊字符常量，例如’\n’、’\t’等。</p>
+<p>char行的值也可以直接作为整数型的值来使用，但它是一个8位的无符号整数，取值范围0~255。</p>
+<p>如果把一个在0~255范围内的int整数赋值给char型变量，系统会自动把这个int整数当成char类型来处理。</p>
+<p>Objective-C提供了NSString类来表示字符串，字符串由于由多个字符组成，字符串常量使用双括号括起来，并在前面使用@符号，用于区别C语言字符串。如：</p>
+<figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line">NSString *s = @<span class="string">"hello,world"</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<h4 id="浮点型"><a href="#浮点型" class="headerlink" title="浮点型"></a>浮点型</h4><p>浮点型有3中：float、double和long double，一般来说，float占用4字节，double占用8字节，long double占用16字节。</p>
+<p>浮点数有两种表示形式</p>
+<ul>
+<li>十进制数形式：这种形式就是平常简单的浮点数，例如，5.12，512.0，.512。浮点数必须包含一个小数点，否则会被当成int类型处理</li>
+<li>科学计数法形式：例如5.12e2、5.12E2</li>
+</ul>
+<p>只有浮点类型的数值才可以使用科学计数法形式表示。</p>
+<p>Objective-C的浮点型数值不区分float、double，一个浮点型常数值既可以赋值给float变量，也可以赋值给double变量。</p>
+<p>Objective-C还提供了3个特殊的浮点型数值：正无穷大、负无穷大和非数。使用一个正数除以0.0将得到正无穷大，使用一个负数除以0.0强得到负无穷大，0.0除以0.0或对一个负数开方将得到一个非数。所有的正无穷大数值都相等，所有的负无穷大数值都相等，而非数不与任何数值相等，甚至和非数自己都不相等。</p>
+<p>注意，室友浮点数除以0.0才可以得到正无穷大或负无穷大，但如果使用整型值除以0.0，将会得到整数值取值范围的边界值。</p>
+<h4 id="枚举型"><a href="#枚举型" class="headerlink" title="枚举型"></a>枚举型</h4><p>定义枚举变量有两种方式。</p>
+<ul>
+<li><p>先定义枚举类型，再用枚举类型定义变量</p>
+<p>  enum season {spring, summer, fall, winter};</p>
+<p>  enum season myLove, yourLove;</p>
+</li>
+<li><p>定义匿名枚举类型是直接定义变量</p>
+<p>  enum {mal, femal} me, you;</p>
+</li>
+</ul>
+<p>关于枚举，有几点说明：</p>
+<ul>
+<li>定义枚举时大括号中列出的枚举值，也成为枚举常量或枚举元素，这些枚举值不是变量，因此不能对它们复制。实际上，每个枚举常量按它们的定义顺序，依次为0、1、2、3，以此类推。当然也可显示指定枚举常量的值。</li>
+<li>枚举常量的本质就是无符号整数，因此，枚举值可以用来比较大小。比较大小的规则就是它们实际的整数值。</li>
+<li>枚举值的本质是无符号整数，因此，Objective-C允许直接将整数赋值给枚举变量，甚至可以直接把枚举变量当成整数使用，比如，用它们来参与四则混合运算。</li>
+</ul>
+<h4 id="BOOL类型"><a href="#BOOL类型" class="headerlink" title="BOOL类型"></a>BOOL类型</h4><p>BOOL类型的值有YES和NO两个值，分别代表真和假。Objective-C底层实际上使用signed char来代表BOOL，YES和NO两个值的底层其实就是1和0。</p>
+<p>如果将一个较大的非零整数值赋给BOOL类型的变量，而这个非零整数值的最低8位都是0，那么系统就会把它当成NO处理。</p>
+<h3 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h3><h4 id="自动类型转换"><a href="#自动类型转换" class="headerlink" title="自动类型转换"></a>自动类型转换</h4><p>自动转换规则如下：</p>
+<ul>
+<li>把整型类型（包括字符型）的变量和值赋值给浮点型变量，不会有太大变化</li>
+<li>把浮点型类型的变量和值赋值给整型（包括字符型）变量，数值的小数部分会被直接舍弃</li>
+<li>当把取值范围大的变量和值赋值给取值范围小的变量时，可能发生溢出</li>
+</ul>
+<h4 id="强制类型转换"><a href="#强制类型转换" class="headerlink" title="强制类型转换"></a>强制类型转换</h4><p>强制类型转换的运算符是圆括号。</p>
+<h4 id="表达式类型的自动提升"><a href="#表达式类型的自动提升" class="headerlink" title="表达式类型的自动提升"></a>表达式类型的自动提升</h4><p>当一个算术表达式中包含多个基本类型的值时，整个算术表达式的数据类型将发生自动提升。</p>
+<ul>
+<li>所有的short型、char型将被提升到int型</li>
+<li>真个算术表达式的数据类型自动提升到与表达式中最高等级操作数同样的类型。操作数的等级排列由低到高为：short、int、long、long long、float、double、long double。</li>
+</ul>
+<h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><p>Objective-C语言中的运算符可分为：算术运算符、赋值运算符、比较运算符、逻辑运算符、位运算符、类型相关运算符。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Objective-C/" rel="tag"># Objective-C</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015-09-22-qingdao/" rel="next" title="青岛">
+                <i class="fa fa-chevron-left"></i> 青岛
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015-09-29-objective-c-note-2/" rel="prev" title="Objective-C学习笔记（2）">
+                Objective-C学习笔记（2） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">alan</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">85</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据类型和运算符"><span class="nav-number">1.</span> <span class="nav-text">数据类型和运算符</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#标识符"><span class="nav-number">1.1.</span> <span class="nav-text">标识符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据类型分类"><span class="nav-number">1.2.</span> <span class="nav-text">数据类型分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本数据类型"><span class="nav-number">1.3.</span> <span class="nav-text">基本数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#整型"><span class="nav-number">1.3.1.</span> <span class="nav-text">整型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NSLog输出函数及格式字符"><span class="nav-number">1.3.2.</span> <span class="nav-text">NSLog输出函数及格式字符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#字符型"><span class="nav-number">1.3.3.</span> <span class="nav-text">字符型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#浮点型"><span class="nav-number">1.3.4.</span> <span class="nav-text">浮点型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#枚举型"><span class="nav-number">1.3.5.</span> <span class="nav-text">枚举型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BOOL类型"><span class="nav-number">1.3.6.</span> <span class="nav-text">BOOL类型</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类型转换"><span class="nav-number">1.4.</span> <span class="nav-text">类型转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#自动类型转换"><span class="nav-number">1.4.1.</span> <span class="nav-text">自动类型转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#强制类型转换"><span class="nav-number">1.4.2.</span> <span class="nav-text">强制类型转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#表达式类型的自动提升"><span class="nav-number">1.4.3.</span> <span class="nav-text">表达式类型的自动提升</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运算符"><span class="nav-number">1.5.</span> <span class="nav-text">运算符</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.2.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'nxDDgUe9qKbdtOAROkPiYqbv',
+    appKey: 'fdXWsYyfGRM0IzAVMQgi5ukJ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
