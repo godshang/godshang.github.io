@@ -94,17 +94,25 @@
 
 
 
-  <meta name="description" content="化神遍地走，元婴不如狗">
+  <meta name="description" content="Bitcask 是一个日志型的键值对存储引擎。最初 Bitcask 是作为 Riak 这样一个分布式存储系统的核心存储引擎被人知晓，之后豆瓣的 beansdb 也使用 Bitask 的存储模型。 Bitcask 的论文可以从官网或 Github 中找到。说论文不太合适，或者应该叫说明文档，因为模型设计比较简单，实在没什么可着重阐述。 日志型存储与常见基于 B+ 树的存储引擎不同，日志型的存储引擎不">
+<meta name="keywords" content="存储引擎">
 <meta property="og:type" content="article">
-<meta property="og:title" content="漫漫仙途">
-<meta property="og:url" content="http://www.shangyan.site/2017-08-23-diary/index.html">
+<meta property="og:title" content="Bitcask 存储引擎">
+<meta property="og:url" content="http://www.shangyan.site/2020-04-03-bitcask/index.html">
 <meta property="og:site_name" content="上元君的博客">
-<meta property="og:description" content="化神遍地走，元婴不如狗">
+<meta property="og:description" content="Bitcask 是一个日志型的键值对存储引擎。最初 Bitcask 是作为 Riak 这样一个分布式存储系统的核心存储引擎被人知晓，之后豆瓣的 beansdb 也使用 Bitask 的存储模型。 Bitcask 的论文可以从官网或 Github 中找到。说论文不太合适，或者应该叫说明文档，因为模型设计比较简单，实在没什么可着重阐述。 日志型存储与常见基于 B+ 树的存储引擎不同，日志型的存储引擎不">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-09-21T10:13:51.067Z">
+<meta property="og:image" content="http://www.shangyan.site/img/2020-04-03/20200403195136.png">
+<meta property="og:image" content="http://www.shangyan.site/img/2020-04-03/20200403195417.png">
+<meta property="og:image" content="http://www.shangyan.site/img/2020-04-03/20200403195853.png">
+<meta property="og:image" content="http://www.shangyan.site/img/2020-04-03/20200403200637.png">
+<meta property="og:image" content="http://www.shangyan.site/img/2020-04-03/20200403200938.png">
+<meta property="og:image" content="http://www.shangyan.site/img/2020-04-03/20200407130243.png">
+<meta property="og:updated_time" content="2020-04-07T05:20:57.652Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="漫漫仙途">
-<meta name="twitter:description" content="化神遍地走，元婴不如狗">
+<meta name="twitter:title" content="Bitcask 存储引擎">
+<meta name="twitter:description" content="Bitcask 是一个日志型的键值对存储引擎。最初 Bitcask 是作为 Riak 这样一个分布式存储系统的核心存储引擎被人知晓，之后豆瓣的 beansdb 也使用 Bitask 的存储模型。 Bitcask 的论文可以从官网或 Github 中找到。说论文不太合适，或者应该叫说明文档，因为模型设计比较简单，实在没什么可着重阐述。 日志型存储与常见基于 B+ 树的存储引擎不同，日志型的存储引擎不">
+<meta name="twitter:image" content="http://www.shangyan.site/img/2020-04-03/20200403195136.png">
 
 
 
@@ -112,7 +120,7 @@
 
   
   
-  <link rel="canonical" href="http://www.shangyan.site/2017-08-23-diary/"/>
+  <link rel="canonical" href="http://www.shangyan.site/2020-04-03-bitcask/"/>
 
 
 
@@ -122,7 +130,7 @@
   };
 </script>
 
-  <title>漫漫仙途 | 上元君的博客</title>
+  <title>Bitcask 存储引擎 | 上元君的博客</title>
   
 
 
@@ -337,7 +345,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2017-08-23-diary/"/>
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2020-04-03-bitcask/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="alan"/>
@@ -354,7 +362,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">漫漫仙途
+          <h1 class="post-title" itemprop="name headline">Bitcask 存储引擎
 
               
             
@@ -380,7 +388,7 @@
                 
               
 
-              <time title="创建时间：2017-08-23 00:00:00" itemprop="dateCreated datePublished" datetime="2017-08-23T00:00:00+08:00">2017-08-23</time>
+              <time title="创建时间：2020-04-03 00:00:00" itemprop="dateCreated datePublished" datetime="2020-04-03T00:00:00+08:00">2020-04-03</time>
             </span>
           
 
@@ -395,7 +403,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/生活/" itemprop="url" rel="index"><span itemprop="name">生活</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
 
                 
                 
@@ -413,8 +421,8 @@
                 </span>
             
                 <span class="post-meta-item-text">评论数：</span>
-                <a href="/2017-08-23-diary/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/2017-08-23-diary/" itemprop="commentCount"></span>
+                <a href="/2020-04-03-bitcask/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2020-04-03-bitcask/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -445,7 +453,34 @@
       
 
       
-        <p>化神遍地走，元婴不如狗</p>
+        <p>Bitcask 是一个日志型的键值对存储引擎。最初 Bitcask 是作为 Riak 这样一个分布式存储系统的核心存储引擎被人知晓，之后豆瓣的 beansdb 也使用 Bitask 的存储模型。</p>
+<p>Bitcask 的论文可以从官网或 Github 中找到。说论文不太合适，或者应该叫说明文档，因为模型设计比较简单，实在没什么可着重阐述。</p>
+<h1 id="日志型存储"><a href="#日志型存储" class="headerlink" title="日志型存储"></a>日志型存储</h1><p>与常见基于 B+ 树的存储引擎不同，日志型的存储引擎不支持随机写，而只支持 Append-Only 写入。由于将硬盘的随机写转化为顺序写，因此日志型的存储引擎能够提高写入的吞吐量，因为硬盘没有seek的过程，直接追加即可。</p>
+<p>在 Bitcask 中，数据被以追加的方式写入硬盘的数据文件中，数据文件只增不减。硬盘不可能有无限容量，数据文件也就不可能无限制写入。当文件增加到一定大小时，就会产生一个新的文件，老的文件只读不写。因此，在任意一个时刻，只会有一个文件允许写入数据。在 Bitbask 中，称为活动文件（active file）。</p>
+<p><img src="../img/2020-04-03/20200403195136.png" alt=""></p>
+<p>文件中数据的格式也十分简单，依次由crc校验码、时间戳、key的大小、value的大小、key、value组成：</p>
+<p><img src="../img/2020-04-03/20200403195417.png" alt=""></p>
+<p>数据删除也是通过另一次写入实现，删除时写入的value是一个特殊值，标记为删除，这个特殊值Bitcask称为“墓碑”。</p>
+<p>数据文件的内容如下图所示。</p>
+<p><img src="../img/2020-04-03/20200403195853.png" alt=""></p>
+<p>数据可能被多次写入和删除，因此数据文件中会存在大量无用的数据记录。Bitcask有一个merge的过程，会定期将历史上的数据文件全部扫描一遍，生成一个新的数据文件。注意，merge的过程不包括active文件，因为它还在不断地写入。merge的过程，实际上就是对同一个key的多个value合并的过程，merge后只保留这个key最新的value；如果这个key被标记为删除，新的数据文件中也不再包含这个key。每次merge后，新的数据文件中就不再有冗余数据了。</p>
+<h1 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h1><p>连续写入数据的方式提高了写操作的吞吐量，但对读操作并不友好，如果要查询某个key现在只能从所有文件中查找。因此，Bitcask设计了一个内存中的hash索引结构，用于加速读操作。</p>
+<p>索引的结构如下：</p>
+<p><img src="../img/2020-04-03/20200403200637.png" alt=""></p>
+<p>索引中每个key有三个元素可用来定位value所在，分别是file_id、value_pos、value_sz，于是可以通过file_id找到value所在的文件、通过value_pos找到value在这个文件中的偏移量、从偏移量开始读value_sz大小的数据，就得到了value。</p>
+<p>过程如下：</p>
+<p><img src="../img/2020-04-03/20200403200938.png" alt=""></p>
+<h1 id="线索文件"><a href="#线索文件" class="headerlink" title="线索文件"></a>线索文件</h1><p>索引是内存中的数据结构，Bitcask重启时需要在内存重建索引。如果数据量特别大，重建索引的过程将非常耗时。Bitcask使用了线索文件（hint file）用来加速这一过程。线索文件在merge完成后被创建，索引文件的数据结构与数据文件类似，不同的是数据文件记录的是只，而索引文件记录的是数据的位置。</p>
+<p><img src="../img/2020-04-03/20200407130243.png" alt=""></p>
+<p>启动的时候就可以不读数据文件，而是读线索文件，按行重建即可，大大加快了索引的重建速度。</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>Bitcask是一个设计十分精简的日志型键值对存储引擎。</p>
+<ul>
+<li>添加：新添加的数据直接追加到活动文件中。随着活动文件越来越大，当达到一定大小时Bitcask会停止写当前的活动文件，新建一个新的文件作为活动文件，之前的文件只能读不能再写入。</li>
+<li>删除：Bitcask不会直接删除记录，而是新增一条新的记录，将key标记为删除。然后更改索引中的哈希表。</li>
+<li>修改：Bitcask不支持随机写入，因此修改时不是在原记录上直接修改value，而是新增一条记录，value为新值。然后同步修改索引中的哈希表。</li>
+<li>查询：读取时，首先从索引的哈希表中定位到记录的位置，然后通过磁盘IO读取对应的记录。</li>
+<li>合并：Bitcask只增不减的特性，必然会导致数据不断膨胀。Bitcask提供了merge的操作，剔除数据中无用的部分，包括已删除的数据、修改过留下的历史数据。merge只针对非活动文件，因为活动文件目前还在不断的被写入。merge后还会生成一个线索文件，用于重启时加速内存中索引的重建。</li>
+</ul>
 
       
     </div>
@@ -467,6 +502,15 @@
 
     <footer class="post-footer">
       
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/存储引擎/" rel="tag"># 存储引擎</a>
+          
+        </div>
+      
 
       
       
@@ -476,8 +520,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017-02-23-diary/" rel="next" title="2017-02-23">
-                <i class="fa fa-chevron-left"></i> 2017-02-23
+              <a href="/2019-02-15-grafana/" rel="next" title="Grafana 安装">
+                <i class="fa fa-chevron-left"></i> Grafana 安装
               </a>
             
           </div>
@@ -485,10 +529,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017-11-29-guava/" rel="prev" title="Guava使用">
-                Guava使用 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -536,8 +576,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -671,6 +720,23 @@
         </div>
       </div>
 
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#日志型存储"><span class="nav-number">1.</span> <span class="nav-text">日志型存储</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#索引"><span class="nav-number">2.</span> <span class="nav-text">索引</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线索文件"><span class="nav-number">3.</span> <span class="nav-text">线索文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
       
 
       
