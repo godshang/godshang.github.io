@@ -94,20 +94,20 @@
 
 
 
-  <meta name="description" content="解压下载的 Redis 压缩包，执行以下命令完成安装： make PREFIX=/opt/local/redis install PREFIX 参数指定了安装的目录。 Redis 配置创建 /opt/local/redis/conf 目录，将解压出的目录中的 redis.conf 复制到这个目录下。 redis.conf 中的配置项很多，可以先试用默认配置，后面如果有需要再调整。 几个需要配好的配">
-<meta name="keywords" content="Redis">
+  <meta name="description" content="Jedis 简单使用pom 中增加如下依赖： &amp;lt;dependency&amp;gt;    &amp;lt;groupId&amp;gt;redis.clients&amp;lt;/groupId&amp;gt;    &amp;lt;artifactId&amp;gt;jedis&amp;lt;/artifactId&amp;gt;    &amp;lt;version&amp;gt;2.9.0&amp;lt;/version&amp;gt;    &amp;lt;type&amp;gt;jar&amp;lt;/t">
+<meta name="keywords" content="Jedis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Redis 的简单使用">
-<meta property="og:url" content="http://www.shangyan.site/2017-12-13-redis/index.html">
+<meta property="og:title" content="Jedis 的简单源码分析">
+<meta property="og:url" content="http://www.shangyan.site/2017-12-13-jedis/index.html">
 <meta property="og:site_name" content="上元君的博客">
-<meta property="og:description" content="解压下载的 Redis 压缩包，执行以下命令完成安装： make PREFIX=/opt/local/redis install PREFIX 参数指定了安装的目录。 Redis 配置创建 /opt/local/redis/conf 目录，将解压出的目录中的 redis.conf 复制到这个目录下。 redis.conf 中的配置项很多，可以先试用默认配置，后面如果有需要再调整。 几个需要配好的配">
+<meta property="og:description" content="Jedis 简单使用pom 中增加如下依赖： &amp;lt;dependency&amp;gt;    &amp;lt;groupId&amp;gt;redis.clients&amp;lt;/groupId&amp;gt;    &amp;lt;artifactId&amp;gt;jedis&amp;lt;/artifactId&amp;gt;    &amp;lt;version&amp;gt;2.9.0&amp;lt;/version&amp;gt;    &amp;lt;type&amp;gt;jar&amp;lt;/t">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.shangyan.site/img/2017-12-13/1.png">
 <meta property="og:image" content="http://www.shangyan.site/img/2017-12-13/2.png">
-<meta property="og:updated_time" content="2019-07-02T09:13:53.035Z">
+<meta property="og:updated_time" content="2020-04-15T11:28:26.995Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Redis 的简单使用">
-<meta name="twitter:description" content="解压下载的 Redis 压缩包，执行以下命令完成安装： make PREFIX=/opt/local/redis install PREFIX 参数指定了安装的目录。 Redis 配置创建 /opt/local/redis/conf 目录，将解压出的目录中的 redis.conf 复制到这个目录下。 redis.conf 中的配置项很多，可以先试用默认配置，后面如果有需要再调整。 几个需要配好的配">
+<meta name="twitter:title" content="Jedis 的简单源码分析">
+<meta name="twitter:description" content="Jedis 简单使用pom 中增加如下依赖： &amp;lt;dependency&amp;gt;    &amp;lt;groupId&amp;gt;redis.clients&amp;lt;/groupId&amp;gt;    &amp;lt;artifactId&amp;gt;jedis&amp;lt;/artifactId&amp;gt;    &amp;lt;version&amp;gt;2.9.0&amp;lt;/version&amp;gt;    &amp;lt;type&amp;gt;jar&amp;lt;/t">
 <meta name="twitter:image" content="http://www.shangyan.site/img/2017-12-13/1.png">
 
 
@@ -116,7 +116,7 @@
 
   
   
-  <link rel="canonical" href="http://www.shangyan.site/2017-12-13-redis/"/>
+  <link rel="canonical" href="http://www.shangyan.site/2017-12-13-jedis/"/>
 
 
 
@@ -126,7 +126,7 @@
   };
 </script>
 
-  <title>Redis 的简单使用 | 上元君的博客</title>
+  <title>Jedis 的简单源码分析 | 上元君的博客</title>
   
 
 
@@ -341,7 +341,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2017-12-13-redis/"/>
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2017-12-13-jedis/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="alan"/>
@@ -358,7 +358,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Redis 的简单使用
+          <h1 class="post-title" itemprop="name headline">Jedis 的简单源码分析
 
               
             
@@ -417,8 +417,8 @@
                 </span>
             
                 <span class="post-meta-item-text">评论数：</span>
-                <a href="/2017-12-13-redis/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count valine-comment-count" data-xid="/2017-12-13-redis/" itemprop="commentCount"></span>
+                <a href="/2017-12-13-jedis/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2017-12-13-jedis/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -449,25 +449,7 @@
       
 
       
-        <p>解压下载的 Redis 压缩包，执行以下命令完成安装：</p>
-<figure class="highlight gauss"><table><tr><td class="code"><pre><span class="line"><span class="built_in">make</span> PREFIX=/opt/<span class="keyword">local</span>/redis install</span><br></pre></td></tr></table></figure>
-<p>PREFIX 参数指定了安装的目录。</p>
-<h2 id="Redis-配置"><a href="#Redis-配置" class="headerlink" title="Redis 配置"></a>Redis 配置</h2><p>创建 /opt/local/redis/conf 目录，将解压出的目录中的 redis.conf 复制到这个目录下。</p>
-<p>redis.conf 中的配置项很多，可以先试用默认配置，后面如果有需要再调整。</p>
-<p>几个需要配好的配置项：</p>
-<ul>
-<li>daemonize： 设置为 yes，以后端模式启动</li>
-<li>pidfile： 设置为 /opt/local/redis/var/redis_6379.pid</li>
-<li>logfile： 设置为 /opt/logs/redis/redis.log</li>
-<li>bind： 默认为 127.0.0.1，只允许从本地访问，改为 127.0.0.1 10.138.21.177 10.148.21.177</li>
-</ul>
-<h2 id="Redis-启动"><a href="#Redis-启动" class="headerlink" title="Redis 启动"></a>Redis 启动</h2><p>执行如下命令启动 Reids</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"><span class="regexp">/opt/</span>local<span class="regexp">/redis/</span>bin<span class="regexp">/redis-server /</span>opt<span class="regexp">/local/</span>redis<span class="regexp">/conf/</span>redis.conf</span><br></pre></td></tr></table></figure>
-<p>连接 Redis</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line"><span class="regexp">/opt/</span>local<span class="regexp">/redis/</span>bin<span class="regexp">/redis-cli</span></span><br></pre></td></tr></table></figure>
-<h2 id="Redis-关闭"><a href="#Redis-关闭" class="headerlink" title="Redis 关闭"></a>Redis 关闭</h2><p>强行终止redis进程可能会导致redis持久化数据丢失。正确停止Redis的方式应该是向Redis发送SHUTDOWN命令，命令为：</p>
-<figure class="highlight jboss-cli"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cd</span> <span class="string">/opt/local/redis</span></span><br><span class="line"><span class="string">./bin/redis-cli</span> <span class="keyword">shutdown</span></span><br></pre></td></tr></table></figure>
-<h2 id="Jedis-简单使用"><a href="#Jedis-简单使用" class="headerlink" title="Jedis 简单使用"></a>Jedis 简单使用</h2><p>pom 中增加如下依赖：</p>
+        <h2 id="Jedis-简单使用"><a href="#Jedis-简单使用" class="headerlink" title="Jedis 简单使用"></a>Jedis 简单使用</h2><p>pom 中增加如下依赖：</p>
 <figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>redis.clients<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jedis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">type</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>compile<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>简单使用：</p>
 <figure class="highlight haxe"><table><tr><td class="code"><pre><span class="line">Jedis jedis = <span class="keyword">new</span> <span class="type">Jedis</span>(<span class="string">"10.148.21.177"</span>, <span class="number">6379</span>);</span><br><span class="line">jedis.<span class="keyword">set</span>(<span class="string">"hello"</span>, <span class="string">"world"</span>);</span><br><span class="line"><span class="keyword">String</span> value = jedis.<span class="keyword">get</span>(<span class="string">"hello"</span>);</span><br></pre></td></tr></table></figure>
@@ -578,7 +560,7 @@
         
         <div class="post-tags">
           
-            <a href="/tags/Redis/" rel="tag"># Redis</a>
+            <a href="/tags/Jedis/" rel="tag"># Jedis</a>
           
         </div>
       
@@ -676,7 +658,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">85</span>
+                    <span class="site-state-item-count">76</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -766,9 +748,7 @@
                     
                       
                     
-                      
-                    
-                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-count">25</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -806,7 +786,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis-配置"><span class="nav-number">1.</span> <span class="nav-text">Redis 配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis-启动"><span class="nav-number">2.</span> <span class="nav-text">Redis 启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis-关闭"><span class="nav-number">3.</span> <span class="nav-text">Redis 关闭</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jedis-简单使用"><span class="nav-number">4.</span> <span class="nav-text">Jedis 简单使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jedis-的简单源码分析"><span class="nav-number">5.</span> <span class="nav-text">Jedis 的简单源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JedisPool-的使用与实现"><span class="nav-number">6.</span> <span class="nav-text">JedisPool 的使用与实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jedis-的分片"><span class="nav-number">7.</span> <span class="nav-text">Jedis 的分片</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Jedis-简单使用"><span class="nav-number">1.</span> <span class="nav-text">Jedis 简单使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jedis-的简单源码分析"><span class="nav-number">2.</span> <span class="nav-text">Jedis 的简单源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JedisPool-的使用与实现"><span class="nav-number">3.</span> <span class="nav-text">JedisPool 的使用与实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jedis-的分片"><span class="nav-number">4.</span> <span class="nav-text">Jedis 的分片</span></a></li></ol></div>
             
 
           </div>
