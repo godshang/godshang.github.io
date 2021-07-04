@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="数据分析中难免要从多个数据源中提取数据并进行关联，这在数据库中通过表之间的联接即可实现，而大多数的数据库会自动的提供对联接的处理。不过在Hadoop中数据的联接比较复杂，可以有Reduce侧联接、Map侧联接等多种方式。这里介绍一种直接通过MapReduce程序，手动的控制数据的联接。 数据来源 数据来源于《Hadoop实战》一书中的5.2节，使用一对极小的数据集。一个以逗号分隔的Customer">
+<meta name="keywords" content="Hadoop">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop中数据文件的Join">
+<meta property="og:url" content="http://www.shangyan.site/2012-08-15-hadoop-join/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="数据分析中难免要从多个数据源中提取数据并进行关联，这在数据库中通过表之间的联接即可实现，而大多数的数据库会自动的提供对联接的处理。不过在Hadoop中数据的联接比较复杂，可以有Reduce侧联接、Map侧联接等多种方式。这里介绍一种直接通过MapReduce程序，手动的控制数据的联接。 数据来源 数据来源于《Hadoop实战》一书中的5.2节，使用一对极小的数据集。一个以逗号分隔的Customer">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-10-29T10:31:15.229Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hadoop中数据文件的Join">
+<meta name="twitter:description" content="数据分析中难免要从多个数据源中提取数据并进行关联，这在数据库中通过表之间的联接即可实现，而大多数的数据库会自动的提供对联接的处理。不过在Hadoop中数据的联接比较复杂，可以有Reduce侧联接、Map侧联接等多种方式。这里介绍一种直接通过MapReduce程序，手动的控制数据的联接。 数据来源 数据来源于《Hadoop实战》一书中的5.2节，使用一对极小的数据集。一个以逗号分隔的Customer">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.shangyan.site/2012-08-15-hadoop-join/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Hadoop中数据文件的Join | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">上元君的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静听星空夜语 淡看物是人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2012-08-15-hadoop-join/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="alan"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Hadoop中数据文件的Join
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2012-08-15 00:00:00" itemprop="dateCreated datePublished" datetime="2012-08-15T00:00:00+08:00">2012-08-15</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2012-08-15-hadoop-join/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2012-08-15-hadoop-join/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          <br/>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>数据分析中难免要从多个数据源中提取数据并进行关联，这在数据库中通过表之间的联接即可实现，而大多数的数据库会自动的提<br>供对联接的处理。不过在Hadoop中数据的联接比较复杂，可以有Reduce侧联接、Map侧联接等多种方式。这里介绍一种直接通过MapReduce程序，手动的控制数据的联接。</p>
+<p>数据来源</p>
+<p>数据来源于《Hadoop实战》一书中的5.2节，使用一对极小的数据集。一个以逗号分隔的Customers文件，包含3个域：CustomerID、Name和Phone Number。文件内容为：</p>
+<figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line"><span class="number">1</span>,Stephanie Leung,<span class="number">555</span><span class="number">-555</span><span class="number">-5555</span></span><br><span class="line"><span class="number">2</span>,Edward Kim,<span class="number">123</span><span class="number">-456</span><span class="number">-7890</span></span><br><span class="line"><span class="number">3</span>,Jose Madriz,<span class="number">281</span><span class="number">-330</span><span class="number">-8004</span></span><br><span class="line"><span class="number">4</span>,David Stork,<span class="number">408</span><span class="number">-555</span><span class="number">-0000</span></span><br></pre></td></tr></table></figure>
+<p>另一个文件Orders中存储顾客的订单，有4个域：CustomerID、OrderID、Price和Purchase Date。文件内容为：</p>
+<figure class="highlight lsl"><table><tr><td class="code"><pre><span class="line"><span class="number">3</span>,A,<span class="number">12.95</span>,<span class="number">02</span>-Jun<span class="number">-2008</span></span><br><span class="line"><span class="number">1</span>,B,<span class="number">88.25</span>,<span class="number">20</span>-May<span class="number">-2008</span></span><br><span class="line"><span class="number">2</span>,C,<span class="number">32.00</span>,<span class="number">30</span>-Nov<span class="number">-2007</span></span><br><span class="line"><span class="number">3</span>,D,<span class="number">25.02</span>,<span class="number">22</span>-Jan<span class="number">-2009</span></span><br></pre></td></tr></table></figure>
+<p>处理Join的思路</p>
+<p>将Join key当作map的输出key, 也就是reduce的输入key, 这样只要join的key相同，shuffle过后，就会进入到同一个reduce 的key – value list 中去。需要为join的2张表设计一个通用的一个bean.  并且bean中加一个flag的标志属性，这样可以根据flag来区分是哪张表的数据。reduce 阶段根据flag来判断是Customers表还是Orders表就很容易了 。而join的真正处理是在reduce阶段。</p>
+<p>代码</p>
+<p>存储数据的Bean：CustOrder</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustOrder</span> <span class="title">implements</span> <span class="title">WritableComparable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String customerId;</span><br><span class="line">    <span class="keyword">private</span> String customerName;</span><br><span class="line">    <span class="keyword">private</span> String orderId;</span><br><span class="line">    <span class="keyword">private</span> String orderPrice;</span><br><span class="line">    <span class="keyword">private</span> String purchaseDate;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> int flag = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> CustOrder() &#123;</span><br><span class="line">        <span class="keyword">super</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> CustOrder(CustOrder obj) &#123;</span><br><span class="line">        <span class="keyword">this</span>.customerId = obj.customerId;</span><br><span class="line">        <span class="keyword">this</span>.customerName = obj.customerName;</span><br><span class="line">        <span class="keyword">this</span>.orderId = obj.orderId;</span><br><span class="line">        <span class="keyword">this</span>.orderPrice = obj.orderPrice;</span><br><span class="line">        <span class="keyword">this</span>.purchaseDate = obj.purchaseDate;</span><br><span class="line">        <span class="keyword">this</span>.flag = obj.flag;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> void readFields(DataInput <span class="keyword">in</span>) throws IOException &#123;</span><br><span class="line">        <span class="keyword">this</span>.customerId = <span class="keyword">in</span>.readUTF();</span><br><span class="line">        <span class="keyword">this</span>.customerName = <span class="keyword">in</span>.readUTF();</span><br><span class="line">        <span class="keyword">this</span>.orderId = <span class="keyword">in</span>.readUTF();</span><br><span class="line">        <span class="keyword">this</span>.orderPrice = <span class="keyword">in</span>.readUTF();</span><br><span class="line">        <span class="keyword">this</span>.purchaseDate = <span class="keyword">in</span>.readUTF();</span><br><span class="line">        <span class="keyword">this</span>.flag = <span class="keyword">in</span>.readInt();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> void write(DataOutput <span class="keyword">out</span>) throws IOException &#123;</span><br><span class="line">        <span class="keyword">out</span>.writeUTF(<span class="keyword">this</span>.customerId);</span><br><span class="line">        <span class="keyword">out</span>.writeUTF(<span class="keyword">this</span>.customerName);</span><br><span class="line">        <span class="keyword">out</span>.writeUTF(<span class="keyword">this</span>.orderId);</span><br><span class="line">        <span class="keyword">out</span>.writeUTF(<span class="keyword">this</span>.orderPrice);</span><br><span class="line">        <span class="keyword">out</span>.writeUTF(<span class="keyword">this</span>.purchaseDate);</span><br><span class="line">        <span class="keyword">out</span>.writeInt(<span class="keyword">this</span>.flag);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> int compareTo(Object o) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String getCustomerId() &#123;</span><br><span class="line">        <span class="keyword">return</span> customerId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> void setCustomerId(String customerId) &#123;</span><br><span class="line">        <span class="keyword">this</span>.customerId = customerId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String getCustomerName() &#123;</span><br><span class="line">        <span class="keyword">return</span> customerName;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> void setCustomerName(String customerName) &#123;</span><br><span class="line">        <span class="keyword">this</span>.customerName = customerName;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String getOrderId() &#123;</span><br><span class="line">        <span class="keyword">return</span> orderId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> void setOrderId(String orderId) &#123;</span><br><span class="line">        <span class="keyword">this</span>.orderId = orderId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String getOrderPrice() &#123;</span><br><span class="line">        <span class="keyword">return</span> orderPrice;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> void setOrderPrice(String orderPrice) &#123;</span><br><span class="line">        <span class="keyword">this</span>.orderPrice = orderPrice;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String getPurchaseDate() &#123;</span><br><span class="line">        <span class="keyword">return</span> purchaseDate;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> void setPurchaseDate(String purchaseDate) &#123;</span><br><span class="line">        <span class="keyword">this</span>.purchaseDate = purchaseDate;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> int getFlag() &#123;</span><br><span class="line">        <span class="keyword">return</span> flag;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> void setFlag(int flag) &#123;</span><br><span class="line">        <span class="keyword">this</span>.flag = flag;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String toString() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.customerId + <span class="string">","</span> + <span class="keyword">this</span>.customerName + <span class="string">","</span> + <span class="keyword">this</span>.orderId + <span class="string">","</span> + <span class="keyword">this</span>.orderPrice + <span class="string">","</span></span><br><span class="line">                + <span class="keyword">this</span>.purchaseDate;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Mapper</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapClass</span> <span class="title">extends</span> <span class="title">MapReduceBase</span> <span class="title">implements</span> <span class="title">Mapper</span>&lt;LongWritable, Text, Text, CustOrder&gt; &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Text keyText = <span class="keyword">new</span> Text();</span><br><span class="line">    CustOrder obj = <span class="keyword">new</span> CustOrder();</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">map</span><span class="params">(LongWritable key, Text value, OutputCollector&lt;Text, CustOrder&gt; output, Reporter reporter)</span></span></span><br><span class="line"><span class="function">            throws IOException </span>&#123;</span><br><span class="line">        String line = value.toString();</span><br><span class="line">        String[] <span class="built_in">array</span> = line.split(<span class="string">","</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">array</span>.length == <span class="number">3</span>) &#123;</span><br><span class="line">            <span class="comment">// Customer</span></span><br><span class="line">            obj.setCustomerId(<span class="built_in">array</span>[<span class="number">0</span>]);</span><br><span class="line">            obj.setCustomerName(<span class="built_in">array</span>[<span class="number">1</span>]);</span><br><span class="line">            obj.setOrderId(<span class="string">""</span>);</span><br><span class="line">            obj.setOrderPrice(<span class="string">""</span>);</span><br><span class="line">            obj.setPurchaseDate(<span class="string">""</span>);</span><br><span class="line">            obj.setFlag(<span class="number">1</span>);</span><br><span class="line">            keyText.<span class="built_in">set</span>(obj.getCustomerId());</span><br><span class="line">            output.collect(keyText, obj);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">array</span>.length == <span class="number">4</span>) &#123;</span><br><span class="line">            <span class="comment">// Order</span></span><br><span class="line">            obj.setCustomerId(<span class="built_in">array</span>[<span class="number">0</span>]);</span><br><span class="line">            obj.setCustomerName(<span class="string">""</span>);</span><br><span class="line">            obj.setOrderId(<span class="built_in">array</span>[<span class="number">1</span>]);</span><br><span class="line">            obj.setOrderPrice(<span class="built_in">array</span>[<span class="number">2</span>]);</span><br><span class="line">            obj.setPurchaseDate(<span class="built_in">array</span>[<span class="number">3</span>]);</span><br><span class="line">            obj.setFlag(<span class="number">2</span>);</span><br><span class="line">            keyText.<span class="built_in">set</span>(obj.getCustomerId());</span><br><span class="line">            output.collect(keyText, obj);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Reduce</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">Reduce</span> <span class="keyword">extends</span> <span class="title">MapReduceBase</span> <span class="title">implements</span> <span class="title">Reducer&lt;Text</span>, <span class="title">CustOrder</span>, <span class="title">Text</span>, <span class="title">CustOrder&gt;</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">CustOrder</span> custOrder = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">List</span>&lt;<span class="type">CustOrder</span>&gt; list = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;<span class="type">CustOrder</span>&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    public void reduce(<span class="type">Text</span> key, <span class="type">Iterator</span>&lt;<span class="type">CustOrder</span>&gt; values, <span class="type">OutputCollector</span>&lt;<span class="type">Text</span>, <span class="type">CustOrder</span>&gt; output, <span class="type">Reporter</span> reporter)</span><br><span class="line">            <span class="keyword">throws</span> <span class="type">IOException</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (values.hasNext()) &#123;</span><br><span class="line">            <span class="type">CustOrder</span> obj = values.next();</span><br><span class="line">            <span class="keyword">if</span> (obj.getFlag() == <span class="number">1</span>) &#123;</span><br><span class="line">                <span class="comment">// Customer</span></span><br><span class="line">                custOrder = <span class="keyword">new</span> <span class="type">CustOrder</span>(obj);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (obj.getFlag() == <span class="number">2</span>) &#123;</span><br><span class="line">                <span class="comment">// Order</span></span><br><span class="line">                <span class="type">CustOrder</span> tmp = <span class="keyword">new</span> <span class="type">CustOrder</span>(obj);</span><br><span class="line">                list.add(tmp);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (int i = <span class="number">0</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">            <span class="type">CustOrder</span> c = list.get(i);</span><br><span class="line">            c.setCustomerName(custOrder.getCustomerName());</span><br><span class="line">            output.collect(key, c);</span><br><span class="line">        &#125;</span><br><span class="line">        list.clear();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>驱动</p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">public <span class="keyword">class</span> DemoDriver &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] <span class="keyword">args</span>) throws IOException &#123;</span><br><span class="line">        JobConf <span class="keyword">conf</span> = new JobConf(DemoDriver.<span class="keyword">class</span>);</span><br><span class="line">        <span class="keyword">conf</span>.setJobName(<span class="string">"JoinDemo"</span>);</span><br><span class="line">        FileInputFormat.addInputPath(<span class="keyword">conf</span>, new Path(<span class="keyword">args</span>[0]));</span><br><span class="line">        FileOutputFormat.setOutputPath(<span class="keyword">conf</span>, new Path(<span class="keyword">args</span>[1]));</span><br><span class="line">        <span class="keyword">conf</span>.setMapperClass(MapClass.<span class="keyword">class</span>);</span><br><span class="line">        <span class="keyword">conf</span>.setReducerClass(Reduce.<span class="keyword">class</span>);</span><br><span class="line">        <span class="keyword">conf</span>.setMapOutputKeyClass(Text.<span class="keyword">class</span>);</span><br><span class="line">        <span class="keyword">conf</span>.setMapOutputValueClass(CustOrder.<span class="keyword">class</span>);</span><br><span class="line">        <span class="keyword">conf</span>.setOutputKeyClass(Text.<span class="keyword">class</span>);</span><br><span class="line">        <span class="keyword">conf</span>.setOutputValueClass(CustOrder.<span class="keyword">class</span>);</span><br><span class="line">        JobClient.runJob(<span class="keyword">conf</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果</p>
+<figure class="highlight basic"><table><tr><td class="code"><pre><span class="line"><span class="symbol">1 </span>   <span class="number">1</span>,Stephanie Leung,B,<span class="number">88.25</span>,<span class="number">20</span>-May-<span class="number">2008</span></span><br><span class="line"><span class="symbol">2 </span>   <span class="number">2</span>,Edward Kim,C,<span class="number">32.00</span>,<span class="number">30</span>-Nov-<span class="number">2007</span></span><br><span class="line"><span class="symbol">3 </span>   <span class="number">3</span>,Jose Madriz,A,<span class="number">12.95</span>,<span class="number">02</span>-Jun-<span class="number">2008</span></span><br><span class="line"><span class="symbol">3 </span>   <span class="number">3</span>,Jose Madriz,D,<span class="number">25.02</span>,<span class="number">22</span>-Jan-<span class="number">2009</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Hadoop/" rel="tag"># Hadoop</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012-07-15-movie-search/" rel="next" title="电影《搜索》">
+                <i class="fa fa-chevron-left"></i> 电影《搜索》
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013-04-01-seajs-note/" rel="prev" title="SeaJS学习笔记">
+                SeaJS学习笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">alan</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">79</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.2.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'nxDDgUe9qKbdtOAROkPiYqbv',
+    appKey: 'fdXWsYyfGRM0IzAVMQgi5ukJ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Kafka提供了单节点的伪分布式集群部署方案，在个人开发和测试的场景下使用会比较方便。单节点的伪分布式环境由一个Kafka实例和一个ZooKeeper实例构成，可以在一台服务器上启动多个进程。 Java 安装不管是Kafka还是ZooKeeper，都需要首先安装Java，这个比较简单就不多言了。 ZooKeeper 安装首先下载3.5.7版本的ZooKeeper，之所以选择3.5.7版本，是因为计">
+<meta name="keywords" content="Apache Kafka">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Kafka 单节点环境部署">
+<meta property="og:url" content="http://www.shangyan.site/2020-07-10-kafka/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="Kafka提供了单节点的伪分布式集群部署方案，在个人开发和测试的场景下使用会比较方便。单节点的伪分布式环境由一个Kafka实例和一个ZooKeeper实例构成，可以在一台服务器上启动多个进程。 Java 安装不管是Kafka还是ZooKeeper，都需要首先安装Java，这个比较简单就不多言了。 ZooKeeper 安装首先下载3.5.7版本的ZooKeeper，之所以选择3.5.7版本，是因为计">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-07-10T09:49:42.606Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Apache Kafka 单节点环境部署">
+<meta name="twitter:description" content="Kafka提供了单节点的伪分布式集群部署方案，在个人开发和测试的场景下使用会比较方便。单节点的伪分布式环境由一个Kafka实例和一个ZooKeeper实例构成，可以在一台服务器上启动多个进程。 Java 安装不管是Kafka还是ZooKeeper，都需要首先安装Java，这个比较简单就不多言了。 ZooKeeper 安装首先下载3.5.7版本的ZooKeeper，之所以选择3.5.7版本，是因为计">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.shangyan.site/2020-07-10-kafka/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Apache Kafka 单节点环境部署 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">上元君的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静听星空夜语 淡看物是人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2020-07-10-kafka/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="alan"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Apache Kafka 单节点环境部署
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-07-10 00:00:00" itemprop="dateCreated datePublished" datetime="2020-07-10T00:00:00+08:00">2020-07-10</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2020-07-10-kafka/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2020-07-10-kafka/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          <br/>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Kafka提供了单节点的伪分布式集群部署方案，在个人开发和测试的场景下使用会比较方便。单节点的伪分布式环境由一个Kafka实例和一个ZooKeeper实例构成，可以在一台服务器上启动多个进程。</p>
+<h2 id="Java-安装"><a href="#Java-安装" class="headerlink" title="Java 安装"></a>Java 安装</h2><p>不管是Kafka还是ZooKeeper，都需要首先安装Java，这个比较简单就不多言了。</p>
+<h2 id="ZooKeeper-安装"><a href="#ZooKeeper-安装" class="headerlink" title="ZooKeeper 安装"></a>ZooKeeper 安装</h2><p>首先下载3.5.7版本的ZooKeeper，之所以选择3.5.7版本，是因为计划用最新版本的2.5.0版本的Kafka，这个版本的Kafka使用的ZooKeeper是3.5.7.</p>
+<p>下载并解压后就可以使用了，不需要额外安装。</p>
+<p>首先修改配置文件，ZooKeeper默认提供了一个配置的样例文件，位于<code>$ZOOKEEPER_HOME%/conf/zoo_sample.cfg</code>，我们先复制出来一个并改名为<code>zoo.cfg</code>。</p>
+<p>配置文件默认的内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> The number of milliseconds of each tick</span></span><br><span class="line">tickTime=2000</span><br><span class="line"><span class="meta">#</span><span class="bash"> The number of ticks that the initial</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> synchronization phase can take</span></span><br><span class="line">initLimit=10</span><br><span class="line"><span class="meta">#</span><span class="bash"> The number of ticks that can pass between</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> sending a request and getting an acknowledgement</span></span><br><span class="line">syncLimit=5</span><br><span class="line"><span class="meta">#</span><span class="bash"> the directory <span class="built_in">where</span> the snapshot is stored.</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="keyword">do</span> not use /tmp <span class="keyword">for</span> storage, /tmp here is just</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> example sakes.</span></span><br><span class="line">dataDir=/tmp/zookeeper</span><br><span class="line"><span class="meta">#</span><span class="bash"> the port at <span class="built_in">which</span> the clients will connect</span></span><br><span class="line">clientPort=2181</span><br><span class="line"><span class="meta">#</span><span class="bash"> the maximum number of client connections.</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> increase this <span class="keyword">if</span> you need to handle more clients</span></span><br><span class="line"><span class="meta">#</span><span class="bash">maxClientCnxns=60</span></span><br><span class="line"><span class="meta">#</span><span class="bash"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Be sure to <span class="built_in">read</span> the maintenance section of the</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> administrator guide before turning on autopurge.</span></span><br><span class="line"><span class="meta">#</span><span class="bash"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> http://zookeeper.apache.org/doc/current/zookeeperAdmin.html<span class="comment">#sc_maintenance</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> The number of snapshots to retain <span class="keyword">in</span> dataDir</span></span><br><span class="line"><span class="meta">#</span><span class="bash">autopurge.snapRetainCount=3</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Purge task interval <span class="keyword">in</span> hours</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Set to <span class="string">"0"</span> to <span class="built_in">disable</span> auto purge feature</span></span><br><span class="line"><span class="meta">#</span><span class="bash">autopurge.purgeInterval=1</span></span><br></pre></td></tr></table></figure>
+<p>我们先修改<code>dataDir</code>这个参数，其他参数先保持不变。<code>dataDir</code>参数设置的是ZooKeeper的数据在磁盘上保存的位置，如果在临时目录下，可能会丢失。</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="attr">dataDir</span>=/tmp/zookeeper</span><br></pre></td></tr></table></figure>
+<p>之后启动ZooKeeper服务：</p>
+<figure class="highlight stylus"><table><tr><td class="code"><pre><span class="line">bin/zkServer<span class="selector-class">.sh</span> start</span><br></pre></td></tr></table></figure>
+<p>输出以下内容的话，表示启动成功：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">/usr/bin/java</span><br><span class="line">ZooKeeper JMX enabled by default</span><br><span class="line">Using config: /data/local/apache-zookeeper-3.5.7-bin/bin/<span class="built_in">..</span>/conf/zoo.cfg</span><br><span class="line">Starting zookeeper <span class="built_in">..</span>. STARTED</span><br></pre></td></tr></table></figure>
+<p>我们可以使用ZooKeeper提供的一个命令行客户端连接到ZooKeeper服务：</p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">bin/zkCli.<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
+<p>之后便可以使用客户端命令来查看ZooKeeper中的数据，以下省略了开头的一部分日志：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line">2020-07-10 17:23:37,190 [myid:] - <span class="builtin-name">INFO</span>  [main:X509Util@79] - Setting -D jdk.tls.<span class="attribute">rejectClientInitiatedRenegotiation</span>=<span class="literal">true</span> <span class="keyword">to</span> <span class="builtin-name">disable</span> client-initiated TLS renegotiation</span><br><span class="line">2020-07-10 17:23:37,199 [myid:] - <span class="builtin-name">INFO</span>  [main:ClientCnxnSocket@237] - jute.maxbuffer value is 4194304 Bytes</span><br><span class="line">2020-07-10 17:23:37,208 [myid:] - <span class="builtin-name">INFO</span>  [main:ClientCnxn@1653] - zookeeper.request.timeout value is 0. feature enabled=</span><br><span class="line">Welcome <span class="keyword">to</span> ZooKeeper!</span><br><span class="line">2020-07-10 17:23:37,215 [myid:localhost:2181] - <span class="builtin-name">INFO</span>  [main-SendThread(localhost:2181):ClientCnxn<span class="variable">$SendThread</span>@1112] - Opening socket<span class="built_in"> connection </span><span class="keyword">to</span><span class="built_in"> server </span>localhost/127.0.0.1:2181. Will <span class="keyword">not</span> attempt <span class="keyword">to</span> authenticate using SASL (unknown error)</span><br><span class="line">JLine support is enabled</span><br><span class="line">2020-07-10 17:23:37,294 [myid:localhost:2181] - <span class="builtin-name">INFO</span>  [main-SendThread(localhost:2181):ClientCnxn<span class="variable">$SendThread</span>@959] - Socket<span class="built_in"> connection </span>established, initiating session, client: /127.0.0.1:59977, server: localhost/127.0.0.1:2181</span><br><span class="line">[zk: localhost:2181(CONNECTING) 0] 2020-07-10 17:23:37,335 [myid:localhost:2181] - <span class="builtin-name">INFO</span>  [main-SendThread(localhost:2181):ClientCnxn<span class="variable">$SendThread</span>@1394] - Session establishment complete on<span class="built_in"> server </span>localhost/127.0.0.1:2181, sessionid = 0x1048ba2debb0000, negotiated timeout = 30000</span><br><span class="line"></span><br><span class="line">WATCHER::</span><br><span class="line"></span><br><span class="line">WatchedEvent state:SyncConnected type:None path:null</span><br><span class="line"></span><br><span class="line">[zk: localhost:2181(CONNECTED) 0] ls /</span><br><span class="line">[zookeeper]</span><br></pre></td></tr></table></figure>
+<h2 id="Kafka-安装"><a href="#Kafka-安装" class="headerlink" title="Kafka 安装"></a>Kafka 安装</h2><p>下载最新2.5.0版本的Kafka并解压即可。</p>
+<p>在<code>%KAFKA_HOME%/config</code>目录下同样提供了默认的配置文件供参考，我们先从<code>server.properties</code>复制出一个<code>server.properties.bak</code>作为备份，之后再修改<code>server.properties</code>。</p>
+<p>同ZooKeeper一样，我们先修改Kafka的<code>log.dirs</code>配置，把原来的临时目录指定到一个其他目录上，其他配置先保持不变。在默认的配置中，zookeeper使用的就是localhosts上的ZooKeeper服务。</p>
+<figure class="highlight fortran"><table><tr><td class="code"><pre><span class="line"><span class="built_in">log</span>.dirs=/<span class="keyword">data</span>/kafka-logs</span><br></pre></td></tr></table></figure>
+<p>然后启动Kafka服务：</p>
+<figure class="highlight axapta"><table><tr><td class="code"><pre><span class="line">bin/kafka-<span class="keyword">server</span>-start.sh config/<span class="keyword">server</span>.properties</span><br></pre></td></tr></table></figure>
+<p>如果要在后台启动Kafka服务，需要增加<code>-daemon</code>参数：</p>
+<figure class="highlight axapta"><table><tr><td class="code"><pre><span class="line">bin/kafka-<span class="keyword">server</span>-start.sh -daemon config/<span class="keyword">server</span>.properties</span><br></pre></td></tr></table></figure>
+<p>我们可以在<code>%KAFKA_HOME/log/server.log%</code>日志中查看服务的启动情况。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Apache-Kafka/" rel="tag"># Apache Kafka</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020-04-17-lsm/" rel="next" title="LSM 存储引擎">
+                <i class="fa fa-chevron-left"></i> LSM 存储引擎
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020-07-23-kafka-basic/" rel="prev" title="Apache Kafka 概念解析">
+                Apache Kafka 概念解析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">alan</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">79</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-安装"><span class="nav-number">1.</span> <span class="nav-text">Java 安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ZooKeeper-安装"><span class="nav-number">2.</span> <span class="nav-text">ZooKeeper 安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kafka-安装"><span class="nav-number">3.</span> <span class="nav-text">Kafka 安装</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.2.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'nxDDgUe9qKbdtOAROkPiYqbv',
+    appKey: 'fdXWsYyfGRM0IzAVMQgi5ukJ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

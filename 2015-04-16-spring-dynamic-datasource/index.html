@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="数据库的读写分离是最基本的扩展方式和优化手段。数据库以主从方式工作，当有写操作的时候写入主库，读操作则从从库读取。这样就涉及了多数据源的切换问题。在Spring中提供了一些声明式的方法，实现了动态数据源的切换。 首先，在Spring的配置文件中声明多个数据源： &amp;lt;!-- galaxy db--&amp;gt;&amp;lt;bean id=&quot;ds_galaxy_master&quot; class=&quot;com.mcha">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring动态数据源切换实现读写分离">
+<meta property="og:url" content="http://www.shangyan.site/2015-04-16-spring-dynamic-datasource/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="数据库的读写分离是最基本的扩展方式和优化手段。数据库以主从方式工作，当有写操作的时候写入主库，读操作则从从库读取。这样就涉及了多数据源的切换问题。在Spring中提供了一些声明式的方法，实现了动态数据源的切换。 首先，在Spring的配置文件中声明多个数据源： &amp;lt;!-- galaxy db--&amp;gt;&amp;lt;bean id=&quot;ds_galaxy_master&quot; class=&quot;com.mcha">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-10-29T10:33:16.703Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring动态数据源切换实现读写分离">
+<meta name="twitter:description" content="数据库的读写分离是最基本的扩展方式和优化手段。数据库以主从方式工作，当有写操作的时候写入主库，读操作则从从库读取。这样就涉及了多数据源的切换问题。在Spring中提供了一些声明式的方法，实现了动态数据源的切换。 首先，在Spring的配置文件中声明多个数据源： &amp;lt;!-- galaxy db--&amp;gt;&amp;lt;bean id=&quot;ds_galaxy_master&quot; class=&quot;com.mcha">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.shangyan.site/2015-04-16-spring-dynamic-datasource/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Spring动态数据源切换实现读写分离 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">上元君的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">静听星空夜语 淡看物是人非</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br/>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2015-04-16-spring-dynamic-datasource/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="alan"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spring动态数据源切换实现读写分离
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2015-04-16 00:00:00" itemprop="dateCreated datePublished" datetime="2015-04-16T00:00:00+08:00">2015-04-16</time>
+            </span>
+          
+
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2015-04-16-spring-dynamic-datasource/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2015-04-16-spring-dynamic-datasource/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          <br/>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>数据库的读写分离是最基本的扩展方式和优化手段。数据库以主从方式工作，当有写操作的时候写入主库，读操作则从从库读取。这样就涉及了多数据源的切换问题。在Spring中提供了一些声明式的方法，实现了动态数据源的切换。</p>
+<p>首先，在Spring的配置文件中声明多个数据源：</p>
+<figure class="highlight dust"><table><tr><td class="code"><pre><span class="line"><span class="xml"><span class="comment">&lt;!-- galaxy db--&gt;</span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"ds_galaxy_master"</span> <span class="attr">class</span>=<span class="string">"com.mchange.v2.c3p0.ComboPooledDataSource"</span></span></span></span><br><span class="line"><span class="xml">    destroy-method="close"&gt;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driverClass"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>com.mysql.jdbc.Driver<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"jdbcUrl"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>$</span><span class="template-variable">&#123;jdbcUrl.galaxy.master&#125;</span><span class="xml"><span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"user"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>$</span><span class="template-variable">&#123;username.galaxy.master&#125;</span><span class="xml"><span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>$</span><span class="template-variable">&#123;password.galaxy.master&#125;</span><span class="xml"><span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxPoolSize"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>100<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"minPoolSize"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>10<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"idleConnectionTestPeriod"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>300<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxIdleTime"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>600<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"ds_galaxy_slave"</span> <span class="attr">class</span>=<span class="string">"com.mchange.v2.c3p0.ComboPooledDataSource"</span></span></span></span><br><span class="line"><span class="xml">    destroy-method="close"&gt;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driverClass"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>com.mysql.jdbc.Driver<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"jdbcUrl"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>$</span><span class="template-variable">&#123;jdbcUrl.galaxy.slave&#125;</span><span class="xml"><span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"user"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>$</span><span class="template-variable">&#123;username.galaxy.slave&#125;</span><span class="xml"><span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>$</span><span class="template-variable">&#123;password.galaxy.slave&#125;</span><span class="xml"><span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxPoolSize"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>100<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"minPoolSize"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>10<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"idleConnectionTestPeriod"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>300<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxIdleTime"</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>600<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span></span><br><span class="line"><span class="xml"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>接下来，我们声明一个动态数据源，这个动态数据源的targetDataSources属性，需要引用前面声明的两个数据源，并配置默认的数据源：</p>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">&lt;bean <span class="built_in">id</span>=<span class="string">"dynamicDs_galaxy"</span> <span class="built_in">class</span>=<span class="string">"com.sogou.earth.api.common.db.DynamicDataSource"</span>&gt;</span><br><span class="line">    &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"targetDataSources"</span>&gt;</span><br><span class="line">        &lt;map key-type=<span class="string">"java.lang.String"</span>&gt;</span><br><span class="line">            &lt;entry key=<span class="string">"master"</span> value-<span class="keyword">ref</span>=<span class="string">"ds_galaxy_master"</span> /&gt;</span><br><span class="line">            &lt;entry key=<span class="string">"slave"</span> value-<span class="keyword">ref</span>=<span class="string">"ds_galaxy_slave"</span> /&gt;</span><br><span class="line">        &lt;/map&gt;</span><br><span class="line">    &lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">    &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"defaultTargetDataSource"</span> <span class="keyword">ref</span>=<span class="string">"ds_galaxy_master"</span> /&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+<p>DynamicDataSource这个类要继承Spring的AbstractRoutingDataSource，AbstractRoutingDataSource这个类间接继承了javax.sql.DataSource。当获取数据库连接的时候，AbstractRoutingDataSource会根据数据源的key决定使用哪个数据源：</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> Connection getConnection() throws SQLException &#123;</span><br><span class="line">    <span class="keyword">return</span> determineTargetDataSource().getConnection();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span> DataSource determineTargetDataSource() &#123;</span><br><span class="line">    Assert.notNull(<span class="keyword">this</span>.resolvedDataSources, <span class="string">"DataSource router not initialized"</span>);</span><br><span class="line">    Object lookupKey = determineCurrentLookupKey();</span><br><span class="line">    DataSource dataSource = <span class="keyword">this</span>.resolvedDataSources.<span class="keyword">get</span>(lookupKey);</span><br><span class="line">    <span class="keyword">if</span> (dataSource == <span class="literal">null</span> &amp;&amp; (<span class="keyword">this</span>.lenientFallback || lookupKey == <span class="literal">null</span>)) &#123;</span><br><span class="line">        dataSource = <span class="keyword">this</span>.resolvedDefaultDataSource;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (dataSource == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> new IllegalStateException(<span class="string">"Cannot determine target DataSource for lookup key ["</span> + lookupKey + <span class="string">"]"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dataSource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里，我们需要在DynamicDataSource中实现determineCurrentLookupKey这个抽象方法，在这个方法中决定使用哪个key（这里是master或slave）。</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">public <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">DynamicDataSource</span> <span class="keyword">extends</span> <span class="title">AbstractRoutingDataSource</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> static <span class="keyword">final</span> <span class="type">Logger</span> logger = <span class="type">LoggerFactory</span>.getLogger(<span class="type">DynamicDataSource</span>.<span class="keyword">class</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">Object</span> determineCurrentLookupKey() &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="class"><span class="keyword">object</span> </span>= <span class="type">DynamicDataSourceKeyHolder</span>.getDataSourceKey();</span><br><span class="line">        logger.debug(<span class="string">"determineCurrentLookupKey:"</span> + <span class="class"><span class="keyword">object</span>)</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="class"><span class="keyword">object</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>DynamicDataSourceKeyHolder中使用了ThreadLocal，来为每个线程设置独立的数据源key，避免在并发情况下出现的key混乱的情况：</p>
+<figure class="highlight processing"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> class DynamicDataSourceKeyHolder &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(DynamicDataSourceKeyHolder.class);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;<span class="keyword">String</span>&gt; dataSourceHolder = <span class="keyword">new</span> ThreadLocal&lt;<span class="keyword">String</span>&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> setKey(<span class="keyword">String</span> <span class="built_in">key</span>) &#123;</span><br><span class="line">        dataSourceHolder.<span class="built_in">set</span>(<span class="built_in">key</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">String</span> getDataSourceKey() &#123;</span><br><span class="line">        <span class="keyword">return</span> (<span class="keyword">String</span>) dataSourceHolder.<span class="built_in">get</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>具体DynamicDataSourceKeyHolder中key如何被设置，则是通过aop在方法访问时根据方法名前缀设置的，比如get、find等前缀则用slave数据源，insert、update、delete等前缀用master数据源，具体可见下面配置。</p>
+<p>我们继续回到Spring配置中，继续配置sqlSessionFactory和mapperScannerConfigurer，用于配置mybatis的xml文件和包的位置，这里的数据源指向之前配置的动态数据源dynamicDs_galaxy：</p>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">&lt;bean <span class="built_in">id</span>=<span class="string">"sqlSessionFactory_galaxy"</span> <span class="built_in">class</span>=<span class="string">"org.mybatis.spring.SqlSessionFactoryBean"</span>&gt;</span><br><span class="line">    &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"dataSource"</span> <span class="keyword">ref</span>=<span class="string">"dynamicDs_galaxy"</span> /&gt;</span><br><span class="line">    &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"mapperLocations"</span></span><br><span class="line">        value=<span class="string">"classpath*:com/sogou/earth/api/core/account/dao/*.xml,classpath*:com/sogou/earth/api/core/plan/dao/*.xml,</span></span><br><span class="line"><span class="string">        classpath*:com/sogou/earth/api/core/group/dao/*.xml,classpath*:com/sogou/earth/api/core/idea/dao/*.xml,</span></span><br><span class="line"><span class="string">        classpath*:com/sogou/earth/api/core/word/dao/*.xml,classpath*:com/sogou/earth/api/core/common/dao/*.xml"</span> /&gt;</span><br><span class="line">&lt;/bean&gt;</span><br><span class="line">&lt;bean <span class="built_in">id</span>=<span class="string">"mapperScannerConfigurer_galaxy"</span> <span class="built_in">class</span>=<span class="string">"org.mybatis.spring.mapper.MapperScannerConfigurer"</span>&gt;</span><br><span class="line">    &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"sqlSessionFactoryBeanName"</span> value=<span class="string">"sqlSessionFactory_galaxy"</span>&gt;&lt;/<span class="keyword">property</span>&gt;</span><br><span class="line">    &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"basePackage"</span></span><br><span class="line">        value=<span class="string">"com.sogou.earth.api.core.account.dao,com.sogou.earth.api.core.plan.dao,com.sogou.earth.api.core.group.dao,</span></span><br><span class="line"><span class="string">    com.sogou.earth.api.core.idea.dao,com.sogou.earth.api.core.word.dao,com.sogou.earth.api.core.common.dao"</span> /&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+<p>接下来，配置事务管理器，datasource也执行之前配置的动态数据源dynamicDs_galaxy：</p>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">&lt;bean <span class="built_in">id</span>=<span class="string">"transactionManager_galaxy"</span></span><br><span class="line">    <span class="built_in">class</span>=<span class="string">"org.springframework.jdbc.datasource.DataSourceTransactionManager"</span>&gt;</span><br><span class="line">    &lt;<span class="keyword">property</span> <span class="built_in">name</span>=<span class="string">"dataSource"</span> <span class="keyword">ref</span>=<span class="string">"dynamicDs_galaxy"</span> /&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+<p>然后，我们来配置一个切面。注意，这个切面是在service层方法上的。当service层方法被调用时，与切面关联的两个通知触发，从而设置数据源的key，以及当事务出现异常时进行处理：</p>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">&lt;aop:config&gt;</span><br><span class="line">    &lt;aop:pointcut <span class="built_in">id</span>=<span class="string">"dynamicDataSourcePoint"</span> expression=<span class="string">"execution(public * com.sogou.earth.api.core.account.service.impl.*.*(..))|| execution(public * com.sogou.earth.api.core.plan.service.impl.*.*(..))||</span></span><br><span class="line"><span class="string">    execution(public * com.sogou.earth.api.core.group.service.impl.*.*(..))||execution(public * com.sogou.earth.api.core.idea.service.impl.*.*(..))||execution(public * com.sogou.earth.api.core.word.service.impl.*.*(..))||</span></span><br><span class="line"><span class="string">    execution(public * com.sogou.earth.api.core.common.service.impl.*.*(..))"</span>/&gt; </span><br><span class="line">    &lt;aop:advisor pointcut-<span class="keyword">ref</span>=<span class="string">"dynamicDataSourcePoint"</span> advice-<span class="keyword">ref</span>=<span class="string">"dynamicDsInterceptor_galaxy"</span>/&gt;</span><br><span class="line">    &lt;aop:advisor pointcut-<span class="keyword">ref</span>=<span class="string">"dynamicDataSourcePoint"</span> advice-<span class="keyword">ref</span>=<span class="string">"txAdvice_galaxy"</span>/&gt;</span><br><span class="line">&lt;/aop:config&gt;</span><br></pre></td></tr></table></figure>
+<p>dynamicDsInterceptor_galaxy是一个方法拦截器，用于根据方法名前缀分配数据源key：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;bean id=<span class="string">"dynamicDsInterceptor_galaxy"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"com.sogou.earth.api.common.db.DynamicDataSourceInterceptor"</span>&gt;</span><br><span class="line">    &lt;property name=<span class="string">"attributeSource"</span>&gt;</span><br><span class="line">        &lt;list&gt;</span><br><span class="line">            &lt;value&gt;query*,slave&lt;<span class="regexp">/value&gt;</span></span><br><span class="line"><span class="regexp">            &lt;value&gt;count*,slave&lt;/</span>value&gt;</span><br><span class="line">            &lt;value&gt;find*,slave&lt;<span class="regexp">/value&gt;</span></span><br><span class="line"><span class="regexp">            &lt;value&gt;get*,slave&lt;/</span>value&gt;</span><br><span class="line">            &lt;value&gt;list*,slave&lt;<span class="regexp">/value&gt;</span></span><br><span class="line"><span class="regexp">            &lt;value&gt;*,master&lt;/</span>value&gt;</span><br><span class="line">        &lt;<span class="regexp">/list&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>property&gt;</span><br><span class="line">&lt;<span class="regexp">/bean&gt;</span></span><br></pre></td></tr></table></figure>
+<p>DynamicDataSourceInterceptor类实现了MethodInterceptor接口，在方法被调用时动态向DynamicDataSourceKeyHolder中设置数据源key：</p>
+<figure class="highlight processing"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> class DynamicDataSourceInterceptor implements MethodInterceptor &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(DynamicDataSourceInterceptor.class);</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 方法和使用数据源key的对应关系</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;<span class="keyword">String</span>&gt; attributeSource = <span class="keyword">new</span> ArrayList&lt;<span class="keyword">String</span>&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">Object</span> invoke(MethodInvocation invocation) <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">String</span> methodName = invocation.getMethod().getName();</span><br><span class="line">        <span class="keyword">String</span> <span class="built_in">key</span> = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">String</span> value : attributeSource) &#123;</span><br><span class="line">            <span class="keyword">String</span> mappedName = value.<span class="built_in">split</span>(<span class="string">","</span>)[<span class="number">0</span>];</span><br><span class="line">            <span class="keyword">if</span> (isMatch(methodName, mappedName)) &#123;</span><br><span class="line">                <span class="built_in">key</span> = value.<span class="built_in">split</span>(<span class="string">","</span>)[<span class="number">1</span>];</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        logger.debug(<span class="string">"methodName:"</span> + methodName);</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> != <span class="built_in">key</span>) &#123;</span><br><span class="line">            DynamicDataSourceKeyHolder.setKey(<span class="built_in">key</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> invocation.proceed();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">boolean</span> isMatch(<span class="keyword">String</span> methodName, <span class="keyword">String</span> mappedName) &#123;</span><br><span class="line">        <span class="keyword">return</span> PatternMatchUtils.simpleMatch(mappedName, methodName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> List&lt;<span class="keyword">String</span>&gt; getAttributeSource() &#123;</span><br><span class="line">        <span class="keyword">return</span> attributeSource;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> setAttributeSource(List&lt;<span class="keyword">String</span>&gt; attributeSource) &#123;</span><br><span class="line">        <span class="keyword">this</span>.attributeSource = attributeSource;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后，我们需要配置另一个通知，用于指定异常出现时的处理策略：</p>
+<figure class="highlight monkey"><table><tr><td class="code"><pre><span class="line">&lt;tx:advice id=<span class="string">"txAdvice_galaxy"</span> transaction-manager=<span class="string">"transactionManager_galaxy"</span>&gt; </span><br><span class="line">    &lt;tx:attributes&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"modify*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"update*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"cancel*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"add*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"del*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"set*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"save*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"commit*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"pause*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"insert*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"create*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"pass*"</span> propagation=<span class="string">"REQUIRED"</span> rollback-<span class="keyword">for</span>=<span class="string">"Exception"</span>/&gt;</span><br><span class="line">        &lt;tx:<span class="function"><span class="keyword">method</span> <span class="title">name</span>=</span><span class="string">"*"</span> read-only=<span class="string">"true"</span>/&gt;</span><br><span class="line">    &lt;/tx:attributes&gt;</span><br><span class="line">&lt;/tx:advice&gt;</span><br></pre></td></tr></table></figure>
+<p>可以看到，所有的写操作在遇到异常时回滚事务。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015-01-06-solarized/" rel="next" title="在 Mac OS X 终端里使用 Solarized 配色方案">
+                <i class="fa fa-chevron-left"></i> 在 Mac OS X 终端里使用 Solarized 配色方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015-04-30-spring-custom-xml/" rel="prev" title="Spring解析自定义XML">
+                Spring解析自定义XML <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">alan</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">79</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.2.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'nxDDgUe9qKbdtOAROkPiYqbv',
+    appKey: 'fdXWsYyfGRM0IzAVMQgi5ukJ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
