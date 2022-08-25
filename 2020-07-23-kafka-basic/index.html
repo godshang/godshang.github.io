@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.shangyan.site","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Kafka 简介早期的Kafka对自己的定位是一个“分布式的、分区化的、带备份机制的提交日志服务”，本质上是一个分布式的消息队列。现在的Kafka将自己的定位调整为“分布式的流处理平台”，用来构建实时的数据流水线和流应用程序。可以看出，随着Kafka的不断发展，其野心也是逐渐显现。 Kafka归根到底其核心仍然是高性能的消息发送与消费的引擎。主要的特性包括：  高吞吐量、低延时。 Kafka大量使">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Kafka 概念解析">
+<meta property="og:url" content="http://www.shangyan.site/2020-07-23-kafka-basic/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="Kafka 简介早期的Kafka对自己的定位是一个“分布式的、分区化的、带备份机制的提交日志服务”，本质上是一个分布式的消息队列。现在的Kafka将自己的定位调整为“分布式的流处理平台”，用来构建实时的数据流水线和流应用程序。可以看出，随着Kafka的不断发展，其野心也是逐渐显现。 Kafka归根到底其核心仍然是高性能的消息发送与消费的引擎。主要的特性包括：  高吞吐量、低延时。 Kafka大量使">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-07-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-11-06T02:28:18.458Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Apache Kafka">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.shangyan.site/2020-07-23-kafka-basic/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Apache Kafka 概念解析 | 上元君的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">上元君的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2020-07-23-kafka-basic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Apache Kafka 概念解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-23 00:00:00" itemprop="dateCreated datePublished" datetime="2020-07-23T00:00:00+08:00">2020-07-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-06 10:28:18" itemprop="dateModified" datetime="2021-11-06T10:28:18+08:00">2021-11-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Kafka-简介"><a href="#Kafka-简介" class="headerlink" title="Kafka 简介"></a>Kafka 简介</h1><p>早期的Kafka对自己的定位是一个“分布式的、分区化的、带备份机制的提交日志服务”，本质上是一个分布式的消息队列。现在的Kafka将自己的定位调整为“分布式的流处理平台”，用来构建实时的数据流水线和流应用程序。可以看出，随着Kafka的不断发展，其野心也是逐渐显现。</p>
+<p>Kafka归根到底其核心仍然是高性能的消息发送与消费的引擎。主要的特性包括：</p>
+<ul>
+<li>高吞吐量、低延时。<ul>
+<li>Kafka大量使用页缓存，内存操作速度快且命中率高。</li>
+<li>Kafka不直接与底层文件系统打交道，繁琐的I/O操作都交由操作系统处理。 </li>
+<li>写入时采用了追加写的方式，避免磁盘随机写操作。</li>
+<li>使用以sendfile为代表的零拷贝技术加强网络间的数据传输效率。</li>
+</ul>
+</li>
+<li>消息持久化。</li>
+<li>负载均衡和故障转移。<ul>
+<li>通过智能的分区领导者选举（partition leader election）实现集群的所有机器以均等几回分散各个partition的leader。</li>
+<li>使用会话机制实现故障转移，即ZooKeeper。</li>
+</ul>
+</li>
+<li>伸缩性。<ul>
+<li>无状态：Kafka服务器的状态（不是所有状态，服务器只保留了轻量级的内部状态）交由ZooKeeper保管。</li>
+</ul>
+</li>
+</ul>
+<h1 id="Kafka-基本概念与术语"><a href="#Kafka-基本概念与术语" class="headerlink" title="Kafka 基本概念与术语"></a>Kafka 基本概念与术语</h1><ul>
+<li>topic<br>topic是一个逻辑概念，代表了一类消息。</li>
+<li>partition<br>topic通常会被多个消费者订阅，出于性能的考虑，Kafka并不是topic-message的两级结构，而是采用了topic-partition-message的三级结构来分散负载。partition并没有太多的业务含义，它的引入只是单纯地为了提升系统的吞吐量。</li>
+<li>offset<br>topic partition下的每条消息都被分配一个位移值。Kafka的消费者也有一个位移的概念，但要注意这两个offset属于不同的概念。</li>
+<li>replica<br>replica是为了实现高可靠性采用的冗余机制，简单来说就是备份多份日志，这些备份日志被称为副本（replica）。replica的唯一目的就是防止数据丢失。replica分为leader replica和follower replica，follower replica是不能提供服务的，也就是说不能响应客户端发送的消息写入和消息消费请求。</li>
+<li>leader和follower<br>通常只有leader对外提供服务，follower只是被动地追随leader的状态，保持与leader的同步。follower存在的唯一价值就是充当leader的候补。</li>
+<li>ISR<br>ISR全称是in-sync replica。ISR是一个动态的replica集合，该集合中的所有replica保存的消息日志都与leader replica保持同步状态。只有这个集合中的replica才能被选为leader replica，也只有这个集合中的所有replica都接收到了同一条消息，Kafka才会将该消息置为“已提交”状态。<br>正常情况下，patition所有的replica都应该与leader replica保持同步，即所有的replica都在ISR中。因为各种原因，一小部分replica开始落后于leader replica的进度。当滞后到一定程度时，Kafka会将这些replica从ISR中踢出。当落后的replica重新追上leader的进度时，会被重新加入ISR。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Apache-Kafka/" rel="tag"># Apache Kafka</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020-07-10-kafka/" rel="prev" title="Apache Kafka 单节点环境部署">
+      <i class="fa fa-chevron-left"></i> Apache Kafka 单节点环境部署
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020-07-28-kafka-producer/" rel="next" title="Apache Kafka Producer">
+      Apache Kafka Producer <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Kafka-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">Kafka 简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Kafka-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%9C%AF%E8%AF%AD"><span class="nav-number">2.</span> <span class="nav-text">Kafka 基本概念与术语</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

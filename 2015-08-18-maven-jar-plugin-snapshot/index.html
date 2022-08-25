@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.shangyan.site","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Maven的快照版本机制在使用Maven进行Java包管理时，开发阶段经常处于不稳定状态，随时需要修改并发布。我们知道，在Maven中，groupId、artifactId和version三个元素定义了一个构件的基本坐标。对于Maven来说，同样的坐标意味着同样的构件。因此，如果本地仓库中包含了某版本的构件，即使在修改后更新了远程仓库中该版本的构件，Maven并不会更新本地仓库中的构件。除非每次进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="maven-jar-plugin设置强制使用SNAPSHOT">
+<meta property="og:url" content="http://www.shangyan.site/2015-08-18-maven-jar-plugin-snapshot/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="Maven的快照版本机制在使用Maven进行Java包管理时，开发阶段经常处于不稳定状态，随时需要修改并发布。我们知道，在Maven中，groupId、artifactId和version三个元素定义了一个构件的基本坐标。对于Maven来说，同样的坐标意味着同样的构件。因此，如果本地仓库中包含了某版本的构件，即使在修改后更新了远程仓库中该版本的构件，Maven并不会更新本地仓库中的构件。除非每次进">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-08-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-11-06T02:28:18.357Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://www.shangyan.site/2015-08-18-maven-jar-plugin-snapshot/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>maven-jar-plugin设置强制使用SNAPSHOT | 上元君的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">上元君的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2015-08-18-maven-jar-plugin-snapshot/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          maven-jar-plugin设置强制使用SNAPSHOT
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2015-08-18 00:00:00" itemprop="dateCreated datePublished" datetime="2015-08-18T00:00:00+08:00">2015-08-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-06 10:28:18" itemprop="dateModified" datetime="2021-11-06T10:28:18+08:00">2021-11-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Maven的快照版本机制"><a href="#Maven的快照版本机制" class="headerlink" title="Maven的快照版本机制"></a>Maven的快照版本机制</h2><p>在使用Maven进行Java包管理时，开发阶段经常处于不稳定状态，随时需要修改并发布。我们知道，在Maven中，groupId、artifactId和version三个元素定义了一个构件的基本坐标。对于Maven来说，同样的坐标意味着同样的构件。因此，如果本地仓库中包含了某版本的构件，即使在修改后更新了远程仓库中该版本的构件，Maven并不会更新本地仓库中的构件。除非每次进行Maven构建的时候，清除本地仓库。但这种手工清除的方式较为繁琐，并不可取。当然，也可以不停的更新构件的版本号（1.1、1.2、1.3……）也可以解决这个问题，但是这要求构件的提供者和使用者都要频繁地修改POM，而且各个版本号之间只包含了微小的差异，实际上是对版本号的滥用。</p>
+<p>为了解决本地仓库中的构件缓存问题，Maven支持快照版本机制。</p>
+<p>使用快照时，需要在POM里构件的正式版本号后面添加“-SNAPSHOT”（注意，这里必须是大写），然后发布到远程仓库中即可。Maven在发布的过程中，会自动为构件加上时间戳，得到形如“brandstart-api-1.0.0-20150921.084134-159.jar”的构件。构件的使用者在构建自己的模块时，Maven会自动从远程仓库中下载该构件的最新版本。</p>
+<p>通过使用快照机制，可以构件的使用者随时能够得到构件的最新可用的快照构件。</p>
+<p>项目在正式发布上线前，就可以将构件的快照版本变更为正式版本，表示该构件的这个版本已经稳定，且只对应了唯一的构件。</p>
+<h2 id="使用快照版本构件"><a href="#使用快照版本构件" class="headerlink" title="使用快照版本构件"></a>使用快照版本构件</h2><p>我们知道，对于web项目，发布时所有的第三方依赖jar包会被Maven拷贝到WEB-INF/lib目录下。而对于以jar形式发布的项目，第三方jar的路径并没有强制约定的某个目录，而是在被发布的jar包中的MANIFAST文件的Class-Path部分写明第三方jar包的路径。比如：</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">Manifest</span>-Version: <span class="number">1</span>.<span class="number">0</span></span><br><span class="line"><span class="attribute">Archiver</span>-Version: Plexus Archiver</span><br><span class="line"><span class="attribute">Created</span>-By: Apache Maven</span><br><span class="line"><span class="attribute">Built</span>-By: root</span><br><span class="line"><span class="attribute">Build</span>-Jdk: <span class="number">1</span>.<span class="number">6</span>.<span class="number">0</span>_<span class="number">31</span></span><br><span class="line"><span class="attribute">Main</span>-Class: com.sogou.bizdev.brandtask.app.Main</span><br><span class="line"><span class="attribute">Class</span>-Path: lib/brandstart-api-<span class="number">1</span>.<span class="number">0</span>.<span class="number">0</span>-<span class="number">20150817</span>.<span class="number">111150</span>-<span class="number">22</span>.jar lib/commons-logging-<span class="number">1</span>.<span class="number">1</span>.<span class="number">1</span>.jar ...</span><br></pre></td></tr></table></figure>
+
+<p>但是，对于使用了快照的第三方jar，MANIFAST里的jar包名是以时间戳为后缀的，而不是SNAPSHOT。而实际上从远程仓库获取的jar却是以SNAPSHOT为后缀的。这就造成了运行时出现的类找不到的异常。</p>
+<p>这个不一致的问题，可以通过设置maven-jar-plugin插件的useUniqueVersions属性，来强制使用SNAPSHOT。插件的具体配置示例：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-jar-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">archive</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">addMavenDescriptor</span>&gt;</span>false<span class="tag">&lt;/<span class="name">addMavenDescriptor</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">manifest</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">mainClass</span>&gt;</span></span><br><span class="line">                    com.sogou.mars.task.Launcher</span><br><span class="line">                <span class="tag">&lt;/<span class="name">mainClass</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">addClasspath</span>&gt;</span>true<span class="tag">&lt;/<span class="name">addClasspath</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">classpathPrefix</span>&gt;</span>lib/<span class="tag">&lt;/<span class="name">classpathPrefix</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">useUniqueVersions</span>&gt;</span>false<span class="tag">&lt;/<span class="name">useUniqueVersions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">archive</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015-05-28-kaptcha/" rel="prev" title="使用Kaptcha生成验证码">
+      <i class="fa fa-chevron-left"></i> 使用Kaptcha生成验证码
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2015-09-02-diary/" rel="next" title="有感">
+      有感 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Maven%E7%9A%84%E5%BF%AB%E7%85%A7%E7%89%88%E6%9C%AC%E6%9C%BA%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">Maven的快照版本机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%BF%AB%E7%85%A7%E7%89%88%E6%9C%AC%E6%9E%84%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">使用快照版本构件</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

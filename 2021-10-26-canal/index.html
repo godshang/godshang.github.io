@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.shangyan.site","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="canal是阿里开源的一个MySQL数据库增量日志解析工具，提供增量数据订阅和消费的能力。  工作原理 MySQL主从复制的过程：  master将数据改变记录到二进制日志（binary log）中，这些记录叫做二进制日志事件（binary log event），可以通过SHOW BINLOG EVENTS查看。 slave将master的binary log event拷贝到自己的中继日志（re">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cancal">
+<meta property="og:url" content="http://www.shangyan.site/2021-10-26-canal/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="canal是阿里开源的一个MySQL数据库增量日志解析工具，提供增量数据订阅和消费的能力。  工作原理 MySQL主从复制的过程：  master将数据改变记录到二进制日志（binary log）中，这些记录叫做二进制日志事件（binary log event），可以通过SHOW BINLOG EVENTS查看。 slave将master的binary log event拷贝到自己的中继日志（re">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://camo.githubusercontent.com/63881e271f889d4a424c55cea2f9c2065f63494fecac58432eac415f6e47e959/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303139313130343130313733353934372e706e67">
+<meta property="og:image" content="https://camo.githubusercontent.com/63881e271f889d4a424c55cea2f9c2065f63494fecac58432eac415f6e47e959/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303139313130343130313733353934372e706e67">
+<meta property="article:published_time" content="2021-10-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-08-25T10:01:39.094Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://camo.githubusercontent.com/63881e271f889d4a424c55cea2f9c2065f63494fecac58432eac415f6e47e959/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303139313130343130313733353934372e706e67">
+
+<link rel="canonical" href="http://www.shangyan.site/2021-10-26-canal/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>cancal | 上元君的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">上元君的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2021-10-26-canal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          cancal
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-26 00:00:00" itemprop="dateCreated datePublished" datetime="2021-10-26T00:00:00+08:00">2021-10-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-08-25 18:01:39" itemprop="dateModified" datetime="2022-08-25T18:01:39+08:00">2022-08-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><code>canal</code>是阿里开源的一个MySQL数据库增量日志解析工具，提供增量数据订阅和消费的能力。</p>
+<p><img src="https://camo.githubusercontent.com/63881e271f889d4a424c55cea2f9c2065f63494fecac58432eac415f6e47e959/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303139313130343130313733353934372e706e67"></p>
+<p><strong>工作原理</strong></p>
+<p>MySQL主从复制的过程：</p>
+<ul>
+<li>master将数据改变记录到二进制日志（binary log）中，这些记录叫做二进制日志事件（binary log event），可以通过<code>SHOW BINLOG EVENTS</code>查看。</li>
+<li>slave将master的binary log event拷贝到自己的中继日志（relay log）。</li>
+<li>slave重做relay log中的事件，将变化应用到自己的库中。</li>
+</ul>
+<p>canal大致的工作流程是这样的：</p>
+<ul>
+<li>canal 模拟 MySQL slave 的交互协议，伪装自己为 MySQL slave ，向 MySQL master 发送 dump 协议</li>
+<li>MySQL master 收到 dump 请求，开始推送 binary log 给 slave (即 canal )</li>
+<li>canal 解析 binary log 对象(原始为 byte 流)</li>
+</ul>
+<h2 id="简单使用"><a href="#简单使用" class="headerlink" title="简单使用"></a>简单使用</h2><h3 id="准备MySQL"><a href="#准备MySQL" class="headerlink" title="准备MySQL"></a>准备MySQL</h3><p>MySQL需要开启Binlog写入功能，配置binglog-format 为ROW模式。my.cnf中配置如下：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[mysqld]</span></span><br><span class="line"><span class="attr">log-bin</span>=mysql-bin</span><br><span class="line"><span class="attr">binlog-format</span>=ROW</span><br><span class="line"><span class="attr">server_id</span>=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>重启MySQL:</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">service mysqld restart</span></span><br></pre></td></tr></table></figure>
+
+<p>授权 canal 链接 MySQL 账号具有作为 MySQL slave 的权限, 如果已有账户可直接 grant：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">USER</span> canal IDENTIFIED <span class="keyword">BY</span> <span class="string">&#x27;canal&#x27;</span>;  </span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span>, <span class="keyword">REPLICATION</span> SLAVE, <span class="keyword">REPLICATION</span> CLIENT <span class="keyword">ON</span> *.* <span class="keyword">TO</span> <span class="string">&#x27;canal&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br><span class="line"><span class="comment">-- GRANT ALL PRIVILEGES ON *.* TO &#x27;canal&#x27;@&#x27;%&#x27; ;</span></span><br><span class="line">FLUSH <span class="keyword">PRIVILEGES</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动canal"><a href="#启动canal" class="headerlink" title="启动canal"></a>启动canal</h3><p>从github的<a target="_blank" rel="noopener" href="https://github.com/alibaba/canal/releases">release页面</a>下载canal的最新发布版本，例如：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">wget https:<span class="regexp">//gi</span>thub.com<span class="regexp">/alibaba/</span>canal<span class="regexp">/releases/</span>download<span class="regexp">/canal-1.1.5/</span>canal.deployer-<span class="number">1.1</span>.<span class="number">5</span>.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>解压缩：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">$ mkdir <span class="regexp">/data/</span>local/canal</span><br><span class="line">$ tar zxvf canal.deployer-<span class="number">1.1</span>.<span class="number">5</span>.tar.gz -C <span class="regexp">/data/</span>local/canal</span><br></pre></td></tr></table></figure>
+
+<p>解压完成进入canal目录，可以看到如下目录结构：</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">drwxr</span>-xr-x <span class="number">2</span> root root <span class="number">4096</span> Oct <span class="number">26</span> <span class="number">17</span>:<span class="number">13</span> bin</span><br><span class="line"><span class="attribute">drwxr</span>-xr-x <span class="number">5</span> root root <span class="number">4096</span> Oct <span class="number">26</span> <span class="number">17</span>:<span class="number">13</span> conf</span><br><span class="line"><span class="attribute">drwxr</span>-xr-x <span class="number">2</span> root root <span class="number">4096</span> Oct <span class="number">26</span> <span class="number">17</span>:<span class="number">13</span> lib</span><br><span class="line"><span class="attribute">drwxrwxrwx</span> <span class="number">2</span> root root <span class="number">4096</span> Apr <span class="number">19</span>  <span class="number">2021</span> logs</span><br><span class="line"><span class="attribute">drwxrwxrwx</span> <span class="number">2</span> root root <span class="number">4096</span> Apr <span class="number">19</span>  <span class="number">2021</span> plugin</span><br></pre></td></tr></table></figure>
+
+<p>修改配置文件<code>conf/example/instance.properties</code></p>
+<figure class="highlight clean"><table><tr><td class="code"><pre><span class="line">## mysql serverId</span><br><span class="line">canal.<span class="keyword">instance</span>.mysql.slaveId = <span class="number">1234</span></span><br><span class="line">#position info，需要改成自己的数据库信息</span><br><span class="line">canal.<span class="keyword">instance</span>.master.address = <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">3306</span> </span><br><span class="line">canal.<span class="keyword">instance</span>.master.journal.name = </span><br><span class="line">canal.<span class="keyword">instance</span>.master.position = </span><br><span class="line">canal.<span class="keyword">instance</span>.master.timestamp = </span><br><span class="line">#canal.<span class="keyword">instance</span>.standby.address = </span><br><span class="line">#canal.<span class="keyword">instance</span>.standby.journal.name =</span><br><span class="line">#canal.<span class="keyword">instance</span>.standby.position = </span><br><span class="line">#canal.<span class="keyword">instance</span>.standby.timestamp = </span><br><span class="line">#username/password，需要改成自己的数据库信息</span><br><span class="line">canal.<span class="keyword">instance</span>.dbUsername = canal  </span><br><span class="line">canal.<span class="keyword">instance</span>.dbPassword = canal</span><br><span class="line">canal.<span class="keyword">instance</span>.defaultDatabaseName =</span><br><span class="line">canal.<span class="keyword">instance</span>.connectionCharset = UTF<span class="number">-8</span></span><br><span class="line">#table regex</span><br><span class="line">canal.<span class="keyword">instance</span>.filter.regex = .\*\\\\..\*</span><br></pre></td></tr></table></figure>
+
+<p>启动canal：</p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line"><span class="keyword">sh</span> bin/startup.<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
+
+<p>查看server日志：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">$ tail canal.log </span><br><span class="line">2021-10-26 17:58:24.740 [main] <span class="builtin-name">INFO</span>  com.alibaba.otter.canal.deployer.CanalLauncher - ## <span class="builtin-name">set</span><span class="built_in"> default </span>uncaught exception handler</span><br><span class="line">2021-10-26 17:58:24.781 [main] <span class="builtin-name">INFO</span>  com.alibaba.otter.canal.deployer.CanalLauncher - ## load canal configurations</span><br><span class="line">2021-10-26 17:58:24.794 [main] <span class="builtin-name">INFO</span>  com.alibaba.otter.canal.deployer.CanalStarter - ## start the canal server.</span><br><span class="line">2021-10-26 17:58:24.840 [main] <span class="builtin-name">INFO</span>  com.alibaba.otter.canal.deployer.CanalController - ## start the canal server[192.168.49.1(192.168.49.1):11111]</span><br><span class="line">2021-10-26 17:58:26.185 [main] <span class="builtin-name">INFO</span>  com.alibaba.otter.canal.deployer.CanalStarter - ## the canal<span class="built_in"> server </span>is running now <span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span></span><br></pre></td></tr></table></figure>
+
+<p>查看 instance 的日志：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">$ tail logs/example/example.log</span><br><span class="line">2021-10-26 18:06:58.622 [Thread-6] <span class="builtin-name">INFO</span>  c.a.otter.canal.instance.core.AbstractCanalInstance - stop CannalInstance <span class="keyword">for</span> null-example </span><br><span class="line">2021-10-26 18:06:58.730 [Thread-6] <span class="builtin-name">INFO</span>  c.a.otter.canal.instance.core.AbstractCanalInstance - stop successful<span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line">2021-10-26 18:07:44.537 [main] <span class="builtin-name">INFO</span>  c.a.otter.canal.instance.spring.CanalInstanceWithSpring - start CannalInstance <span class="keyword">for</span> 1-example </span><br><span class="line">2021-10-26 18:07:44.552 [main] WARN  c.a.o.canal.parse.inbound.mysql.dbsync.LogEventConvert - --&gt; init table<span class="built_in"> filter </span>: ^.*\<span class="built_in">..</span>*$</span><br><span class="line">2021-10-26 18:07:44.553 [main] WARN  c.a.o.canal.parse.inbound.mysql.dbsync.LogEventConvert - --&gt; init table black<span class="built_in"> filter </span>: ^mysql\.slave_.*$</span><br><span class="line">2021-10-26 18:07:44.684 [main] <span class="builtin-name">INFO</span>  c.a.otter.canal.instance.core.AbstractCanalInstance - start successful<span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line">2021-10-26 18:07:44.695 [destination = example ,<span class="built_in"> address </span>= /10.49.114.159:3306 , EventParser] WARN  c.a.o.c.p.inbound.mysql.rds.RdsBinlogEventParserProxy - ---&gt; begin <span class="keyword">to</span> <span class="builtin-name">find</span> start position, it will be long time <span class="keyword">for</span> reset <span class="keyword">or</span> first position</span><br><span class="line">2021-10-26 18:07:44.695 [destination = example ,<span class="built_in"> address </span>= /10.49.114.159:3306 , EventParser] WARN  c.a.o.c.p.inbound.mysql.rds.RdsBinlogEventParserProxy - prepare <span class="keyword">to</span> <span class="builtin-name">find</span> start position just show master status</span><br><span class="line">2021-10-26 18:07:46.073 [destination = example ,<span class="built_in"> address </span>= /10.49.114.159:3306 , EventParser] WARN  c.a.o.c.p.inbound.mysql.rds.RdsBinlogEventParserProxy - ---&gt; <span class="builtin-name">find</span> start position successfully, EntryPosition[<span class="attribute">included</span>=<span class="literal">false</span>,journalName=mysql-bin.000001,position=4,serverId=1,gtid=&lt;null&gt;,timestamp=1635238921000] cost : 1363ms , the next <span class="keyword">step</span> is binlog dump</span><br></pre></td></tr></table></figure>
+
+<p>关闭canal：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">sh</span> bin/<span class="keyword">stop</span>.<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="启动Java客户端"><a href="#启动Java客户端" class="headerlink" title="启动Java客户端"></a>启动Java客户端</h3><p>客户端代码来自官方<a target="_blank" rel="noopener" href="https://github.com/alibaba/canal/wiki/ClientExample">样例</a>。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleCanalClientExample</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 创建链接</span></span><br><span class="line">        CanalConnector connector = CanalConnectors.newSingleConnector(<span class="keyword">new</span> InetSocketAddress(<span class="string">&quot;10.63.9.92&quot;</span>,</span><br><span class="line">                <span class="number">11111</span>), <span class="string">&quot;example&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line">        <span class="keyword">int</span> batchSize = <span class="number">1000</span>;</span><br><span class="line">        <span class="keyword">int</span> emptyCount = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            connector.connect();</span><br><span class="line">            connector.subscribe(<span class="string">&quot;.*\\..*&quot;</span>);</span><br><span class="line">            connector.rollback();</span><br><span class="line">            <span class="keyword">int</span> totalEmptyCount = <span class="number">120</span>;</span><br><span class="line">            <span class="keyword">while</span> (emptyCount &lt; totalEmptyCount) &#123;</span><br><span class="line">                Message message = connector.getWithoutAck(batchSize); <span class="comment">// 获取指定数量的数据</span></span><br><span class="line">                <span class="keyword">long</span> batchId = message.getId();</span><br><span class="line">                <span class="keyword">int</span> size = message.getEntries().size();</span><br><span class="line">                <span class="keyword">if</span> (batchId == -<span class="number">1</span> || size == <span class="number">0</span>) &#123;</span><br><span class="line">                    emptyCount++;</span><br><span class="line">                    System.out.println(<span class="string">&quot;empty count : &quot;</span> + emptyCount);</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    emptyCount = <span class="number">0</span>;</span><br><span class="line">                    <span class="comment">// System.out.printf(&quot;message[batchId=%s,size=%s] \n&quot;, batchId, size);</span></span><br><span class="line">                    printEntry(message.getEntries());</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                connector.ack(batchId); <span class="comment">// 提交确认</span></span><br><span class="line">                <span class="comment">// connector.rollback(batchId); // 处理失败, 回滚数据</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            System.out.println(<span class="string">&quot;empty too many times, exit&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            connector.disconnect();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printEntry</span><span class="params">(List&lt;CanalEntry.Entry&gt; entrys)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (CanalEntry.Entry entry : entrys) &#123;</span><br><span class="line">            <span class="keyword">if</span> (entry.getEntryType() == CanalEntry.EntryType.TRANSACTIONBEGIN || entry.getEntryType() == CanalEntry.EntryType.TRANSACTIONEND) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            CanalEntry.RowChange rowChage = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                rowChage = CanalEntry.RowChange.parseFrom(entry.getStoreValue());</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">&quot;ERROR ## parser of eromanga-event has an error , data:&quot;</span> + entry.toString(),</span><br><span class="line">                        e);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            CanalEntry.EventType eventType = rowChage.getEventType();</span><br><span class="line">            System.out.println(String.format(<span class="string">&quot;================&amp;gt; binlog[%s:%s] , name[%s,%s] , eventType : %s&quot;</span>,</span><br><span class="line">                    entry.getHeader().getLogfileName(), entry.getHeader().getLogfileOffset(),</span><br><span class="line">                    entry.getHeader().getSchemaName(), entry.getHeader().getTableName(),</span><br><span class="line">                    eventType));</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (CanalEntry.RowData rowData : rowChage.getRowDatasList()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (eventType == CanalEntry.EventType.DELETE) &#123;</span><br><span class="line">                    printColumn(rowData.getBeforeColumnsList());</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (eventType == CanalEntry.EventType.INSERT) &#123;</span><br><span class="line">                    printColumn(rowData.getAfterColumnsList());</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;-------&amp;gt; before&quot;</span>);</span><br><span class="line">                    printColumn(rowData.getBeforeColumnsList());</span><br><span class="line">                    System.out.println(<span class="string">&quot;-------&amp;gt; after&quot;</span>);</span><br><span class="line">                    printColumn(rowData.getAfterColumnsList());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printColumn</span><span class="params">(List&lt;CanalEntry.Column&gt; columns)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (CanalEntry.Column column : columns) &#123;</span><br><span class="line">            System.out.println(column.getName() + <span class="string">&quot; : &quot;</span> + column.getValue() + <span class="string">&quot;    update=&quot;</span> + column.getUpdated());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>启动程序，触发一次数据库变化，观察控制台输出的日志：</p>
+<figure class="highlight xquery"><table><tr><td class="code"><pre><span class="line">================&amp;<span class="literal">gt</span>; binlog[mysql-bin.<span class="number">000001</span>:<span class="number">899</span>] ,<span class="built_in"> name</span>[mp-tcp-gateway,user] , eventType : UPDATE</span><br><span class="line">-------&amp;<span class="literal">gt</span>; before<span class="built_in"></span></span><br><span class="line"><span class="built_in">id</span> : <span class="number">3</span>    <span class="keyword">update</span><span class="built_in">=false</span><span class="built_in"></span></span><br><span class="line"><span class="built_in">name</span> : Peter    <span class="keyword">update</span><span class="built_in">=false</span></span><br><span class="line">-------&amp;<span class="literal">gt</span>; after<span class="built_in"></span></span><br><span class="line"><span class="built_in">id</span> : <span class="number">3</span>    <span class="keyword">update</span><span class="built_in">=false</span><span class="built_in"></span></span><br><span class="line"><span class="built_in">name</span> : Skywalker    <span class="keyword">update</span><span class="built_in">=true</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到获取到数据变更前后的变化。</p>
+<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p><img src="https://camo.githubusercontent.com/63881e271f889d4a424c55cea2f9c2065f63494fecac58432eac415f6e47e959/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303139313130343130313733353934372e706e67"></p>
+<ul>
+<li>server代表一个canal的运行实例，对应于一个jvm</li>
+<li>instance对应于一个数据队列（1个server对应1..n个instance）</li>
+</ul>
+<p>instance模块：</p>
+<ul>
+<li>eventParser：数据源接入，模拟slave协议和master进行交互，协议解析</li>
+<li>eventSink：parser和store的链接器，进行数据过滤、架构、分发的工作</li>
+<li>eventStore：数据存储</li>
+<li>metaManager：增量订阅&amp;消费信息管理管理器</li>
+</ul>
+<h2 id="代码模块"><a href="#代码模块" class="headerlink" title="代码模块"></a>代码模块</h2><ul>
+<li>common模块：提供了一些公用的工具类和接口</li>
+<li>client模块：canal的客户端，核心接口是CanalConnector</li>
+<li>example模块：使用样例</li>
+<li>protocol模块：client和server之间的通信协议</li>
+<li>deploy模块：部署模块，通过CanalLauncher来启动canal server</li>
+<li>server模块：canal的服务端，核心接口是CanalServer</li>
+<li>instance模块：一个server有多个instance，每个intance会模拟成一个mysql实例的slave。instance模块有四个核心组成部分，核心接口为CanalInstance<ul>
+<li>parser模块：数据源接入，模拟slave协议和master进行交互，协议解析。parser模块依赖dbsync、driver模块。<ul>
+<li>driver模块：parser 是通过driver模块与mysql建立连接，从而获取到binlog。</li>
+<li>dbsync模块：由于原始的binlog都是二进制流，需要解析成对应的binlog事件，这些binlog事件对象都定义在dbsync模块中，dbsync 模块来自于淘宝的tddl。</li>
+</ul>
+</li>
+<li>sink模块：parser和store的链接器，进行数据过滤、架构、分发的工作。核心接口为CanalEventSink</li>
+<li>store模块：数据存储。核心接口为CanalEventStore</li>
+<li>meta模块：增量订阅&amp;消费信息管理器，核心接口为CanalMetaManager，主要用于记录canal消费到的mysql binlog的位置</li>
+</ul>
+</li>
+</ul>
+<h2 id="详细分析"><a href="#详细分析" class="headerlink" title="详细分析"></a>详细分析</h2><h3 id="deploy模块"><a href="#deploy模块" class="headerlink" title="deploy模块"></a>deploy模块</h3><h3 id="MySQL连接"><a href="#MySQL连接" class="headerlink" title="MySQL连接"></a>MySQL连接</h3><p>MySQL连接节点的数据交互协议，可以参考<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/internals/en/connection-phase-packets.html#packet-Protocol">官方文档</a>。</p>
+<p>连接时客户端首先读取一个4字节长度的HeaderPacket，注意是小端模式。</p>
+<h3 id="Protocol-Handshake"><a href="#Protocol-Handshake" class="headerlink" title="Protocol Handshake"></a>Protocol Handshake</h3><p>首先是握手协议。当客户端连接到MySQL服务端时，服务端会发送一个握手包给客户端。根据服务端版本和配置的不同，发送的数据包结构不同。</p>
+<h3 id="Protocol-V10"><a href="#Protocol-V10" class="headerlink" title="Protocol V10"></a>Protocol V10</h3>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021-09-04-timezone/" rel="prev" title="一个时区偏移转换导致的问题">
+      <i class="fa fa-chevron-left"></i> 一个时区偏移转换导致的问题
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">简单使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%86%E5%A4%87MySQL"><span class="nav-number">1.1.</span> <span class="nav-text">准备MySQL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8canal"><span class="nav-number">1.2.</span> <span class="nav-text">启动canal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8Java%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">1.3.</span> <span class="nav-text">启动Java客户端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E6%A8%A1%E5%9D%97"><span class="nav-number">3.</span> <span class="nav-text">代码模块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">详细分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#deploy%E6%A8%A1%E5%9D%97"><span class="nav-number">4.1.</span> <span class="nav-text">deploy模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL%E8%BF%9E%E6%8E%A5"><span class="nav-number">4.2.</span> <span class="nav-text">MySQL连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Protocol-Handshake"><span class="nav-number">4.3.</span> <span class="nav-text">Protocol Handshake</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Protocol-V10"><span class="nav-number">4.4.</span> <span class="nav-text">Protocol V10</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">alan</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
