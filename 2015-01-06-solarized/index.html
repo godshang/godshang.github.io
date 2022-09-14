@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="generator" content="Hexo 5.4.2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -213,10 +213,10 @@
 <p>如果你使用的是 Terminal 的话，在 solarized/osx-terminal.app-colors-solarized 下双击 Solarized Dark ansi.terminal 和 Solarized Light ansi.terminal 就会自动导入两种配色方案 Dark 和 Light 到 Terminal.app 里。</p>
 <p>如果你使用的是 iTerm2 的话，到 solarized/iterm2-colors-solarized 下双击 Solarized Dark.itermcolors 和 Solarized Light.itermcolors 两个文件就可以把配置文件导入到 iTerm 里。</p>
 <h1 id="Vim"><a href="#Vim" class="headerlink" title="Vim"></a>Vim</h1><p>Vim 的配色最好和终端的配色保持一致，不然在 Terminal/iTerm2 里使用命令行 Vim 会很别扭：</p>
-<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">cd</span> solarized</span><br><span class="line">$ <span class="keyword">cd</span> <span class="keyword">vim</span>-colors-solarized/colors</span><br><span class="line">$ <span class="built_in">mkdir</span> -<span class="keyword">p</span> ~/.<span class="keyword">vim</span>/colors</span><br><span class="line">$ <span class="keyword">cp</span> solarized.<span class="keyword">vim</span> ~/.<span class="keyword">vim</span>/colors/</span><br><span class="line"></span><br><span class="line">$ <span class="keyword">vi</span> ~/.vimrc</span><br><span class="line"><span class="keyword">syntax</span> enable</span><br><span class="line"><span class="keyword">set</span> background=dark</span><br><span class="line"><span class="keyword">colorscheme</span> solarized</span><br><span class="line">iterm2 <span class="built_in">and</span> solarized</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> solarized</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> vim-colors-solarized/colors</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">mkdir</span> -p ~/.vim/colors</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cp</span> solarized.vim ~/.vim/colors/</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">vi ~/.vimrc</span></span><br><span class="line">syntax enable</span><br><span class="line">set background=dark</span><br><span class="line">colorscheme solarized</span><br><span class="line">iterm2 and solarized</span><br></pre></td></tr></table></figure>
 
 <h1 id="ls"><a href="#ls" class="headerlink" title="ls"></a>ls</h1><p>Mac OS X 是基于 FreeBSD 的，所以一些工具 ls, top 等都是 BSD 那一套，ls 不是 GNU ls，所以即使 Terminal/iTerm2 配置了颜色，但是在 Mac 上敲入 ls 命令也不会显示高亮，可以通过安装 coreutils 来解决（brew install coreutils），不过如果对 ls 颜色不挑剔的话有个简单办法就是在 .bash_profile 里输出 CLICOLOR=1：</p>
-<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">$ vi ~/.bash_profile</span><br><span class="line"><span class="builtin-name">export</span> <span class="attribute">CLICOLOR</span>=1</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">$ vi ~/.bash_profile</span><br><span class="line"><span class="built_in">export</span> <span class="attribute">CLICOLOR</span>=1</span><br></pre></td></tr></table></figure>
 
     </div>
 

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="generator" content="Hexo 5.4.2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -146,6 +146,87 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2022-08-25-java-agent/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022-08-25-java-agent/" class="post-title-link" itemprop="url">Java Agent 技术</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-08-25 00:00:00" itemprop="dateCreated datePublished" datetime="2022-08-25T00:00:00+08:00">2022-08-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-09-14 11:30:20" itemprop="dateModified" datetime="2022-09-14T11:30:20+08:00">2022-09-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Instrumentation"><a href="#Instrumentation" class="headerlink" title="Instrumentation"></a>Instrumentation</h1><p><code>Instrumentation</code>是JDK 1.6的一个新特性，通过<code>java.lang.instroment</code>包可以实现一个独立于应用程序的Agent程序，能够替换和修改类的定义。有了这样的功能，开发者可以实现灵活的运行时虚拟机监控和Java类增加，实际上提供了一种虚拟机级别的AOP实现方式。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022-08-25-java-agent/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2021-10-26-canal/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -202,20 +283,6 @@
       
           <p><code>canal</code>是阿里开源的一个MySQL数据库增量日志解析工具，提供增量数据订阅和消费的能力。</p>
 <p><img src="https://camo.githubusercontent.com/63881e271f889d4a424c55cea2f9c2065f63494fecac58432eac415f6e47e959/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303139313130343130313733353934372e706e67"></p>
-<p><strong>工作原理</strong></p>
-<p>MySQL主从复制的过程：</p>
-<ul>
-<li>master将数据改变记录到二进制日志（binary log）中，这些记录叫做二进制日志事件（binary log event），可以通过<code>SHOW BINLOG EVENTS</code>查看。</li>
-<li>slave将master的binary log event拷贝到自己的中继日志（relay log）。</li>
-<li>slave重做relay log中的事件，将变化应用到自己的库中。</li>
-</ul>
-<p>canal大致的工作流程是这样的：</p>
-<ul>
-<li>canal 模拟 MySQL slave 的交互协议，伪装自己为 MySQL slave ，向 MySQL master 发送 dump 协议</li>
-<li>MySQL master 收到 dump 请求，开始推送 binary log 给 slave (即 canal )</li>
-<li>canal 解析 binary log 对象(原始为 byte 流)</li>
-</ul>
-<h2 id="简单使用"><a href="#简单使用" class="headerlink" title="简单使用"></a>简单使用</h2><h3 id="准备MySQL"><a href="#准备MySQL" class="headerlink" title="准备MySQL"></a>准备MySQL</h3><p>MySQL需要开启Binlog写入功能，配置binglog-format 为ROW模式。my.cnf中配置如下：</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021-10-26-canal/#more" rel="contents">
@@ -297,16 +364,7 @@
 
       
           <p>最近线上遇到一个比较奇怪的问题，查下来还是挺有意思的，奇怪的知识又增加了。</p>
-<h2 id="起"><a href="#起" class="headerlink" title="起"></a>起</h2><p>线上服务有一个功能是从身份证号判断是否成年，具体做法是从身份证号截取出出生年月，然后判断是否大于18岁。功能比较简单，一直也没什么问题，直到昨天遇到一个日期解析的异常。</p>
-<figure class="highlight stylus"><table><tr><td class="code"><pre><span class="line">org<span class="selector-class">.joda</span><span class="selector-class">.time</span><span class="selector-class">.IllegalInstantException</span>: Cannot parse <span class="string">&quot;19470415&quot;</span>: Illegal instant due to <span class="selector-tag">time</span> zone offset <span class="attribute">transition</span> (Asia/Shanghai) </span><br><span class="line">at org<span class="selector-class">.joda</span><span class="selector-class">.time</span><span class="selector-class">.format</span><span class="selector-class">.DateTimeParserBucket</span><span class="selector-class">.computeMillis</span>(DateTimeParserBucket<span class="selector-class">.java</span>:<span class="number">473</span>) </span><br><span class="line">at org<span class="selector-class">.joda</span><span class="selector-class">.time</span><span class="selector-class">.format</span><span class="selector-class">.DateTimeParserBucket</span><span class="selector-class">.computeMillis</span>(DateTimeParserBucket<span class="selector-class">.java</span>:<span class="number">411</span>) </span><br><span class="line">at org<span class="selector-class">.joda</span><span class="selector-class">.time</span><span class="selector-class">.format</span><span class="selector-class">.DateTimeFormatter</span><span class="selector-class">.parseDateTime</span>(DateTimeFormatter<span class="selector-class">.java</span>:<span class="number">928</span>)</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
-
-<p><code>19470415</code>这个字符串格式正确，但用<code>joda</code>解析的时候就抛了异常。如下是解析的代码：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">DateTime birthTime = DateTimeFormat.forPattern(<span class="string">&quot;yyyyMMdd&quot;</span>).parseDateTime(birth);</span><br><span class="line">DateTime adultTime = DateTime.now().plusYears(-<span class="number">18</span>);</span><br><span class="line"><span class="keyword">return</span> adultTime.compareTo(birthTime) == <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<p>从异常信息上看，估计是和时区有关。网上搜索了下，在<code>joda</code>的文档中已经写明了如何解决：</p>
-<p><img src="../img/2021-09-04/59a5dbfc23eebce49987dfb06541f2b3.png"></p>
-<p>把<code>DateTime</code>换成<code>LocalDateTime</code>后果然解决了。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">LocalDateTime birthTime = DateTimeFormat.forPattern(<span class="string">&quot;yyyyMMdd&quot;</span>).parseLocalDateTime(birth);</span><br><span class="line">LocalDateTime adultTime = LocalDateTime.now().plusYears(-<span class="number">18</span>);</span><br><span class="line"><span class="keyword">return</span> adultTime.compareTo(birthTime) == <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="起"><a href="#起" class="headerlink" title="起"></a>起</h2>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021-09-04-timezone/#more" rel="contents">
@@ -389,17 +447,6 @@
       
           <p><code>HashMap</code>是面试题中老生常谈的话题，自己面试时也曾经侃侃而谈。万万没想到，老司机在开发过程中也载到这上了。</p>
 <p>具体场景是这样的。有一个列表查询的数据，某个字段的状态需要从其他接口中查询获取，为了优化查询速度，用了<code>CompletableFuture.runAsync()</code>的方式并行调用接口查询，查询结果放到一个<code>HashMap</code>中供后面使用。大致简化后的代码如下：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">task</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Map&lt;Long, Boolean&gt; contractsMap = Maps.newHashMap();</span><br><span class="line">    List&lt;CompletableFuture&gt; futures = Lists.newArrayList();</span><br><span class="line">    Lists.newArrayList(<span class="number">123L</span>, <span class="number">456L</span>).forEach(uid -&gt; &#123;</span><br><span class="line">        futures.add(CompletableFuture.runAsync(() -&gt; &#123;</span><br><span class="line">            Boolean effect = <span class="keyword">true</span>;</span><br><span class="line">            contractsMap.put(uid, effect);</span><br><span class="line">        &#125;));</span><br><span class="line">    &#125;);</span><br><span class="line">    CompletableFuture.allOf(futures.toArray(<span class="keyword">new</span> CompletableFuture[]&#123;&#125;)).join();</span><br><span class="line">    System.out.println(contractsMap);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这个查询的列表多刷新几次，就会发现每次的状态值都不同。在查询之后打断点后发现，<code>contractsMap</code>有时候<code>size</code>都不一样，有些数据莫名其妙的丢失了。</p>
-<p>上面这个简化后的<code>task</code>方法，多运行几次后很容易就能复现出这个现象。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">        task();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>输出：</p>
-<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br></pre></td></tr></table></figure>
-
-<p>确认了逻辑没问题后，猛然想起这个<code>HashMap</code>用到了多线程环境中，换成了<code>ConcurrentHashMap</code>之后果然不再出现。</p>
-<p>在网上搜索了一番后，很多文章都提到了JDK 8中<code>HashMap</code>可能会出现的数据丢失问题，但基本都在说哈希冲突时的情况。但上面的例子，其实就两个key，哈希值还绝不相同，那么就不可能是哈希冲突时出现的数据丢失。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021-06-25-hashmap/#more" rel="contents">
@@ -481,18 +528,6 @@
 
       
           <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>同producer一样，早期版本的Kafka中的consumer代码也是使用Scala开发的。自0.9.0.0版本起，Kafka提供了Java版本的consumer。新版本consumer的入口类是org.apache.kafka.clients.consumer.KafkaConsumer。新版的consumer也不再需要依赖ZooKeeper。</p>
-<p>在旧版本consumer中，消费位移（offset）的保存与管理都是依托ZooKeeper来完成大。当数据量很大且消费很频繁时，ZooKeeper的读/写性能往往容易成为系统瓶颈。新版本consumer中，位移的管理与保存不再依靠ZooKeeper，这个瓶颈自然消失了。</p>
-<p>新版consumer在设计时摒弃了旧版本多小城消费不同分区的思想，采用了类似Linux epoll的轮训机制，使得consumer只使用一个线程就可以管理连接不同broker的多个Socket，既减少了线程间的开销，同时也简化了系统的设计。</p>
-<p>比起旧版本consumer，新版本在设计上的优势如下。</p>
-<ul>
-<li>单线程设计。单个consumer线程就可以管理多个分区的消费Socket连接，极大地简化了实现。</li>
-<li>位移提交与保存交由Kafka来处理。位移不再保存在ZooKeeper中，而是单独保存再Kafka的一个内部topic中。</li>
-<li>消费者组的集中式管理。旧版中ZooKeeper除了要管理位移，它还要负责管理整个消费者组的成员，这进一步加重了对于ZooKeeper的依赖。新版consumer改进了这种设计，实现了一个集中式协调者的角色，所有成员组的管理都交由该coordinator负责。</li>
-</ul>
-<p>旧版本consumer有高阶消费者（high-level consumer）和低阶消费者（low-level consumer）之分。high-level consumer指消费者组，low-level consumer指单个consumer，即standalone consumer。单个consumer单独进行自己的工作，与其他consumer不产生任何关联；而消费者组就是大家作为一个团队一起工作，彼此之间会相互照应。</p>
-<p>low-level consumer的实现是SimpleConsumer类。low-level consumer需要自行管理消费者，Kafka不会为其提供任何的组管理方面的功能（包括负载均衡和故障转移），用户需要自己解决这方面的问题。</p>
-<p>high-level consumer的consumer实例会自动组成一个消费者组来共同承担消费人物，假如任意时刻有consumer进程或实例宕机，该消费者组都会帮用户自动处理，不需要人工干预。但是，high-level consumer不像low-level consumer那样灵活，可以从分区的任意位置开始消费，它只能从上次保存的位移处开始顺序读取消息，无法实现高度定制化的消费策略。</p>
-<h2 id="消费者组"><a href="#消费者组" class="headerlink" title="消费者组"></a>消费者组</h2>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020-07-29-kafka-consumer/#more" rel="contents">
@@ -574,21 +609,6 @@
 
       
           <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>早期版本的Kafka中，producer代码是使用Scala开发的。自0.9.0.0版本起，Kafka正式使用Java版本的producer替换了原Scala版本的producer。新版本producer的入口是 org.apache.kafka.clients.producer.KafkaProducer，而非原来的 kafka.producer.Producer。</p>
-<p>新版本的producer重写了之前服务器端代码提供的很多数据结构，摆脱了对服务器端代码库的依赖，同时新版本的producer也不再依赖ZooKeeper，甚至不需要和ZooKeeper集群进行直接交互，降低了系统的维护成本，也简化了部署producer应用的开销。</p>
-<p>比起旧版本的producer，新版本在设计理念上有以下特点。</p>
-<ul>
-<li>发送过程被划分到两个不同的线程：用户主线程和Sender I/O线程，逻辑更容易把控。</li>
-<li>发送是异步发送消息，并提供回调机制用于判断发送是否成功。</li>
-<li>批次机制，每个批次中包含多个发送请求，提升整体吞吐量。</li>
-<li>更加合理的分区策略：对于没有指定key的消息，旧版本producer分区策略是默认在一段时间内将消息发送到固定分区，这更容易造成数据倾斜；新版本采用轮训机制，消息发送更加均匀。</li>
-<li>底层统一使用基于Java Selector的网络客户端，结合Java的Future实现更加健壮和有呀的生命周期管理。</li>
-<li>监控指标更加完善。</li>
-</ul>
-<p>producer向某个topic发送消息，首先要确认的就是要想topic的哪个分区写入消息，这就是分区器（partitioner）的职责。Kafka producer提供了一个默认的分区器，对于每条待发送的消息，如果该消息指定了key，那么该partitioner会根据key的哈希值来选择目标分区；若这条消息没有指定key，则partitioner使用轮训的方式确认目标分区，这样可以最大限度地确保消息在所有分区上的均匀性。用户也可以在发送消息时跳过partitioner直接指定要发送到的分区。</p>
-<p>producer允许用户实现自定义的分区策略而非使用默认的partitioner，这样用户可以根据自身业务需求确定不同的分区策略。</p>
-<p>有了partitioner，我们可以确信具有相同key的所有消息都会被路由到相同的分区中。基于这个特性，我们实现一些特定的业务需求。</p>
-<p>在确认目标分区后，producer需要寻找这个分区对应的leader，也就是该分区leader副本所在的Kafka broker。每个topic分区都由若干副本组成，其中的一个副本充当leader的角色，只有leader才能响应客户端发送的请求，而剩下的副本有一部分副本会与leader保持同步，即ISR。因此在发送消息时，producer也就有了多种选择，比如不等待任何副本的响应就返回成功，或者只等待leader副本响应再返回成功等。</p>
-<h1 id="producer主要参数"><a href="#producer主要参数" class="headerlink" title="producer主要参数"></a>producer主要参数</h1>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020-07-28-kafka-producer/#more" rel="contents">
@@ -670,35 +690,14 @@
 
       
           <h1 id="Kafka-简介"><a href="#Kafka-简介" class="headerlink" title="Kafka 简介"></a>Kafka 简介</h1><p>早期的Kafka对自己的定位是一个“分布式的、分区化的、带备份机制的提交日志服务”，本质上是一个分布式的消息队列。现在的Kafka将自己的定位调整为“分布式的流处理平台”，用来构建实时的数据流水线和流应用程序。可以看出，随着Kafka的不断发展，其野心也是逐渐显现。</p>
-<p>Kafka归根到底其核心仍然是高性能的消息发送与消费的引擎。主要的特性包括：</p>
-<ul>
-<li>高吞吐量、低延时。<ul>
-<li>Kafka大量使用页缓存，内存操作速度快且命中率高。</li>
-<li>Kafka不直接与底层文件系统打交道，繁琐的I/O操作都交由操作系统处理。 </li>
-<li>写入时采用了追加写的方式，避免磁盘随机写操作。</li>
-<li>使用以sendfile为代表的零拷贝技术加强网络间的数据传输效率。</li>
-</ul>
-</li>
-<li>消息持久化。</li>
-<li>负载均衡和故障转移。<ul>
-<li>通过智能的分区领导者选举（partition leader election）实现集群的所有机器以均等几回分散各个partition的leader。</li>
-<li>使用会话机制实现故障转移，即ZooKeeper。</li>
-</ul>
-</li>
-<li>伸缩性。<ul>
-<li>无状态：Kafka服务器的状态（不是所有状态，服务器只保留了轻量级的内部状态）交由ZooKeeper保管。</li>
-</ul>
-</li>
-</ul>
-<h1 id="Kafka-基本概念与术语"><a href="#Kafka-基本概念与术语" class="headerlink" title="Kafka 基本概念与术语"></a>Kafka 基本概念与术语</h1><ul>
-<li>topic<br>topic是一个逻辑概念，代表了一类消息。</li>
-<li>partition<br>topic通常会被多个消费者订阅，出于性能的考虑，Kafka并不是topic-message的两级结构，而是采用了topic-partition-message的三级结构来分散负载。partition并没有太多的业务含义，它的引入只是单纯地为了提升系统的吞吐量。</li>
-<li>offset<br>topic partition下的每条消息都被分配一个位移值。Kafka的消费者也有一个位移的概念，但要注意这两个offset属于不同的概念。</li>
-<li>replica<br>replica是为了实现高可靠性采用的冗余机制，简单来说就是备份多份日志，这些备份日志被称为副本（replica）。replica的唯一目的就是防止数据丢失。replica分为leader replica和follower replica，follower replica是不能提供服务的，也就是说不能响应客户端发送的消息写入和消息消费请求。</li>
-<li>leader和follower<br>通常只有leader对外提供服务，follower只是被动地追随leader的状态，保持与leader的同步。follower存在的唯一价值就是充当leader的候补。</li>
-<li>ISR<br>ISR全称是in-sync replica。ISR是一个动态的replica集合，该集合中的所有replica保存的消息日志都与leader replica保持同步状态。只有这个集合中的replica才能被选为leader replica，也只有这个集合中的所有replica都接收到了同一条消息，Kafka才会将该消息置为“已提交”状态。<br>正常情况下，patition所有的replica都应该与leader replica保持同步，即所有的replica都在ISR中。因为各种原因，一小部分replica开始落后于leader replica的进度。当滞后到一定程度时，Kafka会将这些replica从ISR中踢出。当落后的replica重新追上leader的进度时，会被重新加入ISR。</li>
-</ul>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020-07-23-kafka-basic/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -772,14 +771,7 @@
 
       
           <p>Kafka提供了单节点的伪分布式集群部署方案，在个人开发和测试的场景下使用会比较方便。单节点的伪分布式环境由一个Kafka实例和一个ZooKeeper实例构成，可以在一台服务器上启动多个进程。</p>
-<h2 id="Java-安装"><a href="#Java-安装" class="headerlink" title="Java 安装"></a>Java 安装</h2><p>不管是Kafka还是ZooKeeper，都需要首先安装Java，这个比较简单就不多言了。</p>
-<h2 id="ZooKeeper-安装"><a href="#ZooKeeper-安装" class="headerlink" title="ZooKeeper 安装"></a>ZooKeeper 安装</h2><p>首先下载3.5.7版本的ZooKeeper，之所以选择3.5.7版本，是因为计划用最新版本的2.5.0版本的Kafka，这个版本的Kafka使用的ZooKeeper是3.5.7.</p>
-<p>下载并解压后就可以使用了，不需要额外安装。</p>
-<p>首先修改配置文件，ZooKeeper默认提供了一个配置的样例文件，位于<code>$ZOOKEEPER_HOME%/conf/zoo_sample.cfg</code>，我们先复制出来一个并改名为<code>zoo.cfg</code>。</p>
-<p>配置文件默认的内容如下：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="comment"># The number of milliseconds of each tick</span></span><br><span class="line"><span class="attr">tickTime</span>=<span class="number">2000</span></span><br><span class="line"><span class="comment"># The number of ticks that the initial</span></span><br><span class="line"><span class="comment"># synchronization phase can take</span></span><br><span class="line"><span class="attr">initLimit</span>=<span class="number">10</span></span><br><span class="line"><span class="comment"># The number of ticks that can pass between</span></span><br><span class="line"><span class="comment"># sending a request and getting an acknowledgement</span></span><br><span class="line"><span class="attr">syncLimit</span>=<span class="number">5</span></span><br><span class="line"><span class="comment"># the directory where the snapshot is stored.</span></span><br><span class="line"><span class="comment"># do not use /tmp for storage, /tmp here is just</span></span><br><span class="line"><span class="comment"># example sakes.</span></span><br><span class="line"><span class="attr">dataDir</span>=/tmp/zookeeper</span><br><span class="line"><span class="comment"># the port at which the clients will connect</span></span><br><span class="line"><span class="attr">clientPort</span>=<span class="number">2181</span></span><br><span class="line"><span class="comment"># the maximum number of client connections.</span></span><br><span class="line"><span class="comment"># increase this if you need to handle more clients</span></span><br><span class="line"><span class="comment">#maxClientCnxns=60</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Be sure to read the maintenance section of the</span></span><br><span class="line"><span class="comment"># administrator guide before turning on autopurge.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># http://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_maintenance</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># The number of snapshots to retain in dataDir</span></span><br><span class="line"><span class="comment">#autopurge.snapRetainCount=3</span></span><br><span class="line"><span class="comment"># Purge task interval in hours</span></span><br><span class="line"><span class="comment"># Set to &quot;0&quot; to disable auto purge feature</span></span><br><span class="line"><span class="comment">#autopurge.purgeInterval=1</span></span><br></pre></td></tr></table></figure>
-
-<p>我们先修改<code>dataDir</code>这个参数，其他参数先保持不变。<code>dataDir</code>参数设置的是ZooKeeper的数据在磁盘上保存的位置，如果在临时目录下，可能会丢失。</p>
+<h2 id="Java-安装"><a href="#Java-安装" class="headerlink" title="Java 安装"></a>Java 安装</h2>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020-07-10-kafka/#more" rel="contents">
@@ -861,22 +853,7 @@
 
       
           <p>Bitcask提供了一种日志型的键值对存储引擎，这些键值对按照写入的顺序排列，并且对于出现在日志中的同一个键，后出现的值优于之前的值。除此之外，日志中键值对的顺序并不重要。</p>
-<h1 id="SSTable"><a href="#SSTable" class="headerlink" title="SSTable"></a>SSTable</h1><p>在Bitcask存储引擎基础上，我们加上一条新的规则：要求键值对的顺序按键排序。</p>
-<p>这种格式称为排序字符表，简称为<code>SSTable</code>。它要求每个键在每个合并的段文件中只能出现一次（Bitcask中的压缩过程已经确保了）。<code>SSTable</code>相比哈希索引的日志段，具有以下优点：</p>
-<ol>
-<li>合并段更简单高效，即使文件大于可用内存。方法类似合并排序算法中适用的方法，并发地读取多个输入段文件，比较每个文件的第一个键，把最小的键拷贝到输出文件，并重复这个过程。这会产生一个新的按键排序的合并段文件。如果仙童的键出现在多个输入段，保留最新段值并丢弃旧段中的值。</li>
-<li>在文件中查找的键时，不再需要在内存中保存所有键的索引。由于键的排序特性，只需要内存中维护一个系数的内存索引，记录某些键的便宜，就可以很快的扫描查找。</li>
-</ol>
-<h1 id="构建和维护SSTable"><a href="#构建和维护SSTable" class="headerlink" title="构建和维护SSTable"></a>构建和维护SSTable</h1><p>键值对是以顺序的方式写入的，如何让数据按键排序呢？</p>
-<p>在磁盘上维护排序结构是可行的，例如数据库中常用的B-Tree。不过将其保存在内存中更容易。内存排序有很多广为人知的树状数据结构，例如红黑树或AVL树。使用这些数据结构，可以按任意顺序插入健并以排序后的顺序读取它们。</p>
-<p>存储引擎的基本工作流程如下：</p>
-<ul>
-<li>当写入时，将其添加到内存中的平衡树数据结构中（例如红黑树）。这个内存中的树有时被称为内存表。</li>
-<li>当内存表大于某个阈值（通常为几兆字节）时，将其作为SSTable文件写入磁盘。由于树已经维护了按键排序的键值对，写磁盘可以比较高效。新的SSTable文件称谓数据库的最新部分。当SSTable写磁盘的同时，写入可以继续添加到一个新的内存表实例。</li>
-<li>为了处理读请求，首先尝试在内存表中查找键，然后使最新的磁盘段文件，接下来是次新的磁盘段文件，以此类推，直到找到目标（或为空）。</li>
-<li>后台进程周期性地执行段合并与压缩过程，以合并多个段文件，并丢弃哪些已被覆盖或删除的值。</li>
-<li>当数据库崩溃时，最近的写入（写入内存表但尚未写入磁盘）将会丢失。为避免该问题，可以在磁盘上保留单独的日志，每次写入都会立即追加到该日志。这个日志文件不需要按键排序，它唯一的目的就是在崩溃后恢复内存表。每当内存表写入SSTable时，相应的日志可以被丢弃。</li>
-</ul>
+<h1 id="SSTable"><a href="#SSTable" class="headerlink" title="SSTable"></a>SSTable</h1>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020-04-17-lsm/#more" rel="contents">
@@ -959,113 +936,9 @@
       
           <p>Bitcask 是一个日志型的键值对存储引擎。最初 Bitcask 是作为 Riak 这样一个分布式存储系统的核心存储引擎被人知晓，之后豆瓣的 beansdb 也使用 Bitask 的存储模型。</p>
 <p>Bitcask 的论文可以从官网或 Github 中找到。说论文不太合适，或者应该叫说明文档，因为模型设计比较简单，实在没什么可着重阐述。</p>
-<h1 id="日志型存储"><a href="#日志型存储" class="headerlink" title="日志型存储"></a>日志型存储</h1><p>与常见基于 B+ 树的存储引擎不同，日志型的存储引擎不支持随机写，而只支持 Append-Only 写入。由于将硬盘的随机写转化为顺序写，因此日志型的存储引擎能够提高写入的吞吐量，因为硬盘没有seek的过程，直接追加即可。</p>
-<p>在 Bitcask 中，数据被以追加的方式写入硬盘的数据文件中，数据文件只增不减。硬盘不可能有无限容量，数据文件也就不可能无限制写入。当文件增加到一定大小时，就会产生一个新的文件，老的文件只读不写。因此，在任意一个时刻，只会有一个文件允许写入数据。在 Bitbask 中，称为活动文件（active file）。</p>
-<p><img src="../img/2020-04-03/20200403195136.png"></p>
-<p>文件中数据的格式也十分简单，依次由crc校验码、时间戳、key的大小、value的大小、key、value组成：</p>
-<p><img src="../img/2020-04-03/20200403195417.png"></p>
-<p>数据删除也是通过另一次写入实现，删除时写入的value是一个特殊值，标记为删除，这个特殊值Bitcask称为“墓碑”。</p>
-<p>数据文件的内容如下图所示。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020-04-03-bitcask/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2019-02-02-graphite/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="alan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="上元君的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019-02-02-graphite/" class="post-title-link" itemprop="url">Graphite 安装</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-02-02 00:00:00" itemprop="dateCreated datePublished" datetime="2019-02-02T00:00:00+08:00">2019-02-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-06 10:28:18" itemprop="dateModified" datetime="2021-11-06T10:28:18+08:00">2021-11-06</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Graphite 是处理可视化和指标数据的优秀开源工具，它提供给了强大的查询API和丰富的功能。实际上，Graphite 做了两件事，一是存储时序数据，二是按需渲染数据图表。 Graphite 并没有提供数据采集的能力，但是可以和许多工具完美搭配起来。</p>
-<p>Graphite 的架构中包含三个部分</p>
-<p><img src="../img/2019-02-02/Graphite-OverView.png"></p>
-<ul>
-<li>Carbon 是一组守护进程，用户监听发送到的指标数据并写入存储。</li>
-<li>Whisper 是一个时序数据库，用户存储指标数据。</li>
-<li>Graphite-Web 是一个一个基于 Django 的 Web 应用程序，用户数据</li>
-</ul>
-<h1 id="安装-Graphite"><a href="#安装-Graphite" class="headerlink" title="安装 Graphite"></a>安装 Graphite</h1><h2 id="使用-Docker-安装"><a href="#使用-Docker-安装" class="headerlink" title="使用 Docker 安装"></a>使用 Docker 安装</h2><p>使用 Docker 可以快速地将 Graphite 安装并运行起来：</p>
-<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">docker run -d\</span><br><span class="line"> --name graphite\</span><br><span class="line"> --restart=always\</span><br><span class="line"> -p 80:80\</span><br><span class="line"> -p 2003-2004:2003-2004\</span><br><span class="line"> -p 2023-2024:2023-2024\</span><br><span class="line"> -p 8125:8125/udp\</span><br><span class="line"> -p 8126:8126\</span><br><span class="line"> graphiteapp/graphite-statsd</span><br></pre></td></tr></table></figure>
-
-<h3 id="包含了以下组件"><a href="#包含了以下组件" class="headerlink" title="包含了以下组件"></a>包含了以下组件</h3><ul>
-<li><a target="_blank" rel="noopener" href="http://nginx.org/">Nginx</a> - reverse proxies the graphite dashboard</li>
-<li><a target="_blank" rel="noopener" href="http://graphite.readthedocs.org/en/latest/">Graphite</a> - front-end dashboard</li>
-<li><a target="_blank" rel="noopener" href="http://graphite.readthedocs.org/en/latest/carbon-daemons.html">Carbon</a> - back-end</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/etsy/statsd/wiki">Statsd</a> - UDP based back-end proxy</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019-02-02-graphite/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>

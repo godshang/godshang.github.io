@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="generator" content="Hexo 5.4.2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -260,28 +260,28 @@
 <figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">add </span>key flags exptime <span class="keyword">bytes </span>[<span class="keyword">noreply]</span></span><br><span class="line"><span class="keyword"></span>value</span><br></pre></td></tr></table></figure>
 
 <p>例如：</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">add</span> key<span class="number">1</span> <span class="number">0</span> <span class="number">180</span> <span class="number">3</span></span><br><span class="line"><span class="attribute">xyz</span></span><br><span class="line"><span class="attribute">NOT_STORED</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">add</span> key1 <span class="number">0</span> <span class="number">180</span> <span class="number">3</span></span><br><span class="line"><span class="attribute">xyz</span></span><br><span class="line"><span class="attribute">NOT_STORED</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="replace"><a href="#replace" class="headerlink" title="replace"></a>replace</h3><p>replace 命令用于替换已存在的 key(键) 的 value(数据值)。如果 key 不存在，则替换失败，并且您将获得响应 NOT_STORED。</p>
 <p>replace 命令的基本语法格式如下：</p>
 <figure class="highlight livecodeserver"><table><tr><td class="code"><pre><span class="line"><span class="built_in">replace</span> key flags exptime <span class="keyword">bytes</span> [noreply]</span><br><span class="line"><span class="built_in">value</span></span><br></pre></td></tr></table></figure>
 
 <p>例如：</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">replace</span> key<span class="number">1</span> <span class="number">0</span> <span class="number">180</span> <span class="number">3</span></span><br><span class="line"><span class="attribute">fuc</span></span><br><span class="line"><span class="attribute">STORED</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">replace</span> key1 <span class="number">0</span> <span class="number">180</span> <span class="number">3</span></span><br><span class="line"><span class="attribute">fuc</span></span><br><span class="line"><span class="attribute">STORED</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="append"><a href="#append" class="headerlink" title="append"></a>append</h3><p>append 命令用于向已存在 key(键) 的 value(数据值) 后面追加数据 。</p>
 <p>append 命令的基本语法格式如下：</p>
 <figure class="highlight maxima"><table><tr><td class="code"><pre><span class="line"><span class="built_in">append</span> <span class="built_in">key</span> flags exptime bytes [noreply]</span><br><span class="line">value</span><br></pre></td></tr></table></figure>
 
 <p>例如：</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">append</span> key<span class="number">1</span> <span class="number">0</span> <span class="number">180</span> <span class="number">1</span></span><br><span class="line"><span class="attribute">k</span></span><br><span class="line"><span class="attribute">STORED</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">get</span> key<span class="number">1</span></span><br><span class="line"><span class="attribute">VALUE</span> key<span class="number">1</span> <span class="number">0</span> <span class="number">4</span></span><br><span class="line"><span class="attribute">fuck</span></span><br><span class="line"><span class="attribute">END</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">append</span> key1 <span class="number">0</span> <span class="number">180</span> <span class="number">1</span></span><br><span class="line"><span class="attribute">k</span></span><br><span class="line"><span class="attribute">STORED</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">get</span> key1</span><br><span class="line"><span class="attribute">VALUE</span> key1 <span class="number">0</span> <span class="number">4</span></span><br><span class="line"><span class="attribute">fuck</span></span><br><span class="line"><span class="attribute">END</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="prepend"><a href="#prepend" class="headerlink" title="prepend"></a>prepend</h3><p>prepend 命令用于向已存在 key(键) 的 value(数据值) 前面追加数据 。</p>
 <p>prepend 命令的基本语法格式如下：</p>
 <figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line">prepend key flags exptime <span class="keyword">bytes </span>[<span class="keyword">noreply]</span></span><br><span class="line"><span class="keyword"></span>value</span><br></pre></td></tr></table></figure>
 
 <p>例如：</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">prepend</span> key<span class="number">1</span> <span class="number">0</span> <span class="number">180</span> <span class="number">5</span></span><br><span class="line"><span class="attribute">let</span>&#x27;s</span><br><span class="line"><span class="attribute">STORED</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">get</span> key<span class="number">1</span></span><br><span class="line"><span class="attribute">VALUE</span> key<span class="number">1</span> <span class="number">0</span> <span class="number">9</span></span><br><span class="line"><span class="attribute">let</span>&#x27;sfuck</span><br><span class="line"><span class="attribute">END</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight vbnet"><table><tr><td class="code"><pre><span class="line">prepend key1 <span class="number">0</span> <span class="number">180</span> <span class="number">5</span></span><br><span class="line"><span class="keyword">let</span><span class="comment">&#x27;s</span></span><br><span class="line">STORED</span><br><span class="line"></span><br><span class="line"><span class="keyword">get</span> key1</span><br><span class="line">VALUE key1 <span class="number">0</span> <span class="number">9</span></span><br><span class="line"><span class="keyword">let</span><span class="comment">&#x27;sfuck</span></span><br><span class="line"><span class="keyword">END</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h3><p>CAS（Check-And-Set 或 Compare-And-Swap） 命令用于执行一个”检查并设置”的操作。它仅在当前客户端最后一次取值后，该key 对应的值没有被其他客户端修改的情况下，才能够将值写入。</p>
 <p>检查是通过cas_token参数进行的，这个参数是Memcach指定给已经存在的元素的一个唯一的64位值。</p>
@@ -291,21 +291,21 @@
 <p>要在 Memcached 上使用 CAS 命令，你需要从 Memcached 服务商通过 gets 命令获取令牌（token）。</p>
 <p>gets 命令的功能类似于基本的 get 命令。两个命令之间的差异在于，gets 返回的信息稍微多一些：64 位的整型值非常像名称/值对的 “版本” 标识符。</p>
 <p>例如：</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">get</span> key<span class="number">1</span></span><br><span class="line"><span class="attribute">VALUE</span> key<span class="number">1</span> <span class="number">0</span> <span class="number">3</span></span><br><span class="line"><span class="attribute">abc</span></span><br><span class="line"><span class="attribute">END</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">gets</span> key<span class="number">1</span></span><br><span class="line"><span class="attribute">VALUE</span> key<span class="number">1</span> <span class="number">0</span> <span class="number">3</span> <span class="number">15</span></span><br><span class="line"><span class="attribute">abc</span></span><br><span class="line"><span class="attribute">END</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">cas</span> key<span class="number">1</span> <span class="number">0</span> <span class="number">180</span> <span class="number">5</span> <span class="number">15</span></span><br><span class="line"><span class="attribute">redis</span></span><br><span class="line"><span class="attribute">STORED</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">get</span> key<span class="number">1</span></span><br><span class="line"><span class="attribute">VALUE</span> key<span class="number">1</span> <span class="number">0</span> <span class="number">5</span></span><br><span class="line"><span class="attribute">redis</span></span><br><span class="line"><span class="attribute">END</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">get</span> key1</span><br><span class="line"><span class="attribute">VALUE</span> key1 <span class="number">0</span> <span class="number">3</span></span><br><span class="line"><span class="attribute">abc</span></span><br><span class="line"><span class="attribute">END</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">gets</span> key1</span><br><span class="line"><span class="attribute">VALUE</span> key1 <span class="number">0</span> <span class="number">3</span> <span class="number">15</span></span><br><span class="line"><span class="attribute">abc</span></span><br><span class="line"><span class="attribute">END</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">cas</span> key1 <span class="number">0</span> <span class="number">180</span> <span class="number">5</span> <span class="number">15</span></span><br><span class="line"><span class="attribute">redis</span></span><br><span class="line"><span class="attribute">STORED</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">get</span> key1</span><br><span class="line"><span class="attribute">VALUE</span> key1 <span class="number">0</span> <span class="number">5</span></span><br><span class="line"><span class="attribute">redis</span></span><br><span class="line"><span class="attribute">END</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="get"><a href="#get" class="headerlink" title="get"></a>get</h3><p>get 命令获取存储在 key(键) 中的 value(数据值) ，如果 key 不存在，则返回空。</p>
 <p>get 命令的基本语法格式如下：</p>
 <figure class="highlight maxima"><table><tr><td class="code"><pre><span class="line"><span class="built_in">get</span> <span class="built_in">key</span></span><br></pre></td></tr></table></figure>
 
 <p>多个 key 使用空格隔开，如下:</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">get</span> key<span class="number">1</span> key<span class="number">2</span> key<span class="number">3</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="built_in">get</span> key1 key2 key3</span><br></pre></td></tr></table></figure>
 
 <h3 id="gets"><a href="#gets" class="headerlink" title="gets"></a>gets</h3><p>gets 命令获取带有 CAS 令牌存 的 value(数据值) ，如果 key 不存在，则返回空。</p>
 <p>gets 命令的基本语法格式如下：</p>
 <figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">gets key</span></span><br></pre></td></tr></table></figure>
 
 <p>多个 key 使用空格隔开，如下:</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">gets</span> key<span class="number">1</span> key<span class="number">2</span> key<span class="number">3</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">gets</span> key1 key2 key3</span><br></pre></td></tr></table></figure>
 
 <h3 id="delete"><a href="#delete" class="headerlink" title="delete"></a>delete</h3><p>delete 命令用于删除已存在的 key(键)。</p>
 <p>delete 命令的基本语法格式如下：</p>

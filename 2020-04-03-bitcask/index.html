@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="generator" content="Hexo 5.4.2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"www.shangyan.site","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Bitcask 是一个日志型的键值对存储引擎。最初 Bitcask 是作为 Riak 这样一个分布式存储系统的核心存储引擎被人知晓，之后豆瓣的 beansdb 也使用 Bitask 的存储模型。 Bitcask 的论文可以从官网或 Github 中找到。说论文不太合适，或者应该叫说明文档，因为模型设计比较简单，实在没什么可着重阐述。 日志型存储与常见基于 B+ 树的存储引擎不同，日志型的存储引擎不">
+  <meta name="description" content="Bitcask 是一个日志型的键值对存储引擎。最初 Bitcask 是作为 Riak 这样一个分布式存储系统的核心存储引擎被人知晓，之后豆瓣的 beansdb 也使用 Bitask 的存储模型。 Bitcask 的论文可以从官网或 Github 中找到。说论文不太合适，或者应该叫说明文档，因为模型设计比较简单，实在没什么可着重阐述。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Bitcask 存储引擎">
 <meta property="og:url" content="http://www.shangyan.site/2020-04-03-bitcask/index.html">
 <meta property="og:site_name" content="上元君的博客">
-<meta property="og:description" content="Bitcask 是一个日志型的键值对存储引擎。最初 Bitcask 是作为 Riak 这样一个分布式存储系统的核心存储引擎被人知晓，之后豆瓣的 beansdb 也使用 Bitask 的存储模型。 Bitcask 的论文可以从官网或 Github 中找到。说论文不太合适，或者应该叫说明文档，因为模型设计比较简单，实在没什么可着重阐述。 日志型存储与常见基于 B+ 树的存储引擎不同，日志型的存储引擎不">
+<meta property="og:description" content="Bitcask 是一个日志型的键值对存储引擎。最初 Bitcask 是作为 Riak 这样一个分布式存储系统的核心存储引擎被人知晓，之后豆瓣的 beansdb 也使用 Bitask 的存储模型。 Bitcask 的论文可以从官网或 Github 中找到。说论文不太合适，或者应该叫说明文档，因为模型设计比较简单，实在没什么可着重阐述。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://www.shangyan.site/img/2020-04-03/20200403195136.png">
 <meta property="og:image" content="http://www.shangyan.site/img/2020-04-03/20200403195417.png">

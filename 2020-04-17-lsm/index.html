@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="generator" content="Hexo 5.4.2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"www.shangyan.site","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Bitcask提供了一种日志型的键值对存储引擎，这些键值对按照写入的顺序排列，并且对于出现在日志中的同一个键，后出现的值优于之前的值。除此之外，日志中键值对的顺序并不重要。 SSTable在Bitcask存储引擎基础上，我们加上一条新的规则：要求键值对的顺序按键排序。 这种格式称为排序字符表，简称为SSTable。它要求每个键在每个合并的段文件中只能出现一次（Bitcask中的压缩过程已经确保了）">
+  <meta name="description" content="Bitcask提供了一种日志型的键值对存储引擎，这些键值对按照写入的顺序排列，并且对于出现在日志中的同一个键，后出现的值优于之前的值。除此之外，日志中键值对的顺序并不重要。 SSTable">
 <meta property="og:type" content="article">
 <meta property="og:title" content="LSM 存储引擎">
 <meta property="og:url" content="http://www.shangyan.site/2020-04-17-lsm/index.html">
 <meta property="og:site_name" content="上元君的博客">
-<meta property="og:description" content="Bitcask提供了一种日志型的键值对存储引擎，这些键值对按照写入的顺序排列，并且对于出现在日志中的同一个键，后出现的值优于之前的值。除此之外，日志中键值对的顺序并不重要。 SSTable在Bitcask存储引擎基础上，我们加上一条新的规则：要求键值对的顺序按键排序。 这种格式称为排序字符表，简称为SSTable。它要求每个键在每个合并的段文件中只能出现一次（Bitcask中的压缩过程已经确保了）">
+<meta property="og:description" content="Bitcask提供了一种日志型的键值对存储引擎，这些键值对按照写入的顺序排列，并且对于出现在日志中的同一个键，后出现的值优于之前的值。除此之外，日志中键值对的顺序并不重要。 SSTable">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-04-16T16:00:00.000Z">
 <meta property="article:modified_time" content="2021-11-06T02:28:18.454Z">

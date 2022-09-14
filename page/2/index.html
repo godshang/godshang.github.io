@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="generator" content="Hexo 5.4.2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -146,6 +146,88 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2019-02-02-graphite/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019-02-02-graphite/" class="post-title-link" itemprop="url">Graphite 安装</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-02-02 00:00:00" itemprop="dateCreated datePublished" datetime="2019-02-02T00:00:00+08:00">2019-02-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-06 10:28:18" itemprop="dateModified" datetime="2021-11-06T10:28:18+08:00">2021-11-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Graphite 是处理可视化和指标数据的优秀开源工具，它提供给了强大的查询API和丰富的功能。实际上，Graphite 做了两件事，一是存储时序数据，二是按需渲染数据图表。 Graphite 并没有提供数据采集的能力，但是可以和许多工具完美搭配起来。</p>
+<p>Graphite 的架构中包含三个部分</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019-02-02-graphite/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2018-11-29-6.824-lab1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -202,15 +284,6 @@
       
           <p>6.824 的 Lab1 是关于 MapReduct 的一个实验。 Lab1 的详细内容可以参考<a target="_blank" rel="noopener" href="http://nil.csail.mit.edu/6.824/2018/labs/lab-1.html">这篇</a>文章。另外，关于如何 Git 和 Go 的环境搭建比较简单，不再赘述。</p>
 <p>6.824 的 Lab 提供了一些骨架代码，可以省去整个程序框架的搭建以及非核心代码的编写。可以通过如下命令 clone 到本地：</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">git</span> clone git://g.csail.mit.edu/<span class="number">6</span>.<span class="number">824</span>-golabs-<span class="number">2018</span> <span class="number">6</span>.<span class="number">824</span></span><br></pre></td></tr></table></figure>
-
-<p>Lab 提供给了一个非常详细的<a target="_blank" rel="noopener" href="http://nil.csail.mit.edu/6.824/2018/labs/lab-1.html">指导说明</a>，建议在实验前完整的阅读一遍。</p>
-<p>代码中的 mapreduce 包提供了一个简单的 Map/Reduce 库，应用可以通过调用 <code>Distributed()</code> (master.go) 函数来启动一个作业，也可以通过调用 <code>Sequential()</code> (master.go) 函数进行顺序化的执行，方便进行 debug 。</p>
-<h3 id="Part-I"><a href="#Part-I" class="headerlink" title="Part I"></a>Part I</h3><p>在这一部分，我们需要实现几个函数来完成 Map/Reduce 过程，主要修改 <code>common_map.go</code> 中的 <code>doMap()</code> 函数、 <code>common_reduct.go</code> 中的 <code>doReduce()</code> 函数。</p>
-<p>doMap() 函数读取 <code>inFile</code> 文件中的内容，调用 <code>mapF()</code> 函数生成一个 <code>KeyValue</code> 数组，并将 <code>KeyValue</code> 内容写到输出的中间文件，每个 reducer 都会生成一个对应的中间文件。</p>
-<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">func doMap(</span><br><span class="line">	jobName string, <span class="comment">// the name of the MapReduce job</span></span><br><span class="line">	mapTask int, <span class="comment">// which map task this is</span></span><br><span class="line">	<span class="keyword">inFile</span> string,</span><br><span class="line">	nReduce int, <span class="comment">// the number of reduce task that will be run (&quot;R&quot; in the paper)</span></span><br><span class="line">	mapF func(filename string, contents string) []KeyValue,</span><br><span class="line">) &#123;</span><br><span class="line">	<span class="keyword">bs</span>, <span class="keyword">err</span> := ioutil.ReadFile(<span class="keyword">inFile</span>)</span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">err</span> != nil &#123;</span><br><span class="line">		<span class="keyword">log</span>.Fatal(<span class="keyword">err</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	content := <span class="built_in">string</span>(<span class="keyword">bs</span>)</span><br><span class="line">	keyValues := mapF(<span class="keyword">inFile</span>, content)</span><br><span class="line"></span><br><span class="line">	reduceFiles := make([]*os.<span class="keyword">File</span>, nReduce)</span><br><span class="line">	<span class="keyword">for</span> i := 0; i &lt; nReduce; i++ &#123;</span><br><span class="line">		reduceFileName := reduceName(jobName, mapTask, i)</span><br><span class="line">		reduceFiles[i], _ = os.Create(reduceFileName)</span><br><span class="line">		defer reduceFiles[i].<span class="keyword">Close</span>()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> _, keyValue := <span class="keyword">range</span> keyValues &#123;</span><br><span class="line">		index := ihash(keyValue.Key) % nReduce</span><br><span class="line">		<span class="keyword">enc</span> := json.NewEncoder(reduceFiles[index])</span><br><span class="line">		<span class="keyword">err</span> := <span class="keyword">enc</span>.<span class="keyword">Encode</span>(&amp;keyValue)</span><br><span class="line">		<span class="keyword">if</span> <span class="keyword">err</span> != nil &#123;</span><br><span class="line">			<span class="keyword">log</span>.Fatal(<span class="keyword">err</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>doReduce() 函数读取其对应的中间文件，并按 <code>key</code> 对文件中的 <code>KeyValue</code> 对进行排序，然后调用用户定义的 <code>reduceF()</code> 函数，并将最终结果写到文件中。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2018-11-29-6.824-lab1/#more" rel="contents">
@@ -293,27 +366,6 @@
       
           <p>Apache Kylin是一款构建于Hadoop之上的分布式OLAP引擎，支持TB级别数据集的多维度实时查询。</p>
 <p>为什么要采用 Kylin 呢？通过下面这个例子我们来简单了解下。</p>
-<p>需求： 某业务将用户行为表存在Hive之上，包含8个维度，需要对各种维度组合计算Count/Sum等度量值。</p>
-<p>传统做法： 对于每一种组合（共255种）的分析需求，都需要撰写一个Hive SQL并将结果存储到MySQL。这样的做法遇到几个困难：</p>
-<ul>
-<li>管理复杂： 用户需自行管理一系列分析任务，每来一个新的分析需求，需要撰写新的预处理SQL。</li>
-<li>预处理太慢： 不同维度组合间存在大量重复计算，浪费计算资源。实测几千万行的表，8个维度预处理就要超过一天。</li>
-</ul>
-<p>Kylin的实现方式，用户仅需三步：</p>
-<ul>
-<li>一次定义： 选择Hive表，添加待分析的维度和度量；（Kylin称之为Cube定义）</li>
-<li>自动预处理： Kylin会根据Cube定义做预处理，自动计算所有维度组合的度量值；</li>
-<li>亚秒级查询： 用户像查询MySQL、Hive表一样执行SQL，TB级别的数据，亚秒级返回。</li>
-</ul>
-<p>使用Kylin有如下优势：</p>
-<ul>
-<li>管理简单： 用户只需定义维度和度量，而无需关心预处理过程，也不需要在Hive与MySQL之间导来导去；</li>
-<li>预处理快： 测试显示Kylin的计算成本降低一半，预处理速度提升10倍</li>
-<li>查询速度快： 3TB的原始数据构建Cube，查询大部分在1秒以下；</li>
-<li>数据规模大： 支持TB级别数据，不用再为MySQL分库分表烦恼了；</li>
-<li>接入简单： 通过JDBC、ODBC、RESTful API等接口执行查询；</li>
-</ul>
-<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2018-09-13-apache-kylin/#more" rel="contents">
@@ -396,16 +448,6 @@
       
           <p>Apache Kylin是一个开源的分布式OLAP引擎，提供基于Hadoop/Spark之上的SQL查询接口以及多维分析能力，支持超大规模的数据集，能够在亚秒内查询巨大的Hive表。Apache Kylin最初由eBay开发并贡献至开源社区。</p>
 <p><img src="../img/2018-09-03/kylin_diagram.png"></p>
-<hr>
-<p>出于学习和研究的目的，建议使用集成的sandbox来安装Apache Kylin，避免在Hadoop环境上浪费时间。这里选择了CDH的sandbox环境。</p>
-<p>下载好CDH sandbox并导入Virtual Box之后，启动虚拟机即可得到一个配置好的HDFS、YARN、MapReduce、Hive、Hbase、Zookeeper等软件的运行环境。</p>
-<p>从官网下载Kyelin二进制安装包:</p>
-<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">cd <span class="regexp">/usr/</span>local</span><br><span class="line">wget http:<span class="regexp">//mi</span>rrors.tuna.tsinghua.edu.cn<span class="regexp">/apache/</span>kylin<span class="regexp">/apache-kylin-2.4.0/</span>apache-kylin-<span class="number">2.4</span>.<span class="number">0</span>-bin-cdh57.tar.gz</span><br></pre></td></tr></table></figure>
-
-<p>解压tar包，并配置环境变量<code>KYLIN_HOME</code>:</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">tar</span> -zxvf apache-kylin-<span class="number">2</span>.<span class="number">4</span>.<span class="number">0</span>-bin-cdh<span class="number">57</span>.tar.gz</span><br><span class="line"><span class="attribute">cd</span> apache-kylin-<span class="number">2</span>.<span class="number">4</span>.<span class="number">0</span>-bin-cdh<span class="number">57</span></span><br><span class="line"><span class="attribute">export</span> KYLIN_HOME=`pwd`</span><br></pre></td></tr></table></figure>
-
-<p>为确保用户有权限执行hadoop、hive和hbase的相关命令，可以运行<code>$KYLIN_HOME/bin/check-env.sh</code>命令检查环境配置，如果没有error信息，意味着环境没有问题。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2018-09-03-apache-kylin/#more" rel="contents">
@@ -488,12 +530,6 @@
       
           <p>Raft是一个分布式共识协议。</p>
 <p>提到分布式共识协议，不得不提Paxos。Paxos几乎已经成为一致性协议的代名词，其正确性已经被理论证明。但是，Paxos有两个明显的缺点。第一个缺点是Paxos算法极难理解，完整的解释是出了名的不透明。第二个缺点是Paxos没有提供一个良好的、用来构建现实系统的基础，实际系统很少有完全遵照Paxos实践的，每种实现都是从Paxos开始，然后发现很多实现上的难度，然后走了一条和Paxos明显不一样的路。</p>
-<h2 id="Raft基础"><a href="#Raft基础" class="headerlink" title="Raft基础"></a>Raft基础</h2><p>Raft集群中每个服务器节点都处于三种状态之一：leader、follower、candidate。通常情况下，系统中只有一个leader，其他的节点都是follower。follower不会发起任何请求，只是简单地响应来自leader或者candidate的请求。leader负责处理所有来自client的请求，如果client连到了follower，那么follower会把请求重定向到leader。candidate是在leader选举时的中间状态。</p>
-<p><img src="../img/2018-06-26/a9c638fe68605672bb424e7a11188704.png"></p>
-<p>Raft把时间划分任意长度的任期（term），任期用连续的整数标记。每个任期从一次选举开始，当一个或多个候选人尝试成为leader，如果一个candidate赢得选举，那么它就再接下来的任期内充当leader的职责。在某些场景下，一次选举过程会造成选举的瓜分（？），此时，这一任期会以没有leader结束，并立刻开始一轮新的选举过程。Raft保证在一个任期内至多只有一个leader。</p>
-<p><img src="../img/2018-06-26/5c7b75c11adf939ade1a4e25773839c6.png"></p>
-<h2 id="leader选举"><a href="#leader选举" class="headerlink" title="leader选举"></a>leader选举</h2><p>集群中服务器节点是以follower状态启动，只要服务器节点一直收到来自leader或candidate的RPC请求，那么它将一直保持在follower状态。leader会周期性地发送心跳消息（即不带日志的AppendEntries请求）给所有的follower来维护leader的地位。如果follower在一段时间（叫做election timeout，选举超时时间）内没有接收到消息，那么follower就会假设目前没有可用的leader，并发起一次选举来选举出新的leader。</p>
-<p>要开始一次选举过程，follower首先增加自己的当前任期号并转换到candidate状态，然后它会向集群中的其他服务器发送PRC请求来为自己投票。candidate只有在以下三种情况下才会改变自己的状态：(a) 它自己赢得了选举，(b) 另一个服务器成为leader，(c) 一段时间过后没有人赢得选举。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2018-06-26-raft/#more" rel="contents">
@@ -576,24 +612,6 @@
       
           <p>6.824的第二篇论文是同样大名鼎鼎的<a target="_blank" rel="noopener" href="http://nil.csail.mit.edu/6.824/2018/papers/gfs.pdf">GFS</a>。</p>
 <p>GFS为MapReduce提供了存储，没有GFS也就没有MapReduce。同时Google的其他系统也是构建在GFS之上，例如BigTable、Spanner。Apache Hadoop中的HDFS就是GFS的模仿之作。同时，GFS也是一篇非常值得一读的系统结构方向的文章，文中的多副本机制、容错、控制流与数据流隔离、追加写模式等概念几乎成为分布式文件系统的标配。</p>
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>GFS是一个分布式的文件系统。它不追求与POSIX接口兼容，而是使用自己的一套API。它对主要应用场景的假设也与传统单机文件系统不同：</p>
-<ul>
-<li>系统用大量普通机器堆起来，机器挂掉是非常常见的事。</li>
-<li>系统里面主要存的是大文件，几百M甚至上G这种大小。</li>
-<li>读操作是大量的顺序读和少量的随机读。</li>
-<li>写操作是大量的顺序写(append)，一旦写入几乎不会修改。</li>
-<li>文件经常被大量client同时append，需要仔细考虑同步机制的开销</li>
-<li>相比低latency，更看重高吞吐量</li>
-</ul>
-<h2 id="系统架构"><a href="#系统架构" class="headerlink" title="系统架构"></a>系统架构</h2><ul>
-<li>GFS由一个master和多个chunkserver组成。</li>
-<li>master存储整个文件系统的元数据，chunkserver存储实际文件数据。</li>
-<li>文件被分为固定大小的chunk（例如64MB），每个chunk有一个全局唯一的64位编号，每个chunk会备份在多个chunkserver上（默认3个），以一个普通Linux文件的方式。</li>
-<li>master会通过周期性的心跳消息来向chunkserver发送指令和收集状态。</li>
-<li>client和chunkserver均不缓存文件数据。</li>
-</ul>
-<h2 id="master设计"><a href="#master设计" class="headerlink" title="master设计"></a>master设计</h2><p>单节点master的设计会存在single point failure的问题，作者对此的解释是，首先单节点master大大简化了系统设计和实现，其次数据直接在client和chunkserver之间交流所以单master不会成为瓶颈。</p>
-<p>master内存中会存储三类元数据：文件和chunk的命名空间、文件到chunk的映射以及每个chunk副本的位置。前两类元数据持久化存储到master本地磁盘上的operation log中，并在其他机器（remote machine）备份；master不会存储chunk的位置信息，而是向每个chunkserver询问得来，因为每个chunkserver知道自己的状态，免去了这一可能造成不一致的可能性。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2018-05-22-gfs/#more" rel="contents">
@@ -676,29 +694,14 @@
       
           <p>6.824 是 MIT 的分布式系统课程，主要形式就是读论文，还有几个工程项目。</p>
 <p>第一课是 Google 的经典之作 <a target="_blank" rel="noopener" href="http://nil.csail.mit.edu/6.824/2018/papers/mapreduce.pdf">MapReduce/</a>。</p>
-<p>MapReduce 的基本概念非常简单，Map 和 Reduce 来源于函数式编程中的概念。 MapReduce 的最大卖点就是它容易理解且扩展性强，很多计算任务都可以使用 Map/Reduce 表达，同时框架又对开发人员屏蔽了 parallelization, fault-tolerance, locality optimization, load balancing 这些分布式系统中常见的细节。</p>
-<p>时至今日， MapReduce 的计算模型已经广为人知，这里从略，记录下一些其他的方面。</p>
-<ul>
-<li><p>计算靠近数据：网络带宽是系统的一大瓶颈，所以要尽可能减少网络传输。 MapReduce 建立在 GFS 文件系统上，和 GFS 共享机器。 GFS 将文件按 64MB 大小切分成快，并在不同机器上存储多个副本（通常是3副本）。 MapReduce 系统的 master 根据这些信息，尽可能地把 Map 任务分配到保存着相应数据的机器上来做，这样 Map 任务就只需要从本地硬盘读了。如果做不到的话，也尽量分配到附近的机器上，减少通过交换机的数据量。</p>
-</li>
-<li><p>另外一个非常有用的优化是 Combiner ，简单来说就是 Map 任务在本地先做一次 Reduce （这时不叫 Reduce 叫 Combiner ）再写入本地硬盘，然后 Reducer 那边要读的远程数据就可能大大减少。比如 word count 问题，与其写一大堆 (word, “1”)，不如先在本地加一下。当然，这个要求 reduce 的运算符满足交换律和结合律才行。</p>
-</li>
-<li><p>还有一个优化是处理拖后腿的任务。实践中容易发现总会有少数几个 task 出奇地慢（Hadoop/Hive经常卡在99%上），原因多种多样，比如碰巧有台机器的硬盘慢了。解决方法是当总进度接近完成时，对于还没结束的任务，重复启动一份，两份同时跑，哪个先运行完算哪个。实验显示这样可以用很少的额外运算量换取总完成时间的大大减少。</p>
-</li>
-<li><p>Partition 函数。用户可以指定 Reduce 任务（即output文件）的个数（假设为R），此时 Map 任务产生的中间数据默认会根据公式 <code>hash(key) mod R</code> 分片到 Reduce 任务中。在一些场景下，比如 key 是 URL 的情况，希望相同 host 的数据会输出到同一个文件中，此时用户可以自由指定 Partition 函数，实现这一需求。</p>
-</li>
-<li><p>失败处理。</p>
-<ul>
-<li><p>如果 Master 挂了，按论文里的说法好像就不试图恢复了，直接报错让客户端选择是否重试。</p>
-</li>
-<li><p>master保存着所有task的信息，比如状态是没开始、进行中还是完成了，运行中或者完成了的任务是在哪个worker上运行的，等等。master会持续ping所有worker，如果ping不通就认为worker挂了。挂了的worker上的进行中的map任务和reduce任务，还有完成了的map任务，都需要在别的机器上重启。这里要注意的是完成了的reduce任务就不用重启了，因为输出文件已经写到了全局的GFS上；完成了的map任务则需要重启，因为reducer还需要远程读它的本地输出文件，而这机器已经挂了。</p>
-</li>
-<li><p>如果ping不通的机器其实没挂也没问题，这时会出现多个map task或reduce task处理同一份数据。如果是多个mapper，先结束的那个会把自己的本地输出文件的位置上报给master，后结束的那个上报的会被master忽略，对结果没有影响。如果是多个reducer，我们利用GFS提供的atomic rename功能，保证只能有一个reducer写入GFS成功。</p>
-</li>
-</ul>
-</li>
-</ul>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018-05-16-mapreduce/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -944,96 +947,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2017-12-26-memcached/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2017-12-21-redis-advance/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="alan">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="上元君的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2017-12-21-redis-advance/" class="post-title-link" itemprop="url">Redis的一些原理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2017-12-21 00:00:00" itemprop="dateCreated datePublished" datetime="2017-12-21T00:00:00+08:00">2017-12-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-25 18:06:19" itemprop="dateModified" datetime="2022-08-25T18:06:19+08:00">2022-08-25</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h1><p>Redis是内存数据库，它把自己的数据库状态存储在内存中，所以一旦发生停电或者其他因素使主机宕机，那么数据将会丢失，所以Redis引入了持久化操作，它把Redis在内存中的数据库状态持久化到硬盘，当服务器重新启动的时候，去加载硬盘中的持久化文件就可恢复现场状态。</p>
-<p>Redis有两种持久化方式:RDB持久化和AOF持久化，前者是通过把数据库状态的键值对保存起来，而AOF则是把命令保存起来，那么服务器是使用哪种持久化呢?因为AOF文件更新频率更高，所以优先AOF。</p>
-<h2 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h2><p>RDB持久化可以将内存中的数据库状态保存到磁盘里面，避免数据意外丢失。</p>
-<p>RDB持久化既可以手动执行，也可以根据服务器配置选项定期执行，该功能可以将某个时间点上的数据库状态保存到一个RDB文件中。</p>
-<h3 id="RDB文件的创建与载入"><a href="#RDB文件的创建与载入" class="headerlink" title="RDB文件的创建与载入"></a>RDB文件的创建与载入</h3><p>有两个命令可以用于生成RDB文件，一个是SAVE，另一个是BGSAVE。</p>
-<ul>
-<li>SAVE命令会阻塞Redis服务器进程，直到RDB文件创建完毕为止，在服务器进程阻塞期间，服务器不能处理任何命令请求。</li>
-<li>BGSAVE命令则会派生出一个子进程，然后由子进程负责创建RDB文件，服务器进程（父进程）继续处理命令请求。</li>
-</ul>
-<p>RDB文件的载入是在服务器启动时自动执行的，没有专门用于载入RDB文件的命令，只要Redis服务器在启动时监测到RDB文件存在，它就会自动载入RDB文件。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2017-12-21-redis-advance/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>

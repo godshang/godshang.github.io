@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="generator" content="Hexo 5.4.2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -211,7 +211,7 @@
 <p>通过使用快照机制，可以构件的使用者随时能够得到构件的最新可用的快照构件。</p>
 <p>项目在正式发布上线前，就可以将构件的快照版本变更为正式版本，表示该构件的这个版本已经稳定，且只对应了唯一的构件。</p>
 <h2 id="使用快照版本构件"><a href="#使用快照版本构件" class="headerlink" title="使用快照版本构件"></a>使用快照版本构件</h2><p>我们知道，对于web项目，发布时所有的第三方依赖jar包会被Maven拷贝到WEB-INF/lib目录下。而对于以jar形式发布的项目，第三方jar的路径并没有强制约定的某个目录，而是在被发布的jar包中的MANIFAST文件的Class-Path部分写明第三方jar包的路径。比如：</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">Manifest</span>-Version: <span class="number">1</span>.<span class="number">0</span></span><br><span class="line"><span class="attribute">Archiver</span>-Version: Plexus Archiver</span><br><span class="line"><span class="attribute">Created</span>-By: Apache Maven</span><br><span class="line"><span class="attribute">Built</span>-By: root</span><br><span class="line"><span class="attribute">Build</span>-Jdk: <span class="number">1</span>.<span class="number">6</span>.<span class="number">0</span>_<span class="number">31</span></span><br><span class="line"><span class="attribute">Main</span>-Class: com.sogou.bizdev.brandtask.app.Main</span><br><span class="line"><span class="attribute">Class</span>-Path: lib/brandstart-api-<span class="number">1</span>.<span class="number">0</span>.<span class="number">0</span>-<span class="number">20150817</span>.<span class="number">111150</span>-<span class="number">22</span>.jar lib/commons-logging-<span class="number">1</span>.<span class="number">1</span>.<span class="number">1</span>.jar ...</span><br></pre></td></tr></table></figure>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">Manifest</span>-Version: <span class="number">1</span>.<span class="number">0</span></span><br><span class="line"><span class="attribute">Archiver</span>-Version: Plexus Archiver</span><br><span class="line"><span class="attribute">Created</span>-By: Apache Maven</span><br><span class="line"><span class="attribute">Built</span>-By: root</span><br><span class="line"><span class="attribute">Build</span>-Jdk: <span class="number">1</span>.<span class="number">6</span>.<span class="number">0</span>_31</span><br><span class="line"><span class="attribute">Main</span>-Class: com.sogou.bizdev.brandtask.app.Main</span><br><span class="line"><span class="attribute">Class</span>-Path: lib/brandstart-api-<span class="number">1</span>.<span class="number">0</span>.<span class="number">0</span>-<span class="number">20150817</span>.<span class="number">111150</span>-<span class="number">22</span>.jar lib/commons-logging-<span class="number">1</span>.<span class="number">1</span>.<span class="number">1</span>.jar ...</span><br></pre></td></tr></table></figure>
 
 <p>但是，对于使用了快照的第三方jar，MANIFAST里的jar包名是以时间戳为后缀的，而不是SNAPSHOT。而实际上从远程仓库获取的jar却是以SNAPSHOT为后缀的。这就造成了运行时出现的类找不到的异常。</p>
 <p>这个不一致的问题，可以通过设置maven-jar-plugin插件的useUniqueVersions属性，来强制使用SNAPSHOT。插件的具体配置示例：</p>

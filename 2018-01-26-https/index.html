@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="generator" content="Hexo 5.4.2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -238,7 +238,7 @@
 <p>执行这条命令后，系统会提示输入各项信息，由于这是自签名的证书，除了 Common Name (e.g. server FQDN or YOUR name) []: FQDN（ fully qualified domain name）必须是服务器域名或 IP 外，其他都不重要，可以随意填写或一路回车。</p>
 <p>这里我们填写自己的服务器 IP ： 10.148.21.177</p>
 <p><strong>创建 SSL 证书</strong></p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">openssl</span> x<span class="number">509</span> -req -days <span class="number">365</span> -in bizmobile.csr -signkey bizmobile.key -out bizmobile.crt</span><br></pre></td></tr></table></figure>
+<figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line">openssl x509 -req -days <span class="number">365</span> -in <span class="keyword">bizmobile.csr </span>-signkey <span class="keyword">bizmobile.key </span>-out <span class="keyword">bizmobile.crt</span></span><br></pre></td></tr></table></figure>
 
 <p><strong>生成 p12 证书</strong></p>
 <p>由于我们使用 Resin 作为 Web 容器发布 HTTPS 服务，而 Resin 使用的是 jks 证书，因此需要做一个从 crt 证书到 jks 证书的转换。首先，需要转成 p12 证书：</p>
@@ -246,7 +246,7 @@
 
 <p><strong>生成 jks 证书</strong></p>
 <p>keytool 是 JDK 中的命令，需要提前安装：</p>
-<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">keytool</span> -importkeystore -destkeystore bizmobile.jks -srckeystore bizmobile.p<span class="number">12</span> -srcstoretype pkcs<span class="number">12</span> -alias bizmobile</span><br></pre></td></tr></table></figure>
+<figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line">keytool -importkeystore -destkeystore <span class="keyword">bizmobile.jks </span>-srckeystore <span class="keyword">bizmobile.p12 </span>-srcstoretype pkcs12 -alias <span class="keyword">bizmobile</span></span><br></pre></td></tr></table></figure>
 
 <p>至此，完成了证书的制作。</p>
 <h2 id="Resin-配置"><a href="#Resin-配置" class="headerlink" title="Resin 配置"></a>Resin 配置</h2><p>打开 resin.properties 文件，默认 https 端口是被注释掉了，请打开：</p>
