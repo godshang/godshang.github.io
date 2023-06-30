@@ -17,26 +17,26 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"www.shangyan.site","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"godshang.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="Trace链路Skywalking中的链路由三个概念组成：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Skywalking Trace链路分析">
-<meta property="og:url" content="http://www.shangyan.site/2022-10-20-skywalking-trace/index.html">
+<meta property="og:url" content="https://godshang.github.io/2022-10-20-skywalking-trace/index.html">
 <meta property="og:site_name" content="上元君的博客">
 <meta property="og:description" content="Trace链路Skywalking中的链路由三个概念组成：">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://www.shangyan.site/img/2022-10-20/010787d76bd3f135d34abc3654ab6c29.png">
-<meta property="og:image" content="http://www.shangyan.site/img/2022-10-20/b2c7ef3fd3b943f3b4f0a2c8018a2eb3.png">
+<meta property="og:image" content="https://godshang.github.io/img/2022-10-20/010787d76bd3f135d34abc3654ab6c29.png">
+<meta property="og:image" content="https://godshang.github.io/img/2022-10-20/b2c7ef3fd3b943f3b4f0a2c8018a2eb3.png">
 <meta property="article:published_time" content="2022-10-19T16:00:00.000Z">
 <meta property="article:modified_time" content="2023-01-29T02:33:50.879Z">
 <meta property="article:author" content="alan">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://www.shangyan.site/img/2022-10-20/010787d76bd3f135d34abc3654ab6c29.png">
+<meta name="twitter:image" content="https://godshang.github.io/img/2022-10-20/010787d76bd3f135d34abc3654ab6c29.png">
 
-<link rel="canonical" href="http://www.shangyan.site/2022-10-20-skywalking-trace/">
+<link rel="canonical" href="https://godshang.github.io/2022-10-20-skywalking-trace/">
 
 
 <script id="page-configurations">
@@ -127,6 +127,11 @@
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+        <li class="menu-item menu-item-note">
+
+    <a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>笔记</a>
+
+  </li>
   </ul>
 </nav>
 
@@ -155,7 +160,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://www.shangyan.site/2022-10-20-skywalking-trace/">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2022-10-20-skywalking-trace/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -397,12 +402,12 @@
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
