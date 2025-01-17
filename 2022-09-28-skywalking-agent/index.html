@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="org.apache.skywalking.apm.agent.SkyWalkingAgent是Skywalking Agent的启动入口。premain方法的主要流程：  调用SnifferConfigInitializer.initializeCoreConfig加载配置 使用PluginBootstrap的loadPlugins方法加载插件，并创建PluginFinder实例 创建Trans">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Skywalking Agent 启动流程分析">
+<meta property="og:url" content="https://godshang.github.io/2022-09-28-skywalking-agent/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="org.apache.skywalking.apm.agent.SkyWalkingAgent是Skywalking Agent的启动入口。premain方法的主要流程：  调用SnifferConfigInitializer.initializeCoreConfig加载配置 使用PluginBootstrap的loadPlugins方法加载插件，并创建PluginFinder实例 创建Trans">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://godshang.github.io/img/2022-09-28/4236553-3d33f93892901f6f.png">
+<meta property="og:image" content="https://godshang.github.io/img/2022-09-28/4236553-9513a4763a8189b8.png">
+<meta property="og:image" content="https://godshang.github.io/img/2022-09-28/0cb4c15fa2ce039c04b075087d595d49.png">
+<meta property="og:image" content="https://godshang.github.io/img/2022-09-28/e1a041b32aeef3f77b254c6ccf68b187.png">
+<meta property="og:image" content="https://godshang.github.io/img/2022-09-28/3b10db2a9307478987e1b21253f6c5d2.png">
+<meta property="og:image" content="https://godshang.github.io/img/2022-09-28/5628d6c6057441a3b26c006ba05e7a7e.png">
+<meta property="article:published_time" content="2022-09-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.698Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://godshang.github.io/img/2022-09-28/4236553-3d33f93892901f6f.png">
+
+
+<link rel="canonical" href="https://godshang.github.io/2022-09-28-skywalking-agent/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2022-09-28-skywalking-agent/","path":"2022-09-28-skywalking-agent/","title":"Skywalking Agent 启动流程分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Skywalking Agent 启动流程分析 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">加载配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E6%8F%92%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">加载插件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#PluginBootstrap"><span class="nav-number">2.1.</span> <span class="nav-text">PluginBootstrap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AgentClassLoader"><span class="nav-number">2.2.</span> <span class="nav-text">AgentClassLoader</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PluginFinder"><span class="nav-number">2.3.</span> <span class="nav-text">PluginFinder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ClassMatch"><span class="nav-number">2.4.</span> <span class="nav-text">ClassMatch</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AbstractClassEnhancePluginDefine"><span class="nav-number">2.5.</span> <span class="nav-text">AbstractClassEnhancePluginDefine</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%92%E4%BB%B6%E7%9A%84witness%E6%9C%BA%E5%88%B6"><span class="nav-number">2.6.</span> <span class="nav-text">插件的witness机制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Transformer"><span class="nav-number">3.</span> <span class="nav-text">Transformer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD-BootService"><span class="nav-number">4.</span> <span class="nav-text">加载 BootService</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2022-09-28-skywalking-agent/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Skywalking Agent 启动流程分析 | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Skywalking Agent 启动流程分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-09-28 00:00:00" itemprop="dateCreated datePublished" datetime="2022-09-28T00:00:00+08:00">2022-09-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><code>org.apache.skywalking.apm.agent.SkyWalkingAgent</code>是Skywalking Agent的启动入口。<code>premain</code>方法的主要流程：</p>
+<ol>
+<li>调用<code>SnifferConfigInitializer.initializeCoreConfig</code>加载配置</li>
+<li>使用<code>PluginBootstrap</code>的<code>loadPlugins</code>方法加载插件，并创建<code>PluginFinder</code>实例</li>
+<li>创建<code>Transformer</code>，构建<code>Byte Buddy</code>的<code>AgentBuilder</code>，并与<code>Instrumentation</code>关联</li>
+<li>调用<code>ServiceManager.boot</code>方法，初始化<code>BootService</code></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">premain</span><span class="params">(String agentArgs, Instrumentation instrumentation)</span> <span class="keyword">throws</span> PluginException &#123;</span><br><span class="line">    <span class="keyword">final</span> PluginFinder pluginFinder;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 加载配置</span></span><br><span class="line">        SnifferConfigInitializer.initializeCoreConfig(agentArgs);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="comment">// try to resolve a new logger, and use the new logger to write the error log here</span></span><br><span class="line">        LogManager.getLogger(SkyWalkingAgent.class)</span><br><span class="line">                .error(e, <span class="string">&quot;SkyWalking agent initialized failure. Shutting down.&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// refresh logger again after initialization finishes</span></span><br><span class="line">        LOGGER = LogManager.getLogger(SkyWalkingAgent.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 2. 加载插件</span></span><br><span class="line">        pluginFinder = <span class="keyword">new</span> <span class="title class_">PluginFinder</span>(<span class="keyword">new</span> <span class="title class_">PluginBootstrap</span>().loadPlugins());</span><br><span class="line">    &#125; <span class="keyword">catch</span> (AgentPackageNotFoundException ape) &#123;</span><br><span class="line">        LOGGER.error(ape, <span class="string">&quot;Locate agent.jar failure. Shutting down.&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        LOGGER.error(e, <span class="string">&quot;SkyWalking agent initialized failure. Shutting down.&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 创建Byte Buddy Transformer</span></span><br><span class="line">    <span class="keyword">final</span> <span class="type">ByteBuddy</span> <span class="variable">byteBuddy</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteBuddy</span>().with(TypeValidation.of(Config.Agent.IS_OPEN_DEBUGGING_CLASS));</span><br><span class="line"></span><br><span class="line">    <span class="type">AgentBuilder</span> <span class="variable">agentBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AgentBuilder</span>.Default(byteBuddy).ignore(</span><br><span class="line">            nameStartsWith(<span class="string">&quot;net.bytebuddy.&quot;</span>)</span><br><span class="line">                    .or(nameStartsWith(<span class="string">&quot;org.slf4j.&quot;</span>))</span><br><span class="line">                    .or(nameStartsWith(<span class="string">&quot;org.groovy.&quot;</span>))</span><br><span class="line">                    .or(nameContains(<span class="string">&quot;javassist&quot;</span>))</span><br><span class="line">                    .or(nameContains(<span class="string">&quot;.asm.&quot;</span>))</span><br><span class="line">                    .or(nameContains(<span class="string">&quot;.reflectasm.&quot;</span>))</span><br><span class="line">                    .or(nameStartsWith(<span class="string">&quot;sun.reflect&quot;</span>))</span><br><span class="line">                    .or(allSkyWalkingAgentExcludeToolkit())</span><br><span class="line">                    .or(ElementMatchers.isSynthetic()));</span><br><span class="line"></span><br><span class="line">    JDK9ModuleExporter.<span class="type">EdgeClasses</span> <span class="variable">edgeClasses</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JDK9ModuleExporter</span>.EdgeClasses();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        agentBuilder = BootstrapInstrumentBoost.inject(pluginFinder, instrumentation, agentBuilder, edgeClasses);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        LOGGER.error(e, <span class="string">&quot;SkyWalking agent inject bootstrap instrumentation failure. Shutting down.&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        agentBuilder = JDK9ModuleExporter.openReadEdge(instrumentation, agentBuilder, edgeClasses);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        LOGGER.error(e, <span class="string">&quot;SkyWalking agent open read edge in JDK 9+ failure. Shutting down.&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (Config.Agent.IS_CACHE_ENHANCED_CLASS) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            agentBuilder = agentBuilder.with(<span class="keyword">new</span> <span class="title class_">CacheableTransformerDecorator</span>(Config.Agent.CLASS_CACHE_MODE));</span><br><span class="line">            LOGGER.info(<span class="string">&quot;SkyWalking agent class cache [&#123;&#125;] activated.&quot;</span>, Config.Agent.CLASS_CACHE_MODE);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            LOGGER.error(e, <span class="string">&quot;SkyWalking agent can&#x27;t active class cache.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    agentBuilder.type(pluginFinder.buildMatch())</span><br><span class="line">                .transform(<span class="keyword">new</span> <span class="title class_">Transformer</span>(pluginFinder))</span><br><span class="line">                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)</span><br><span class="line">                .with(<span class="keyword">new</span> <span class="title class_">RedefinitionListener</span>())</span><br><span class="line">                .with(<span class="keyword">new</span> <span class="title class_">Listener</span>())</span><br><span class="line">                .installOn(instrumentation);</span><br><span class="line"></span><br><span class="line">    PluginFinder.pluginInitCompleted();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 4. 初始化BootService</span></span><br><span class="line">        ServiceManager.INSTANCE.boot();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        LOGGER.error(e, <span class="string">&quot;Skywalking agent boot failure.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Runtime.getRuntime()</span><br><span class="line">            .addShutdownHook(<span class="keyword">new</span> <span class="title class_">Thread</span>(ServiceManager.INSTANCE::shutdown, <span class="string">&quot;skywalking service shutdown thread&quot;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="加载配置"><a href="#加载配置" class="headerlink" title="加载配置"></a>加载配置</h1><p><a target="_blank" rel="noopener" href="https://github.com/apache/skywalking-java/blob/main/apm-sniffer/apm-agent-core/src/main/java/org/apache/skywalking/apm/agent/core/conf/SnifferConfigInitializer.java"><code>SnifferConfigInitializer</code></a>类负责完成Agent配置的初始化。<code>initializeCoreConfig</code>方法完成核心配置的初始化，大致流程：</p>
+<ol>
+<li>创建一个名为<code>AGENT_SETTINGS</code>的<code>Properties</code>实例，用于暂存从各处加载的配置参数</li>
+<li>从配置文件中加载参数到<code>AGENT_SETTINGS</code><ul>
+<li>如果指定了<code>skywalking_config</code>环境变量，则从<code>skywalking_config</code>环境变量指定的路径加载</li>
+<li>否则从<code>/config/agent.config</code>路径加载，这是一个相对于<code>agent.jar</code>文件的相对路径<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> InputStreamReader <span class="title function_">loadConfig</span><span class="params">()</span> <span class="keyword">throws</span> AgentPackageNotFoundException, ConfigNotFoundException &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">specifiedConfigPath</span> <span class="operator">=</span> System.getProperty(SPECIFIED_CONFIG_PATH);</span><br><span class="line">    <span class="type">File</span> <span class="variable">configFile</span> <span class="operator">=</span> StringUtil.isEmpty(specifiedConfigPath) ? <span class="keyword">new</span> <span class="title class_">File</span>(</span><br><span class="line">        AgentPackagePath.getPath(), DEFAULT_CONFIG_FILE_NAME) : <span class="keyword">new</span> <span class="title class_">File</span>(specifiedConfigPath);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (configFile.exists() &amp;&amp; configFile.isFile()) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            LOGGER.info(<span class="string">&quot;Config file found in &#123;&#125;.&quot;</span>, configFile);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(configFile), StandardCharsets.UTF_8);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (FileNotFoundException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigNotFoundException</span>(<span class="string">&quot;Failed to load agent.config&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigNotFoundException</span>(<span class="string">&quot;Failed to load agent.config.&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>从环境变量中加载参数到<code>AGENT_SETTINGS</code><ul>
+<li>只加载key以<code>skywalking.</code>开头的环境变量，如<code>Config.Agent.SERVICE_NAME</code>配置，在<code>agent.config</code>中的参数key是<code>agent.service_name</code>，环境变量的key则为<code>skywalking.agent.service_name</code></li>
+<li>这一步加载的参数会覆盖上一步已加载的参数<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">overrideConfigBySystemProp</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">Properties</span> <span class="variable">systemProperties</span> <span class="operator">=</span> System.getProperties();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">final</span> Map.Entry&lt;Object, Object&gt; prop : systemProperties.entrySet()) &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> prop.getKey().toString();</span><br><span class="line">        <span class="keyword">if</span> (key.startsWith(ENV_KEY_PREFIX)) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">realKey</span> <span class="operator">=</span> key.substring(ENV_KEY_PREFIX.length());</span><br><span class="line">            AGENT_SETTINGS.put(realKey, prop.getValue());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>从命令行参数中加载参数到<code>AGENT_SETTINGS</code><ul>
+<li>命令行传参为<code>-javaagent:&lt;agent.jar&gt;=&lt;args&gt;</code>，参数格式类似<code>key1=value1,key2=value2</code></li>
+<li>这一步加载参数同样会覆盖前两步已加载的参数<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">......</span><br><span class="line">agentOptions = StringUtil.trim(agentOptions, <span class="string">&#x27;,&#x27;</span>);</span><br><span class="line"><span class="keyword">if</span> (!StringUtil.isEmpty(agentOptions)) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        agentOptions = agentOptions.trim();</span><br><span class="line">        LOGGER.info(<span class="string">&quot;Agent options is &#123;&#125;.&quot;</span>, agentOptions);</span><br><span class="line"></span><br><span class="line">        overrideConfigByAgentOptions(agentOptions);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        LOGGER.error(e, <span class="string">&quot;Failed to parse the agent options, val is &#123;&#125;.&quot;</span>, agentOptions);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">......</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>使用已加载的参数<code>AGENT_SETTINGS</code>初始化<code>Config</code>类，这一步是通过调用<a target="_blank" rel="noopener" href="https://github.com/apache/skywalking-java/blob/HEAD/apm-commons/apm-util/src/main/java/org/apache/skywalking/apm/util/ConfigInitializer.java"><code>ConfigInitializer.initialize</code></a>方法完成<ul>
+<li>初始化是通过反射逐个为每个属性设置值，仅会处理<code>public</code>和<code>static</code>修饰的属性</li>
+<li>获取参数key时会统一转换为小写，因此前3步中设置的参数key需要注意必须为小写，否则不会被使用</li>
+<li>处理时会根据参数的数据结构分不同情况处理，如：Map、Collection、Object等</li>
+<li><code>Config</code>中的配置如果是<code>String</code>类型，那么会有一个<code>@Lenght</code>注解设置字符串的最大长度，初始化时已加载的参数value如果过长会被截断</li>
+</ul>
+</li>
+<li>校验<code>Config</code>配置是否正确<ul>
+<li><code>Config.Agent.SERVICE_NAME</code>不能为空</li>
+<li><code>Config.Collector.BACKEND_SERVICE</code>不能为空</li>
+</ul>
+</li>
+<li>设置<code>IS_INIT_COMPLETED</code>变量为<code>true</code>，表示初始化完成</li>
+</ol>
+<h1 id="加载插件"><a href="#加载插件" class="headerlink" title="加载插件"></a>加载插件</h1><h2 id="PluginBootstrap"><a href="#PluginBootstrap" class="headerlink" title="PluginBootstrap"></a>PluginBootstrap</h2><p><a target="_blank" rel="noopener" href="https://github1s.com/apache/skywalking-java/blob/HEAD/apm-sniffer/apm-agent-core/src/main/java/org/apache/skywalking/apm/agent/core/plugin/PluginBootstrap.java"><code>PluginBootstrap</code></a>类负责完成插件的加载。主要流程：</p>
+<ol>
+<li>调用<code>AgentClassLoader.initDefaultLoader</code>完成默认<code>AgentClassLoader</code>类加载器的初始化<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">initDefaultLoader</span><span class="params">()</span> <span class="keyword">throws</span> AgentPackageNotFoundException &#123;</span><br><span class="line">    <span class="keyword">if</span> (DEFAULT_LOADER == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (AgentClassLoader.class) &#123;</span><br><span class="line">            <span class="keyword">if</span> (DEFAULT_LOADER == <span class="literal">null</span>) &#123;</span><br><span class="line">                DEFAULT_LOADER = <span class="keyword">new</span> <span class="title class_">AgentClassLoader</span>(PluginBootstrap.class.getClassLoader());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>调用<code>PluginResourcesResolver.getResources</code>加载插件类路径下的所有<code>skywalking-plugin.def</code>文件，注意这里使用的是默认<code>AgentClassLoader</code>类加载器，原因后面会说<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> List&lt;URL&gt; <span class="title function_">getResources</span><span class="params">()</span> &#123;</span><br><span class="line">    ......</span><br><span class="line">    urls = AgentClassLoader.getDefault().getResources(<span class="string">&quot;skywalking-plugin.def&quot;</span>);</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>调用<code>PluginCfg.load</code>方法加载并解析第2步得到的<code>skywalking-plugin.def</code>文件，<ul>
+<li>每个插件的信息被封装为一个<code>PluginDefine</code>对象。<code>skywalking-plugin.def</code>文件的内容是一个<code>=</code>分隔的字符串，key表示插件名，对应<code>PluginDefine</code>中的name属性，value表示插件类路径，对应<code>PluginDefine</code>中的<code>defineClass</code>属性<figure class="highlight stylus"><table><tr><td class="code"><pre><span class="line">httpclient-<span class="number">3</span>.x=org<span class="selector-class">.apache</span><span class="selector-class">.skywalking</span><span class="selector-class">.apm</span><span class="selector-class">.plugin</span><span class="selector-class">.httpclient</span><span class="selector-class">.v3</span><span class="selector-class">.define</span>.HttpClientInstrumentation</span><br></pre></td></tr></table></figure></li>
+<li><code>PluginSelector</code>会对上一步加载到的所有插件做一次过滤，如果在<code>Config.Plugin.EXCLUDE_PLUGINS</code>参数中设置了插件名，这一步会将其排除掉<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">load</span><span class="params">(InputStream input)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">BufferedReader</span> <span class="variable">reader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(input));</span><br><span class="line">        String pluginDefine;</span><br><span class="line">        <span class="keyword">while</span> ((pluginDefine = reader.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (pluginDefine.trim().length() == <span class="number">0</span> || pluginDefine.startsWith(<span class="string">&quot;#&quot;</span>)) &#123;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="type">PluginDefine</span> <span class="variable">plugin</span> <span class="operator">=</span> PluginDefine.build(pluginDefine);</span><br><span class="line">                pluginClassList.add(plugin);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IllegalPluginDefineException e) &#123;</span><br><span class="line">                LOGGER.error(e, <span class="string">&quot;Failed to format plugin(&#123;&#125;) define.&quot;</span>, pluginDefine);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        pluginClassList = pluginSelector.select(pluginClassList);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        input.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>遍历上一步加载到的插件列表，通过反射方式创建插件，注意此时使用的仍然是默认的<code>AgentClassLoader</code>类加载器<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">    ......</span><br><span class="line">    <span class="keyword">for</span> (PluginDefine pluginDefine : pluginClassList) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        LOGGER.debug(<span class="string">&quot;loading plugin class &#123;&#125;.&quot;</span>, pluginDefine.getDefineClass());</span><br><span class="line">        <span class="type">AbstractClassEnhancePluginDefine</span> <span class="variable">plugin</span> <span class="operator">=</span> (AbstractClassEnhancePluginDefine) Class.forName(pluginDefine.getDefineClass(), <span class="literal">true</span>, AgentClassLoader</span><br><span class="line">            .getDefault()).newInstance();</span><br><span class="line">        plugins.add(plugin);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        LOGGER.error(t, <span class="string">&quot;load plugin [&#123;&#125;] failure.&quot;</span>, pluginDefine.getDefineClass());</span><br><span class="line">    &#125;</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="AgentClassLoader"><a href="#AgentClassLoader" class="headerlink" title="AgentClassLoader"></a>AgentClassLoader</h2><p>前文提到了默认<code>AgentClassLoader</code>的初始化。<a target="_blank" rel="noopener" href="https://github1s.com/apache/skywalking-java/blob/HEAD/apm-sniffer/apm-agent-core/src/main/java/org/apache/skywalking/apm/agent/core/plugin/loader/AgentClassLoader.java">AgentClassLoader</a>是Skywalking Agent实现的一个自定义类加载器，专门用于插件的类加载。</p>
+<p>为什么需要一个自定义的类加载器呢？我们知道Skywalking Agent的初衷就是无侵入式的探针操作，应用不会显式地添加Skywalking依赖，因此应用的类加载器<code>AppClassLoader</code>就加载不到Skywalking的插件。</p>
+<p><code>AgentClassLoader</code>加载<code>plugins</code>和<code>activations</code>两个目录下的插件：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">AgentClassLoader</span><span class="params">(ClassLoader parent)</span> <span class="keyword">throws</span> AgentPackageNotFoundException &#123;</span><br><span class="line">    <span class="built_in">super</span>(parent);</span><br><span class="line">    <span class="type">File</span> <span class="variable">agentDictionary</span> <span class="operator">=</span> AgentPackagePath.getPath();</span><br><span class="line">    classpath = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;&gt;();</span><br><span class="line">    Config.Plugin.MOUNT.forEach(mountFolder -&gt; classpath.add(<span class="keyword">new</span> <span class="title class_">File</span>(agentDictionary, mountFolder)));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Config</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Plugin</span> &#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Mount the folders of the plugins. The folder path is relative to agent.jar.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> List&lt;String&gt; MOUNT = Arrays.asList(<span class="string">&quot;plugins&quot;</span>, <span class="string">&quot;activations&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>AgentClassLoader</code>构造方法被调用的入口有两个，除了<code>AgentClassLoader.initDefaultLoader</code>方法（即前面分析的<code>PluginBootstrap.loadPlugins</code>方法中）有调用外，还会在<code>InterceptorInstanceLoader.load</code>方法中被调用。</p>
+<p><code>InterceptorInstanceLoader</code>用于加载插件拦截器。拦截器<code>interceptor</code>是用于实现增强逻辑的实际载体，拦截器类似于<code>AOP</code>中的<code>advice</code>。</p>
+<p><code>InterceptorInstanceLoader</code>其内部使用了一个<code>INSTANCE_CACHE</code>变量（类型为<code>ConcurrentHashMap</code>）的缓存插件实例，<code>load</code>方法中首先会在缓存中查找，已有实例就直接返回，没有则创建一个新实例。<code>InterceptorInstanceLoader</code>内部同样有一个<code>EXTEND_PLUGIN_CLASSLOADERS</code>变量用于缓存<code>ClassLoader</code>，创建实例时会从缓存中查找<code>ClassLoader</code>，如果缓存中没有则会创建一个新的<code>AgentClassLoader</code>并放入缓存中。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T <span class="title function_">load</span><span class="params">(String className,</span></span><br><span class="line"><span class="params">    ClassLoader targetClassLoader)</span> <span class="keyword">throws</span> IllegalAccessException, InstantiationException, ClassNotFoundException, AgentPackageNotFoundException &#123;</span><br><span class="line">    <span class="keyword">if</span> (targetClassLoader == <span class="literal">null</span>) &#123;</span><br><span class="line">        targetClassLoader = InterceptorInstanceLoader.class.getClassLoader();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">String</span> <span class="variable">instanceKey</span> <span class="operator">=</span> className + <span class="string">&quot;_OF_&quot;</span> + targetClassLoader.getClass()</span><br><span class="line">                                                                .getName() + <span class="string">&quot;@&quot;</span> + Integer.toHexString(targetClassLoader</span><br><span class="line">        .hashCode());</span><br><span class="line">    <span class="type">Object</span> <span class="variable">inst</span> <span class="operator">=</span> INSTANCE_CACHE.get(instanceKey);</span><br><span class="line">    <span class="keyword">if</span> (inst == <span class="literal">null</span>) &#123;</span><br><span class="line">        INSTANCE_LOAD_LOCK.lock();</span><br><span class="line">        ClassLoader pluginLoader;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            pluginLoader = EXTEND_PLUGIN_CLASSLOADERS.get(targetClassLoader);</span><br><span class="line">            <span class="keyword">if</span> (pluginLoader == <span class="literal">null</span>) &#123;</span><br><span class="line">                pluginLoader = <span class="keyword">new</span> <span class="title class_">AgentClassLoader</span>(targetClassLoader);</span><br><span class="line">                EXTEND_PLUGIN_CLASSLOADERS.put(targetClassLoader, pluginLoader);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            INSTANCE_LOAD_LOCK.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">        inst = Class.forName(className, <span class="literal">true</span>, pluginLoader).newInstance();</span><br><span class="line">        <span class="keyword">if</span> (inst != <span class="literal">null</span>) &#123;</span><br><span class="line">            INSTANCE_CACHE.put(instanceKey, inst);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (T) inst;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>有一个细节很有意思，<code>InterceptorInstanceLoader</code>内部缓存的key是用<code>className</code>和<code>targetClassLoader</code>共同构建的，这也就意味着，同样一个插件的拦截器，会为每个<code>targetClassLoader</code>创建一个<code>AgentClassLoader</code>，其<code>parent</code>是<code>targetClassLoader</code>。哪些可能是<code>targetClassLoader</code>呢？比如，<code>sun.misc.Launcher$AppClassLoader</code>、<code>org.springframework.boot.loader.LaunchedURLClassLoader</code>，或者业务/第三方jar中自定义的<code>ClassLoader</code>。</p>
+<p>为什么要新建一个<code>AgentClassLoader</code>实例而不用默认的<code>AgentClassLoader</code>呢？默认的<code>AgentClassLoader</code>的<code>parent</code>是<code>AppClassLoader</code>。考虑这样一种场景，假设<code>Jedis</code>是由一个自定义类加载器加载的，且插件中又访问了<code>Jedis</code>这个类，因为<code>AgentClassLoader</code>是无法访问到<code>Jedis</code>这个类文件的，因此只能向上查找，向上查找到<code>AppClassLoader</code>，肯定是查不到的，因为<code>Jedis</code>是自定义类加载器加载的。</p>
+<p><img src="../img/2022-09-28/4236553-3d33f93892901f6f.png"></p>
+<p>而如果我们使用一个新的 AgentClassLoader，并将其 parent 设置为 Jedis 的 ClassLoader，则可以解决这个问题。</p>
+<p><img src="../img/2022-09-28/4236553-9513a4763a8189b8.png"></p>
+<h2 id="PluginFinder"><a href="#PluginFinder" class="headerlink" title="PluginFinder"></a>PluginFinder</h2><p><code>PluginFinder</code>主要实现了插件的查找。<code>PluginFinder</code>内部维护了<code>nameMatchDefine</code>、<code>signatureMatchDefine</code>、<code>bootstrapClassMatchDefine</code>几个变量，用于存储插件实例。</p>
+<p><code>PluginFinder</code>构造方法传入了一个<code>AbstractClassEnhancePluginDefine</code>的<code>List</code>，来源是<code>PluginBootstrap.loadPlugins</code>方法的返回。构造方法遍历插件列表依次处理：</p>
+<ol>
+<li>调用<code>enchanceClass</code>方法，返回一个<code>ClassMatch</code>类型的对象，表示该插件的拦截点，即要被增强的类，如果返回为空则忽略该插件</li>
+<li>如果返回的是<code>ClassMatch</code>的子类<code>NameMatch</code>，那么加入到<code>nameMatchDefine</code>中，否则加入到<code>signatureMatchDefine</code></li>
+<li>如果是<code>Bootstrap</code>插件，则加入到<code>bootstrapClassMatchDefine</code>中</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">PluginFinder</span><span class="params">(List&lt;AbstractClassEnhancePluginDefine&gt; plugins)</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (AbstractClassEnhancePluginDefine plugin : plugins) &#123;</span><br><span class="line">        <span class="type">ClassMatch</span> <span class="variable">match</span> <span class="operator">=</span> plugin.enhanceClass();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (match == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (match <span class="keyword">instanceof</span> NameMatch) &#123;</span><br><span class="line">            <span class="type">NameMatch</span> <span class="variable">nameMatch</span> <span class="operator">=</span> (NameMatch) match;</span><br><span class="line">            LinkedList&lt;AbstractClassEnhancePluginDefine&gt; pluginDefines = nameMatchDefine.get(nameMatch.getClassName());</span><br><span class="line">            <span class="keyword">if</span> (pluginDefines == <span class="literal">null</span>) &#123;</span><br><span class="line">                pluginDefines = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;AbstractClassEnhancePluginDefine&gt;();</span><br><span class="line">                nameMatchDefine.put(nameMatch.getClassName(), pluginDefines);</span><br><span class="line">            &#125;</span><br><span class="line">            pluginDefines.add(plugin);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            signatureMatchDefine.add(plugin);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (plugin.isBootstrapInstrumentation()) &#123;</span><br><span class="line">            bootstrapClassMatchDefine.add(plugin);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当进行类增强时，会调用<code>find</code>方法查找插件，分别在<code>nameMatchDefine</code>和<code>signatureMatchDefine</code>中查找匹配到的插件并返回：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> List&lt;AbstractClassEnhancePluginDefine&gt; <span class="title function_">find</span><span class="params">(TypeDescription typeDescription)</span> &#123;</span><br><span class="line">    List&lt;AbstractClassEnhancePluginDefine&gt; matchedPlugins = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;AbstractClassEnhancePluginDefine&gt;();</span><br><span class="line">    <span class="type">String</span> <span class="variable">typeName</span> <span class="operator">=</span> typeDescription.getTypeName();</span><br><span class="line">    <span class="keyword">if</span> (nameMatchDefine.containsKey(typeName)) &#123;</span><br><span class="line">        matchedPlugins.addAll(nameMatchDefine.get(typeName));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (AbstractClassEnhancePluginDefine pluginDefine : signatureMatchDefine) &#123;</span><br><span class="line">        <span class="type">IndirectMatch</span> <span class="variable">match</span> <span class="operator">=</span> (IndirectMatch) pluginDefine.enhanceClass();</span><br><span class="line">        <span class="keyword">if</span> (match.isMatch(typeDescription)) &#123;</span><br><span class="line">            matchedPlugins.add(pluginDefine);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> matchedPlugins;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>PluginFinder</code>中还有一个<code>buildMatch</code>方法，该方法会将<code>nameMatchDefine</code>和<code>signatureMatchDefine</code>中的所有插件用<code>OR</code>规则连起来，构成一个<code>Byte Buddy</code>中的<code>ElementMatcher</code>类型，并添加到<code>Buyte Buddy Agent</code>中，这样所有插件中定义的匹配点均会被<code>Byte Buddy</code>进行<code>transform</code>增强处理。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> ElementMatcher&lt;? <span class="built_in">super</span> TypeDescription&gt; buildMatch() &#123;</span><br><span class="line">    ElementMatcher.<span class="type">Junction</span> <span class="variable">judge</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AbstractJunction</span>&lt;NamedElement&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">matches</span><span class="params">(NamedElement target)</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> nameMatchDefine.containsKey(target.getActualName());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    judge = judge.and(not(isInterface()));</span><br><span class="line">    <span class="keyword">for</span> (AbstractClassEnhancePluginDefine define : signatureMatchDefine) &#123;</span><br><span class="line">        <span class="type">ClassMatch</span> <span class="variable">match</span> <span class="operator">=</span> define.enhanceClass();</span><br><span class="line">        <span class="keyword">if</span> (match <span class="keyword">instanceof</span> IndirectMatch) &#123;</span><br><span class="line">            judge = judge.or(((IndirectMatch) match).buildJunction());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ProtectiveShieldMatcher</span>(judge);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ClassMatch"><a href="#ClassMatch" class="headerlink" title="ClassMatch"></a>ClassMatch</h2><p><code>ClassMatch</code>在Skywalking中表示插件的拦截点，它的类继承关系如下图所示：</p>
+<p><img src="../img/2022-09-28/0cb4c15fa2ce039c04b075087d595d49.png"></p>
+<p>整体来说分为两类，一个是直接按类名匹配的<code>NameMatch</code>，另一类是间接的匹配，例如用类注解匹配的<code>ClassAnnotationMatch</code>、按类名前缀匹配的<code>PrefixMatch</code>等。</p>
+<h2 id="AbstractClassEnhancePluginDefine"><a href="#AbstractClassEnhancePluginDefine" class="headerlink" title="AbstractClassEnhancePluginDefine"></a>AbstractClassEnhancePluginDefine</h2><p><code>AbstractClassEnhancePluginDefine</code>是所有插件定义的抽象父类，从其继承的子类有<code>ClassEnhancePluginDefine</code>、<code>ClassStaticMethodsEnhancePluginDefine</code>、<code>ClassInstanceMethodsEnhancePluginDefine</code>，它们的继承关系如下图所示。</p>
+<p><img src="../img/2022-09-28/e1a041b32aeef3f77b254c6ccf68b187.png"></p>
+<p><code>ClassStaticMethodsEnhancePluginDefine</code>继承自<code>ClassEnhancePluginDefine</code>，内部只是简单地将<code>getConstructorsInterceptPoints</code>方法和<code>getInstanceMethodsInterceptPoints</code>方法返回<code>null</code>，表示不对构造方法和类实例方法进行增强；同理，<code>ClassInstanceMethodsEnhancePluginDefine</code>中也只是简单地将<code>getStaticMethodsInterceptPoints</code>方法返回<code>null</code>，表示不对静态方法进行增强。</p>
+<p>增强逻辑主要实现在<code>AbstractClassEnhancePluginDefine</code>和<code>ClassEnhancePluginDefine</code>中，<code>AbstractClassEnhancePluginDefine</code>用了模板模式，主体流程实现在父类中，将扩展点留给子类实现。</p>
+<p><code>AbstractClassEnhancePluginDefine</code>中有几个用于控制是否增强的过滤方法：</p>
+<ul>
+<li><code>enhanceClass()</code>：用于定义哪些类需要进行增强，返回一个<code>ClassMatch</code>类型。</li>
+<li><code>witnessClasses()</code>：用于判断当前插件是否适用于拦截当前的类。</li>
+<li><code>witnessMethods()</code>：与<code>witnessClasses</code>类似，同样用于判断当前插件是否使用拦截当前的类，只不过是用方法名进行判断</li>
+</ul>
+<p>关于witness机制的作用后面会介绍到。</p>
+<p><code>AbstractClassEnhancePluginDefine.define</code>方法是进行类增强的入口，大致的处理流程是：</p>
+<ol>
+<li>获取插件类名<code>interceptorDefineClassName</code>和待增强的类名<code>transformClassName</code></li>
+<li>用<code>WitnessFinder</code>对<code>witnessClasses()</code>和<code>witnessMethods()</code>方法的返回再做一次过滤</li>
+<li>调用<code>enhance</code>方法进行增强<ul>
+<li>调用<code>enhanceClass</code>方法完成类的增强，具体实现在<code>ClassEnhancePluginDefine</code>中，完成类静态方法的增强</li>
+<li>调用<code>enhanceInstance</code>方法完成类实例的增强，具体实现在<code>ClassEnhancePluginDefine</code>中，完成构造方法和实例方法的增强</li>
+</ul>
+</li>
+<li>调用<code>EnhanceContext.initializationStageCompleted</code>方法，标记增强完成</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> DynamicType.Builder&lt;?&gt; define(TypeDescription typeDescription, DynamicType.Builder&lt;?&gt; builder,</span><br><span class="line">    ClassLoader classLoader, EnhanceContext context) <span class="keyword">throws</span> PluginException &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">interceptorDefineClassName</span> <span class="operator">=</span> <span class="built_in">this</span>.getClass().getName();</span><br><span class="line">    <span class="type">String</span> <span class="variable">transformClassName</span> <span class="operator">=</span> typeDescription.getTypeName();</span><br><span class="line">    <span class="keyword">if</span> (StringUtil.isEmpty(transformClassName)) &#123;</span><br><span class="line">        LOGGER.warn(<span class="string">&quot;classname of being intercepted is not defined by &#123;&#125;.&quot;</span>, interceptorDefineClassName);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    LOGGER.debug(<span class="string">&quot;prepare to enhance class &#123;&#125; by &#123;&#125;.&quot;</span>, transformClassName, interceptorDefineClassName);</span><br><span class="line">    <span class="type">WitnessFinder</span> <span class="variable">finder</span> <span class="operator">=</span> WitnessFinder.INSTANCE;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">        * find witness classes for enhance class</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">    String[] witnessClasses = witnessClasses();</span><br><span class="line">    <span class="keyword">if</span> (witnessClasses != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (String witnessClass : witnessClasses) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!finder.exist(witnessClass, classLoader)) &#123;</span><br><span class="line">                LOGGER.warn(<span class="string">&quot;enhance class &#123;&#125; by plugin &#123;&#125; is not activated. Witness class &#123;&#125; does not exist.&quot;</span>, transformClassName, interceptorDefineClassName, witnessClass);</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    List&lt;WitnessMethod&gt; witnessMethods = witnessMethods();</span><br><span class="line">    <span class="keyword">if</span> (!CollectionUtil.isEmpty(witnessMethods)) &#123;</span><br><span class="line">        <span class="keyword">for</span> (WitnessMethod witnessMethod : witnessMethods) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!finder.exist(witnessMethod, classLoader)) &#123;</span><br><span class="line">                LOGGER.warn(<span class="string">&quot;enhance class &#123;&#125; by plugin &#123;&#125; is not activated. Witness method &#123;&#125; does not exist.&quot;</span>, transformClassName, interceptorDefineClassName, witnessMethod);</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">        * find origin class source code for interceptor</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">    DynamicType.Builder&lt;?&gt; newClassBuilder = <span class="built_in">this</span>.enhance(typeDescription, builder, classLoader, context);</span><br><span class="line"></span><br><span class="line">    context.initializationStageCompleted();</span><br><span class="line">    LOGGER.debug(<span class="string">&quot;enhance class &#123;&#125; by &#123;&#125; completely.&quot;</span>, transformClassName, interceptorDefineClassName);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> newClassBuilder;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="插件的witness机制"><a href="#插件的witness机制" class="headerlink" title="插件的witness机制"></a>插件的witness机制</h2><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Witness classname list. Why need witness classname? Let&#x27;s see like this: A library existed two released versions</span></span><br><span class="line"><span class="comment"> * (like 1.0, 2.0), which include the same target classes, but because of version iterator, they may have the same</span></span><br><span class="line"><span class="comment"> * name, but different methods, or different method arguments list. So, if I want to target the particular version</span></span><br><span class="line"><span class="comment"> * (let&#x27;s say 1.0 for example), version number is obvious not an option, this is the moment you need &quot;Witness</span></span><br><span class="line"><span class="comment"> * classes&quot;. You can add any classes only in this particular release version ( something like class</span></span><br><span class="line"><span class="comment"> * com.company.1.x.A, only in 1.0 ), and you can achieve the goal.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">protected</span> String[] witnessClasses() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">String</span>[] &#123;&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>witnessClasses</code>方法的注释说明了主要用于处理类库版本演进的问题。</p>
+<p>随着类库版本的升级，有可能插件对进行增强的逻辑会发生变化，比如可能方法名变了、或者方法参数变了。那针对不同版本的类库就需要有不同的插件处理，如果插件中版本号来判断就十分恶心，其一是版本号不太好获取，其二是有很多的if-else分支，并且后续版本升级还需要增加分支，扩展性很差。</p>
+<p><img src="../img/2022-09-28/3b10db2a9307478987e1b21253f6c5d2.png"></p>
+<p>Skywalking中的做法是为每个版本单独维护一套插件</p>
+<p><img src="../img/2022-09-28/5628d6c6057441a3b26c006ba05e7a7e.png"></p>
+<p>这就带来一个问题，程序运行时如果让对应版本的插件生效？比如，现在服务使用的是Spring4，那应该只让Spring4的插件生效、忽略Spring3和Spring5的插件。</p>
+<p>这就是<code>witness</code>机制所起的作用。</p>
+<p><code>witnessClasses</code>可以返回某个特定版本才有的类，比如<code>MySQL</code>插件就通过不同的类名来区分哪个版本的插件生效：</p>
+<p><code>mysql-6.x</code></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> String[] witnessClasses() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">String</span>[] &#123;Constants.WITNESS_MYSQL_6X_CLASS&#125;; <span class="comment">// com.mysql.cj.api.MysqlConnection</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>mysql-8.x</code></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> String[] witnessClasses() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">String</span>[] &#123;Constants.WITNESS_MYSQL_8X_CLASS&#125;; <span class="comment">// com.mysql.cj.interceptors.QueryInterceptor</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>witnessMethods</code>可以返回某个特定版本才有的方法，比如，<code>dubbo</code>插件就通过<code>getServerContext</code>方法的返回值来区分：</p>
+<p><code>dubbo 2.7.x</code></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> List&lt;WitnessMethod&gt; <span class="title function_">witnessMethods</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Collections.singletonList(<span class="keyword">new</span> <span class="title class_">WitnessMethod</span>(</span><br><span class="line">        CONTEXT_TYPE_NAME, <span class="comment">// org.apache.dubbo.rpc.RpcContext</span></span><br><span class="line">        named(GET_SERVER_CONTEXT_METHOD_NAME).and( <span class="comment">// getServerContext</span></span><br><span class="line">            returns(named(CONTEXT_TYPE_NAME))) <span class="comment">// org.apache.dubbo.rpc.RpcContext</span></span><br><span class="line">    ));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>dubbo 3.x</code></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> List&lt;WitnessMethod&gt; <span class="title function_">witnessMethods</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Collections.singletonList(</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">WitnessMethod</span>(</span><br><span class="line">            CONTEXT_TYPE_NAME, <span class="comment">// org.apache.dubbo.rpc.RpcContext</span></span><br><span class="line">            named(GET_SERVER_CONTEXT_METHOD_NAME).and( <span class="comment">// getServerContext</span></span><br><span class="line">                returns(named(CONTEXT_ATTACHMENT_TYPE_NAME))) <span class="comment">// org.apache.dubbo.rpc.RpcContextAttachment</span></span><br><span class="line">        ));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>与<code>AbstractClassEnhancePluginDefine</code>搭配的还有另外三个拦截器接口，分别是<code>ConstructorInterceptPoint</code>、<code>InstanceMethodsInterceptPoint</code>、<code>StaticMethodsInterceptPoint</code>分别标识构造方法拦截器、类实例方法拦截器、类静态方法拦截器。</p>
+<h1 id="Transformer"><a href="#Transformer" class="headerlink" title="Transformer"></a>Transformer</h1><p><code>SkywalkingAgent</code>中的内部类<code>Transformer</code>类实现了<code>AgentBuilder.Transformer</code>接口的<code>transform</code>方法，是<code>Byte Buddy</code>完成类增强的入口。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Transformer</span> <span class="keyword">implements</span> <span class="title class_">AgentBuilder</span>.Transformer &#123;</span><br><span class="line">    <span class="keyword">private</span> PluginFinder pluginFinder;</span><br><span class="line"></span><br><span class="line">    Transformer(PluginFinder pluginFinder) &#123;</span><br><span class="line">        <span class="built_in">this</span>.pluginFinder = pluginFinder;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> DynamicType.Builder&lt;?&gt; transform(<span class="keyword">final</span> DynamicType.Builder&lt;?&gt; builder,</span><br><span class="line">                                            <span class="keyword">final</span> TypeDescription typeDescription,</span><br><span class="line">                                            <span class="keyword">final</span> ClassLoader classLoader,</span><br><span class="line">                                            <span class="keyword">final</span> JavaModule javaModule,</span><br><span class="line">                                            <span class="keyword">final</span> ProtectionDomain protectionDomain) &#123;</span><br><span class="line">        LoadedLibraryCollector.registerURLClassLoader(classLoader);</span><br><span class="line">        List&lt;AbstractClassEnhancePluginDefine&gt; pluginDefines = pluginFinder.find(typeDescription);</span><br><span class="line">        <span class="keyword">if</span> (pluginDefines.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            DynamicType.Builder&lt;?&gt; newBuilder = builder;</span><br><span class="line">            <span class="type">EnhanceContext</span> <span class="variable">context</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">EnhanceContext</span>();</span><br><span class="line">            <span class="keyword">for</span> (AbstractClassEnhancePluginDefine define : pluginDefines) &#123;</span><br><span class="line">                DynamicType.Builder&lt;?&gt; possibleNewBuilder = define.define(</span><br><span class="line">                        typeDescription, newBuilder, classLoader, context);</span><br><span class="line">                <span class="keyword">if</span> (possibleNewBuilder != <span class="literal">null</span>) &#123;</span><br><span class="line">                    newBuilder = possibleNewBuilder;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (context.isEnhanced()) &#123;</span><br><span class="line">                LOGGER.debug(<span class="string">&quot;Finish the prepare stage for &#123;&#125;.&quot;</span>, typeDescription.getName());</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> newBuilder;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        LOGGER.debug(<span class="string">&quot;Matched class &#123;&#125;, but ignore by finding mechanism.&quot;</span>, typeDescription.getTypeName());</span><br><span class="line">        <span class="keyword">return</span> builder;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当<code>transform</code>被<code>Byte Buddy</code>调用时，首先会调用<code>PluginFinder</code>的<code>find</code>方法查找待增强类所匹配的插件，然后遍历找到的插件列表，调用<code>define</code>方法进行增强。</p>
+<h1 id="加载-BootService"><a href="#加载-BootService" class="headerlink" title="加载 BootService"></a>加载 BootService</h1><p><code>BootService</code>可以看做是后台任务，随Agent启动后开始提供服务，它提供一些生命周期方法，在不同时期被Agent回调。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">BootService</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">prepare</span><span class="params">()</span> <span class="keyword">throws</span> Throwableb</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">boot</span><span class="params">()</span> <span class="keyword">throws</span> Throwable;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">onComplete</span><span class="params">()</span> <span class="keyword">throws</span> Throwable;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">shutdown</span><span class="params">()</span> <span class="keyword">throws</span> Throwable;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">default</span> <span class="type">int</span> <span class="title function_">priority</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>ServiceManager.boot</code>方法实现了所有<code>BootService</code>实现类的加载，以及<code>prepare</code>、<code>startup</code>、<code>onComplete</code>方法的回调。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">boot</span><span class="params">()</span> &#123;</span><br><span class="line">    bootedServices = loadAllServices();</span><br><span class="line"></span><br><span class="line">    prepare();</span><br><span class="line">    startup();</span><br><span class="line">    onComplete();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>loadAllServices</code>方法中使用<code>SPI</code>技术加载所有<code>BootService</code>接口的实现。<code>apm-agent-core</code>模块的<code>resources/META-INF/services/org.apache.skywalking.apm.agent.core.boot.BootService</code>文件中列出了全部的<code>BootService</code>实现。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient</span><br><span class="line">org.apache.skywalking.apm.agent.core.context.ContextManager</span><br><span class="line">org.apache.skywalking.apm.agent.core.sampling.SamplingService</span><br><span class="line">org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager</span><br><span class="line">org.apache.skywalking.apm.agent.core.jvm.JVMMetricsSender</span><br><span class="line">org.apache.skywalking.apm.agent.core.jvm.JVMService</span><br><span class="line">org.apache.skywalking.apm.agent.core.remote.ServiceManagementClient</span><br><span class="line">org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService</span><br><span class="line">org.apache.skywalking.apm.agent.core.commands.CommandService</span><br><span class="line">org.apache.skywalking.apm.agent.core.commands.CommandExecutorService</span><br><span class="line">org.apache.skywalking.apm.agent.core.profile.ProfileTaskChannelService</span><br><span class="line">org.apache.skywalking.apm.agent.core.profile.ProfileSnapshotSender</span><br><span class="line">org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService</span><br><span class="line">org.apache.skywalking.apm.agent.core.meter.MeterService</span><br><span class="line">org.apache.skywalking.apm.agent.core.meter.MeterSender</span><br><span class="line">org.apache.skywalking.apm.agent.core.context.status.StatusCheckService</span><br><span class="line">org.apache.skywalking.apm.agent.core.remote.LogReportServiceClient</span><br><span class="line">org.apache.skywalking.apm.agent.core.conf.dynamic.ConfigurationDiscoveryService</span><br><span class="line">org.apache.skywalking.apm.agent.core.remote.EventReportServiceClient</span><br><span class="line">org.apache.skywalking.apm.agent.core.ServiceInstanceGenerator</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40378034/article/details/122145509">https://blog.csdn.net/qq_40378034/article/details/122145509</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022-08-25-java-agent/" rel="prev" title="Java Agent 技术">
+                  <i class="fa fa-angle-left"></i> Java Agent 技术
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022-10-20-skywalking-trace/" rel="next" title="Skywalking Trace链路分析">
+                  Skywalking Trace链路分析 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

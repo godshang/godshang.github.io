@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在用户登陆、注册、或找回密码等场景下，经常会遇到填写验证码的情况。Kaptcha就是一个简单、易用的验证码生成的Java库。它的用法十分简单，简单几个步骤就可以在实际项目中使用起来。下面我们来具体看看。 首先添加maven的pom依赖，目前Kaptcha的版本到了2.3.2。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Kaptcha生成验证码">
+<meta property="og:url" content="https://godshang.github.io/2015-05-28-kaptcha/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="在用户登陆、注册、或找回密码等场景下，经常会遇到填写验证码的情况。Kaptcha就是一个简单、易用的验证码生成的Java库。它的用法十分简单，简单几个步骤就可以在实际项目中使用起来。下面我们来具体看看。 首先添加maven的pom依赖，目前Kaptcha的版本到了2.3.2。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-05-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.674Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://godshang.github.io/2015-05-28-kaptcha/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2015-05-28-kaptcha/","path":"2015-05-28-kaptcha/","title":"使用Kaptcha生成验证码"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用Kaptcha生成验证码 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2015-05-28-kaptcha/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用Kaptcha生成验证码 | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用Kaptcha生成验证码
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-05-28 00:00:00" itemprop="dateCreated datePublished" datetime="2015-05-28T00:00:00+08:00">2015-05-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在用户登陆、注册、或找回密码等场景下，经常会遇到填写验证码的情况。Kaptcha就是一个简单、易用的验证码生成的Java库。它的用法十分简单，简单几个步骤就可以在实际项目中使用起来。下面我们来具体看看。</p>
+<p>首先添加maven的pom依赖，目前Kaptcha的版本到了2.3.2。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.google.code.kaptcha<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>kaptcha<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.3.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>使用Kaptcha时需要在web.xml中配置servlet，这时Kaptcha的所有配置都是通过servlet的init-param来完成的。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>Kaptcha<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>com.google.code.kaptcha.servlet.KaptchaServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.border<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>no<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.border.color<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>105,179,90<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span>       </span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.textproducer.font.color<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>black<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.image.width<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>84<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.image.height<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>28<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.noise.impl<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>com.google.code.kaptcha.impl.NoNoise<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.noise.color<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>black<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.textproducer.char.string<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.obscurificator.impl<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>com.google.code.kaptcha.impl.ShadowGimpy<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.textproducer.font.size<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>24<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.session.key<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>validateCode<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.textproducer.char.length<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>4<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>kaptcha.textproducer.font.names<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>Times New Roman<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>Kaptcha<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/validateCode/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Kaptcha可供配置的项十分丰富，具体可见下表：</p>
+<table class="wikitable"><tbody><tr><td style="border: 1px solid #ccc; padding: 5px;"> <strong>Constant</strong> </td><td style="border: 1px solid #ccc; padding: 5px;"> <strong>Description</strong> </td><td style="border: 1px solid #ccc; padding: 5px;"> <strong>Default</strong> </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.border </td><td style="border: 1px solid #ccc; padding: 5px;"> Border around kaptcha. Legal values are yes or no. </td><td style="border: 1px solid #ccc; padding: 5px;"> yes </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.border.color </td><td style="border: 1px solid #ccc; padding: 5px;"> Color of the border. Legal values are r,g,b (and optional alpha) or white,black,blue. </td><td style="border: 1px solid #ccc; padding: 5px;"> black </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.border.thickness </td><td style="border: 1px solid #ccc; padding: 5px;"> Thickness of the border around kaptcha. Legal values are &gt; 0. </td><td style="border: 1px solid #ccc; padding: 5px;"> 1 </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.image.width </td><td style="border: 1px solid #ccc; padding: 5px;"> Width in pixels of the kaptcha image. </td><td style="border: 1px solid #ccc; padding: 5px;"> 200 </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.image.height </td><td style="border: 1px solid #ccc; padding: 5px;"> Height in pixels of the kaptcha image. </td><td style="border: 1px solid #ccc; padding: 5px;"> 50 </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.producer.impl </td><td style="border: 1px solid #ccc; padding: 5px;"> The image producer. </td><td style="border: 1px solid #ccc; padding: 5px;"> com.google.code.kaptcha.impl.DefaultKaptcha </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.textproducer.impl </td><td style="border: 1px solid #ccc; padding: 5px;"> The text producer. </td><td style="border: 1px solid #ccc; padding: 5px;"> com.google.code.kaptcha.text.impl.DefaultTextCreator </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.textproducer.char.string </td><td style="border: 1px solid #ccc; padding: 5px;"> The characters that will create the kaptcha. </td><td style="border: 1px solid #ccc; padding: 5px;"> abcde2345678gfynmnpwx </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.textproducer.char.length </td><td style="border: 1px solid #ccc; padding: 5px;"> The number of characters to display. </td><td style="border: 1px solid #ccc; padding: 5px;"> 5 </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.textproducer.font.names </td><td style="border: 1px solid #ccc; padding: 5px;"> A list of comma separated font names. </td><td style="border: 1px solid #ccc; padding: 5px;"> Arial, Courier </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.textproducer.font.size </td><td style="border: 1px solid #ccc; padding: 5px;"> The size of the font to use. </td><td style="border: 1px solid #ccc; padding: 5px;"> 40px. </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.textproducer.font.color </td><td style="border: 1px solid #ccc; padding: 5px;"> The color to use for the font. Legal values are r,g,b. </td><td style="border: 1px solid #ccc; padding: 5px;"> black </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.textproducer.char.space </td><td style="border: 1px solid #ccc; padding: 5px;"> The space between the characters </td><td style="border: 1px solid #ccc; padding: 5px;"> 2 </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.noise.impl </td><td style="border: 1px solid #ccc; padding: 5px;"> The noise producer. </td><td style="border: 1px solid #ccc; padding: 5px;"> com.google.code.kaptcha.impl.DefaultNoise </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.noise.color </td><td style="border: 1px solid #ccc; padding: 5px;"> The noise color. Legal values are r,g,b. </td><td style="border: 1px solid #ccc; padding: 5px;"> black </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.obscurificator.impl </td><td style="border: 1px solid #ccc; padding: 5px;"> The obscurificator implementation. </td><td style="border: 1px solid #ccc; padding: 5px;"> com.google.code.kaptcha.impl.WaterRipple </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.background.impl </td><td style="border: 1px solid #ccc; padding: 5px;"> The background implementation. </td><td style="border: 1px solid #ccc; padding: 5px;"> com.google.code.kaptcha.impl.DefaultBackground </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.background.clear.from </td><td style="border: 1px solid #ccc; padding: 5px;"> Starting background color. Legal values are r,g,b. </td><td style="border: 1px solid #ccc; padding: 5px;"> light grey </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.background.clear.to </td><td style="border: 1px solid #ccc; padding: 5px;"> Ending background color. Legal values are r,g,b. </td><td style="border: 1px solid #ccc; padding: 5px;"> white </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.word.impl </td><td style="border: 1px solid #ccc; padding: 5px;"> The word renderer implementation. </td><td style="border: 1px solid #ccc; padding: 5px;"> com.google.code.kaptcha.text.impl.DefaultWordRenderer </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.session.key </td><td style="border: 1px solid #ccc; padding: 5px;"> The value for the kaptcha is generated and is put into the HttpSession. This is the key value for that item in the session. </td><td style="border: 1px solid #ccc; padding: 5px;"> KAPTCHA_SESSION_KEY </td></tr> <tr><td style="border: 1px solid #ccc; padding: 5px;"> kaptcha.session.date </td><td style="border: 1px solid #ccc; padding: 5px;"> The date the kaptcha is generated is put into the HttpSession. This is the key value for that item in the session. </td><td style="border: 1px solid #ccc; padding: 5px;"> KAPTCHA_SESSION_DATE </td></tr> </tbody></table>
+
+
+<p>在这些配置项中，kaptcha.session.key项是验证码文字在session中的key，如果不添加这个配置项，那么默认的key是com.google.code.kaptcha.Constants.KAPTCHA_SESSION_KEY。</p>
+<p>在页面中可以通过servlet配置的url映射直接使用：</p>
+<figure class="highlight abnf"><table><tr><td class="code"><pre><span class="line">&lt;form action<span class="operator">=</span><span class="string">&quot;submit.do&quot;</span> method<span class="operator">=</span><span class="string">&quot;post&quot;</span>&gt;</span><br><span class="line">    &lt;input type<span class="operator">=</span><span class="string">&quot;text&quot;</span> name<span class="operator">=</span><span class="string">&quot;kaptcha&quot;</span> value<span class="operator">=</span><span class="string">&quot;&quot;</span> /&gt;</span><br><span class="line">    &lt;img id<span class="operator">=</span><span class="string">&quot;validateCodeImg&quot;</span> src<span class="operator">=</span><span class="string">&quot;&lt;%=request.getContextPath()%&gt;/validateCode/&lt;%=System.currentTimeMillis()%&gt;?code=checkcode&amp;nonce=&lt;%=System.currentTimeMillis()%&gt;&quot;</span> /&gt;</span><br><span class="line">    &lt;a href<span class="operator">=</span><span class="string">&quot;javascript:changeValidateCode();&quot;</span>&gt;换一张&lt;/a&gt;</span><br><span class="line">    &lt;br /&gt;</span><br><span class="line">    &lt;input type<span class="operator">=</span><span class="string">&quot;submit&quot;</span> /&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+
+<p>img标签的src属性，指向了我们在web.xml中配置的url。为了避免浏览器的缓存，可以加上时间戳。也可以加上一段javascript代码，实现点击时切换验证码图片。</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"><span class="keyword">function</span> <span class="title function_">changeValidateCode</span>(<span class="params"></span>)&#123;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">var</span> img = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;validateCodeImg&#x27;</span>);</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">var</span> src = img.<span class="title function_">getAttribute</span>(<span class="string">&#x27;src&#x27;</span>);</span></span><br><span class="line"><span class="language-javascript">    img.<span class="property">src</span> = <span class="string">&#x27;&lt;%=request.getContextPath()%&gt;/validateCode/&#x27;</span>+(<span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>())+<span class="string">&#x27;?code=checkcode&amp;nonce=&#x27;</span>+(<span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>());</span></span><br><span class="line"><span class="language-javascript">&#125;</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在响应form提交action的后端代码中，可以从session中取出验证码的文字，结合form提交过来的用户填写的验证码内容进行验证。</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line"><span class="comment">//从session中取出servlet生成的验证码text值</span></span><br><span class="line">String kaptchaExpected = (String) request.get<span class="constructor">Session()</span>.get<span class="constructor">Attribute(<span class="string">&quot;validateCode&quot;</span>)</span>;</span><br><span class="line"><span class="comment">//获取用户页面输入的验证码</span></span><br><span class="line">String kaptchaReceived = request.get<span class="constructor">Parameter(<span class="string">&quot;kaptcha&quot;</span>)</span>;</span><br><span class="line"><span class="comment">//校验验证码是否正确</span></span><br><span class="line"><span class="keyword">if</span> (kaptchaReceived<span class="operator"> == </span>null<span class="operator"> || </span>!kaptchaReceived.equals<span class="constructor">IgnoreCase(<span class="params">kaptchaExpected</span>)</span>)&#123;</span><br><span class="line">    set<span class="constructor">Error(<span class="string">&quot;kaptcha&quot;</span>, <span class="string">&quot;Invalid validation code.&quot;</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过以上简单的几步，就实现了添加验证码的功能。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015-04-30-spring-custom-xml/" rel="prev" title="Spring解析自定义XML">
+                  <i class="fa fa-angle-left"></i> Spring解析自定义XML
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015-08-18-maven-jar-plugin-snapshot/" rel="next" title="maven-jar-plugin设置强制使用SNAPSHOT">
+                  maven-jar-plugin设置强制使用SNAPSHOT <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

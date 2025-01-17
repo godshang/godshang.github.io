@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="方案比较1、POI：Apache POI包括一系列的API，它可以操作Office的各种格式文件，通过这些API在Java中读写Excel、Word等文件。POI对excel的处理很强大，但对于word的支持不是很好，目前只能实现一些简单文件的操作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java生成Word文件">
+<meta property="og:url" content="https://godshang.github.io/2013-04-11-java-to-word/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="方案比较1、POI：Apache POI包括一系列的API，它可以操作Office的各种格式文件，通过这些API在Java中读写Excel、Word等文件。POI对excel的处理很强大，但对于word的支持不是很好，目前只能实现一些简单文件的操作。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2013-04-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.666Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://godshang.github.io/2013-04-11-java-to-word/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2013-04-11-java-to-word/","path":"2013-04-11-java-to-word/","title":"Java生成Word文件"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Java生成Word文件 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E6%AF%94%E8%BE%83"><span class="nav-number">1.</span> <span class="nav-text">方案比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">技术实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E5%88%9B%E5%BB%BA%E6%A8%A1%E6%9D%BF"><span class="nav-number">2.1.</span> <span class="nav-text">第一步：创建模板</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E7%BC%96%E5%86%99%E4%BB%A3%E7%A0%81"><span class="nav-number">2.2.</span> <span class="nav-text">第二步：编写代码</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2013-04-11-java-to-word/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Java生成Word文件 | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java生成Word文件
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2013-04-11 00:00:00" itemprop="dateCreated datePublished" datetime="2013-04-11T00:00:00+08:00">2013-04-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="方案比较"><a href="#方案比较" class="headerlink" title="方案比较"></a>方案比较</h2><p>1、POI：Apache POI包括一系列的API，它可以操作Office的各种格式文件，通过这些API在Java中读写Excel、Word等文件。POI对excel的处理很强大，但对于word的支持不是很好，目前只能实现一些简单文件的操作。 </p>
+<p>2、使用XML做模板：word支持XML格式描述，因此利用Velicity等模板引擎，将动态数据渲染到XML模板中，从而生成word文档。这种方法比较简单，而且处理速度很快，样式和内容的控制也非常好，打印的话也不走样。可以说是生成Word文档的最佳方案。</p>
+<p>使用XML进行Word生成，又有两种不同的方法：</p>
+<p>在word中编辑好样式，另存为XML格式。用文本编辑器打开这个XML文档，会发现是使用标准的XML语言描述的文档内容和样式。之后将需要动态渲染数据的位置，使用模板语言的占位符描述；同时还可以使用模板语言中的一些循环、条件等控制结构，比如迭代生成表格的行。经过这样处理后的XML文档，就可以作为模板使用了。同使用其他模板一样，将动态数据打入模板后，所得到的文本流写入到另一个文件中，并另存为doc格式，这样就得到了生成后的word文档。</p>
+<p>这种方法有一个问题，就是最后得到的文档，虽然被另存为doc格式，也能够被office word正常的打开和编辑，但如果用文本编辑器打开，会发现它依然是个XML文档，底层的数据存储方式并未发生变化。这对于只生成、编辑和打印word来说并不是个问题，这种方法完全满足这些需求。但如果进一步，想使用OpenOffice将这个word转为PDF的话，就会出现问题了。你会发现，转换后的PDF，页面全是XML标签。。</p>
+<p>因此，如果想得到“真真正正”的word文档来说，就得使用第二种方法了。第二种方法完全解决了这个问题，但同时又有另一个局限，它只能针对word2007格式，即docx这种格式。不过目前来说，office 2003虽然没完全淘汰，但2007、2010的使用率也是绝大多数。这个问题就当它不是个问题好了。。</p>
+<p>介绍第二种方法前，首先来了解word2007文档的格式。Word2007文档本身是以XML文件格式存储的，然后将相关的XML文件和资源文件压缩后得到。你如果将一个已经含有内容的word 2007的文档的扩展名由docx改为zip，然后你会发现这个压缩包下的目录结构类似这样：</p>
+<figure class="highlight crmsh"><table><tr><td class="code"><pre><span class="line">| [Content_Types].<span class="keyword">xml</span></span><br><span class="line"><span class="title">|-_rely</span></span><br><span class="line">|   .rels</span><br><span class="line">|-customXml</span><br><span class="line">|   |-_rels</span><br><span class="line">|        item1.xml.rels</span><br><span class="line">|       item1.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|       itemProps1</span>.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|-docProps</span></span><br><span class="line">|     app.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|     core</span>.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|-word</span></span><br><span class="line">|   |-rels</span><br><span class="line">|   |media</span><br><span class="line">|   |theme</span><br><span class="line">|   document.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|   endnotes</span>.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|   fonTable</span>.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|   footer1</span>.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|   footnotes</span>.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|   header1</span>.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|   numbering</span>.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|   settings</span>.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|   styles</span>.<span class="keyword">xml</span></span><br><span class="line"><span class="title">|   webSettings</span>.xml</span><br></pre></td></tr></table></figure>
+
+<p>目录结构比较复杂，但从名字也能够大概猜出来一些，document.xml中存储的是页面中的内容，header1.xml存储的是页眉的内容。。。用文本编辑器打开这几个文件，也验证了猜想。</p>
+<p>在了解了word2007文档的格式后，也就有了解决的方案。构建word2007文档的问题也就转化成了修改一个压缩文件中的xml问题。同样可以使用模板技术来向XML文档中动态的打入数据，然后替换压缩文件中的相应XML文档，就可以实现生成word 2007的需求。</p>
+<h2 id="技术实现"><a href="#技术实现" class="headerlink" title="技术实现"></a>技术实现</h2><p>以下用一个简单的实例介绍具体的实现步骤。</p>
+<h3 id="第一步：创建模板"><a href="#第一步：创建模板" class="headerlink" title="第一步：创建模板"></a>第一步：创建模板</h3><p>首先，新建一个word2007文档,并完成内容和样式的编辑。然后将这个docx文档的扩展名改为zip，使用压缩工具打开，将其中的document.xml解压出来，然后从压缩文件中删除document.xml。然后将压缩文件名修改为template.docx。</p>
+<h3 id="第二步：编写代码"><a href="#第二步：编写代码" class="headerlink" title="第二步：编写代码"></a>第二步：编写代码</h3><p>大致流程为</p>
+<ol>
+<li>将document.xml中使用模板语言进行预处理。</li>
+<li>使用模板引擎将数据加载到document.xml文件中。</li>
+<li>使用Java中的ZipInputStream/ZipOutputStream操纵zip文档，将上一步生成的document.xml压缩到docx中。</li>
+<li>最后输出为一个新的docx文件。</li>
+</ol>
+<p>关键代码片段为</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> String <span class="title function_">generateWord</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">String</span> <span class="variable">documentFilePath</span> <span class="operator">=</span> ...; <span class="comment">// 使用模板语言处理后的document.xml文件位置</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">templatePath</span> <span class="operator">=</span> ...; <span class="comment">// template.docx的文件位置</span></span><br><span class="line"></span><br><span class="line">    <span class="type">String</span> <span class="variable">tempDocumentFilePath</span> <span class="operator">=</span> ...; <span class="comment">// 填充数据后的document.xml文件位置</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">tempWordFilePath</span> <span class="operator">=</span> ...; <span class="comment">// 最后生成的word 2007文件位置</span></span><br><span class="line">    </span><br><span class="line">    <span class="type">File</span> <span class="variable">tempWordFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(tempWordFilePath);</span><br><span class="line">    <span class="type">File</span> <span class="variable">document</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(tempDocumentFilePath);</span><br><span class="line">            </span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        generateDocument(documentFilePath, tempDocumentFilePath);</span><br><span class="line">        </span><br><span class="line">        createWordFile(tempWordFilePath, templatePath);</span><br><span class="line"></span><br><span class="line">        addDocumentToTemplate(tempWordFile, document, header);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;Error when generating word file.&quot;</span>, e);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(document != <span class="literal">null</span>) &#123;</span><br><span class="line">            document.delete();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(header != <span class="literal">null</span>) &#123;</span><br><span class="line">            header.delete();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> tempWordFilePath;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//利用模板引擎填充document.xml</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">generateDocument</span><span class="params">(String documentFilePath, String tempDocumentFilePath)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    <span class="type">PerformOrderData</span> <span class="variable">data</span> <span class="operator">=</span> DataSource.getDataList();</span><br><span class="line">    Map&lt;String, Object&gt; dataMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, Object&gt;();</span><br><span class="line">    dataMap.put(<span class="string">&quot;performOrderName&quot;</span>, data.getPerformOrderName());</span><br><span class="line">    dataMap.put(<span class="string">&quot;agentName&quot;</span>, data.getAgentName());</span><br><span class="line">    dataMap.put(<span class="string">&quot;version&quot;</span>, data.getVersion());</span><br><span class="line">    dataMap.put(<span class="string">&quot;custName&quot;</span>, data.getCustName());</span><br><span class="line">    dataMap.put(<span class="string">&quot;url&quot;</span>, data.getUrl());</span><br><span class="line">    dataMap.put(<span class="string">&quot;directSaler&quot;</span>, data.getDirectSaler());</span><br><span class="line">    dataMap.put(<span class="string">&quot;channelSaler&quot;</span>, data.getChannelSaler());</span><br><span class="line">    dataMap.put(<span class="string">&quot;products&quot;</span>, data.getProducts());</span><br><span class="line"></span><br><span class="line">    VelocityUtils.fill(documentFilePath, tempDocumentFilePath, dataMap);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//将document.xml加入到template.docx中</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">addDocumentToTemplate</span><span class="params">(File tempWordFile, File document, File header)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    <span class="comment">// get a temp file</span></span><br><span class="line">    <span class="type">File</span> <span class="variable">tempFile</span> <span class="operator">=</span> File.createTempFile(tempWordFile.getName(), <span class="literal">null</span>);</span><br><span class="line">    <span class="comment">// delete it, otherwise you cannot rename your existing zip to it.</span></span><br><span class="line">    tempFile.delete();</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="variable">renameOk</span> <span class="operator">=</span> tempWordFile.renameTo(tempFile);</span><br><span class="line">    <span class="keyword">if</span> (!renameOk) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;could not rename the file &quot;</span></span><br><span class="line">                + tempWordFile.getAbsolutePath() + <span class="string">&quot; to &quot;</span></span><br><span class="line">                + tempFile.getAbsolutePath());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">ZipInputStream</span> <span class="variable">zin</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="type">ZipOutputStream</span> <span class="variable">zout</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="type">InputStream</span> <span class="variable">in</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        zin = <span class="keyword">new</span> <span class="title class_">ZipInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(tempFile));;</span><br><span class="line">        zout = <span class="keyword">new</span> <span class="title class_">ZipOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(tempWordFile));;</span><br><span class="line">        </span><br><span class="line">        <span class="type">ZipEntry</span> <span class="variable">entry</span> <span class="operator">=</span> zin.getNextEntry();</span><br><span class="line">        <span class="keyword">while</span> (entry != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> entry.getName();</span><br><span class="line">            <span class="type">boolean</span> <span class="variable">notInFiles</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">if</span> (document != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (document.getName().equals(name) || header.getName().equals(name)) &#123;</span><br><span class="line">                    notInFiles = <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (notInFiles) &#123;</span><br><span class="line">                <span class="comment">// Add ZIP entry to output stream.</span></span><br><span class="line">                zout.putNextEntry(<span class="keyword">new</span> <span class="title class_">ZipEntry</span>(name));</span><br><span class="line">                <span class="comment">// Transfer bytes from the ZIP file to the output file</span></span><br><span class="line">                write(zin, zout);</span><br><span class="line">            &#125;</span><br><span class="line">            entry = zin.getNextEntry();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// Compress the files</span></span><br><span class="line">        <span class="keyword">if</span> (document != <span class="literal">null</span>) &#123;</span><br><span class="line">            in = <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(document);</span><br><span class="line">            <span class="comment">// Add ZIP entry to output stream.</span></span><br><span class="line">            zout.putNextEntry(<span class="keyword">new</span> <span class="title class_">ZipEntry</span>(<span class="string">&quot;word/document.xml&quot;</span>));</span><br><span class="line">            <span class="comment">// Transfer bytes from the file to the ZIP file</span></span><br><span class="line">            write(in, zout);</span><br><span class="line">            <span class="comment">// Complete the entry</span></span><br><span class="line">            zout.closeEntry();</span><br><span class="line">            in.close();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (header != <span class="literal">null</span>) &#123;</span><br><span class="line">            in = <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(header);</span><br><span class="line">            zout.putNextEntry(<span class="keyword">new</span> <span class="title class_">ZipEntry</span>(<span class="string">&quot;word/header1.xml&quot;</span>));</span><br><span class="line">            write(in, zout);</span><br><span class="line">            zout.closeEntry();</span><br><span class="line">            in.close();</span><br><span class="line">        &#125;</span><br><span class="line">        tempFile.delete();</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (zin != <span class="literal">null</span>) &#123;</span><br><span class="line">            zin.close();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (zout != <span class="literal">null</span>) &#123;</span><br><span class="line">            zout.close();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (in != <span class="literal">null</span>) &#123;</span><br><span class="line">            in.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">write</span><span class="params">(InputStream in, OutputStream out)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    <span class="type">byte</span>[] buf = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1024</span>];</span><br><span class="line">    <span class="type">int</span> len;</span><br><span class="line">    <span class="keyword">while</span> ((len = in.read(buf)) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        out.write(buf, <span class="number">0</span>, len);</span><br><span class="line">    &#125;</span><br><span class="line">    out.flush();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">createWordFile</span><span class="params">(String targetWordPath, String templatePath)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    <span class="type">InputStream</span> <span class="variable">in</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="type">OutputStream</span> <span class="variable">out</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        in = <span class="built_in">this</span>.getClass().getResourceAsStream(templatePath);</span><br><span class="line">        out = <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="keyword">new</span> <span class="title class_">File</span>(targetWordPath));</span><br><span class="line">        write(in, out);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(in != <span class="literal">null</span>) &#123;</span><br><span class="line">            in.close();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(out != <span class="literal">null</span>) &#123;</span><br><span class="line">            out.close();    </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种方法的关键点就是这样。方法本身还是很好理解，麻烦的在于模板的处理上。这里还没反应出这种麻烦，因为只是生成了word文档而已，等到进行转换pdf的时候，还会有新的问题出现。。。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2013-04-11-word-to-pdf/" rel="prev" title="使用OpenOffice将word转换为pdf">
+                  <i class="fa fa-angle-left"></i> 使用OpenOffice将word转换为pdf
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2013-10-09-mysql-datatype/" rel="next" title="MySQL技术内幕：SQL编程——数据类型小结">
+                  MySQL技术内幕：SQL编程——数据类型小结 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

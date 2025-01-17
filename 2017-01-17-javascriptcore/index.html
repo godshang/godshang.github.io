@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="从Objective-C调用JavaScript，是通过UIWebView的- (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script;方法来实现的，该方法向UIWebView传递一段需要执行的JavaScript代码最后获取执行结果。而从JavaScript向Objective-C的调用都是基于URL的拦截进行。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScriptCore框架入门">
+<meta property="og:url" content="https://godshang.github.io/2017-01-17-javascriptcore/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="从Objective-C调用JavaScript，是通过UIWebView的- (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script;方法来实现的，该方法向UIWebView传递一段需要执行的JavaScript代码最后获取执行结果。而从JavaScript向Objective-C的调用都是基于URL的拦截进行。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-01-16T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.682Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://godshang.github.io/2017-01-17-javascriptcore/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2017-01-17-javascriptcore/","path":"2017-01-17-javascriptcore/","title":"JavaScriptCore框架入门"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>JavaScriptCore框架入门 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#JavaScriptCore"><span class="nav-number">1.</span> <span class="nav-text">JavaScriptCore</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">基本用法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="nav-number">3.</span> <span class="nav-text">方法的转换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#block"><span class="nav-number">3.1.</span> <span class="nav-text">block</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JSExport"><span class="nav-number">3.2.</span> <span class="nav-text">JSExport</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">异常处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#block%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">5.1.</span> <span class="nav-text">block注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JSManagedValue%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">5.2.</span> <span class="nav-text">JSManagedValue的使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JSVirtualMachine"><span class="nav-number">5.3.</span> <span class="nav-text">JSVirtualMachine</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B"><span class="nav-number">6.</span> <span class="nav-text">线程</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2017-01-17-javascriptcore/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="JavaScriptCore框架入门 | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JavaScriptCore框架入门
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-01-17 00:00:00" itemprop="dateCreated datePublished" datetime="2017-01-17T00:00:00+08:00">2017-01-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>从Objective-C调用JavaScript，是通过<code>UIWebView</code>的<code>- (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script;</code>方法来实现的，该方法向<code>UIWebView</code>传递一段需要执行的JavaScript代码最后获取执行结果。而从JavaScript向Objective-C的调用都是基于URL的拦截进行。</p>
+<p>iOS 7后，Apple提供了<code>JavaScriptCore</code>框架，让Objective-C和JavaScript代码的交互变得更加简单和方便。JavaScriptCore框架是基于webkit中以C/C++实现的JavaScriptCore的一个封装，在旧版本iOS开发中，很多开发者也会自行将webkit的库引入项目编译使用，不过iOS7开始苹果把它当成了标准库。</p>
+<h2 id="JavaScriptCore"><a href="#JavaScriptCore" class="headerlink" title="JavaScriptCore"></a>JavaScriptCore</h2><p>JavaScriptCore.h头文件中引入了5个文件，每个文件里都定义了跟文件名对应的类：</p>
+<ul>
+<li>JSContext</li>
+<li>JSValue</li>
+<li>JSManagedValue</li>
+<li>JSVirtualMachine</li>
+<li>JSExport</li>
+</ul>
+<p><code>JSVirtualMachine</code>为JavaScript的运行提供了底层资源，有独立的堆空间和垃圾回收机制。</p>
+<p><code>JSContext</code>其提供运行环境，通过<code>- (JSValue *)evaluateScript:(NSString *)script;</code>方法就可以执行一段JavaScript脚本，并且如果其中有方法、变量等信息都会被存储在其中以便在需要的时候使用。JSContext的创建都是基于<code>JSVirtualMachine：- (id)initWithVirtualMachine:(JSVirtualMachine *)virtualMachine;</code>，如果是使用<code>- (id)init;</code>进行初始化，那么在其内部会自动创建一个新的JSVirtualMachine对象然后调用前边的初始化方法。</p>
+<p><code>JSValue</code>则可以说是JavaScript和Object-C之间互换的桥梁，每个<code>JSValue</code>都和<code>JSContext</code>相关联并且强引用context。它提供了多种方法可以方便地把JavaScript数据类型转换成Objective-C，或者是转换过去。</p>
+<table>
+<thead>
+<tr>
+<th align="center">Objective-C</th>
+<th align="center">JavaScript</th>
+<th align="center">JSValue Convert</th>
+<th align="center">JSValue Constructor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">nil</td>
+<td align="center">undefined</td>
+<td align="center"></td>
+<td align="center">valueWithUndefinedInContext</td>
+</tr>
+<tr>
+<td align="center">NSNull</td>
+<td align="center">null</td>
+<td align="center"></td>
+<td align="center">valueWithNullInContext:</td>
+</tr>
+<tr>
+<td align="center">NSString</td>
+<td align="center">string</td>
+<td align="center">toString</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">NSNumber</td>
+<td align="center">number, boolean</td>
+<td align="center">toNumber <br> toBool <br> toDouble <br> toInt32 <br> toUInt32</td>
+<td align="center">valueWithBool:inContext: <br> valueWithDouble:inContext: <br> valueWithInt32:inContext: <br> valueWithUInt32:inContext:</td>
+</tr>
+<tr>
+<td align="center">NSDictionary</td>
+<td align="center">Object object</td>
+<td align="center">toDictionary</td>
+<td align="center">valueWithNewObjectInContext</td>
+</tr>
+<tr>
+<td align="center">NSArray</td>
+<td align="center">Array object</td>
+<td align="center">toArray</td>
+<td align="center">valueWithNewArrayInContext:</td>
+</tr>
+<tr>
+<td align="center">NSDate</td>
+<td align="center">Date object</td>
+<td align="center">toDate</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">NSBlock</td>
+<td align="center">Function object</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">id</td>
+<td align="center">Wrapper object</td>
+<td align="center">toObject <br> toObjectOfClass:</td>
+<td align="center">valueWithObject:inContext:</td>
+</tr>
+<tr>
+<td align="center">Class</td>
+<td align="center">Constructor object</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<p><code>JSManagedValue</code>是JavaScript和Objective-C对象的内存管理辅助对象。由于JavaScript内存管理是垃圾回收，并且JavaScript中的对象都是强引用，而Objective-C是引用计数。如果双方相互引用，势必会造成循环引用，而导致内存泄露。我们可以用<code>JSManagedValue</code>保存JSValue来避免。</p>
+<p><code>JSExport</code>是一个协议，如果JavaScript对象想直接调用Objective-C对象里面的方法和属性，那么这个Objective-C对象只要实现这个<code>JSExport</code>协议就可以了。</p>
+<h2 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h2><figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">JSContext *context = [[JSContext alloc] init];</span><br><span class="line">JSValue *value = [context evaluateScript:<span class="string">@&quot;21+7&quot;</span>];</span><br><span class="line"><span class="type">int</span> iVal = [value toInt32];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;JSValue: %@, int: %d&quot;</span>, value, iVal);</span><br></pre></td></tr></table></figure>
+
+<p>从OC中调用JS代码很简单，生成一个<code>JSContext</code>对象，调用<code>evaluateScript</code>加载JS代码，该方法会将这段JS代码最后返回的值以<code>JSValue</code>包装后返回到OC中。</p>
+<p>还可以将一个JS变量保存在<code>JSContext</code>对象中，然后通过下标获取。对于<code>Array</code>和<code>Object</code>类型，<code>JSValue</code>也可以通过下标直接获取值和赋值。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">    JSContext *context = [[JSContext alloc] init];</span><br><span class="line">    [context evaluateScript:<span class="string">@&quot;var arr = [21, 7 , &#x27;iderzheng.com&#x27;];&quot;</span>];</span><br><span class="line">    </span><br><span class="line">    JSValue *jsArr = context[<span class="string">@&quot;arr&quot;</span>];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;JSArray: %@, Length: %@&quot;</span>, jsArr, jsArr[<span class="string">@&quot;length&quot;</span>]);</span><br><span class="line"><span class="comment">//    Output: JSArray: 21,7,iderzheng.com, Length: 3</span></span><br><span class="line">    </span><br><span class="line">    jsArr[<span class="number">1</span>] = <span class="string">@&quot;blog&quot;</span>;</span><br><span class="line">    jsArr[<span class="number">7</span>] = @<span class="number">7</span>;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;JSArray: %@, Length: %@&quot;</span>, jsArr, jsArr[<span class="string">@&quot;length&quot;</span>]);</span><br><span class="line"><span class="comment">//    Output: JSArray: 21,blog,iderzheng.com,,,,,7, Length: 8</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSArray</span> *nsArr = [jsArr toArray];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;NSArray: %@&quot;</span>, nsArr);</span><br><span class="line"><span class="comment">//    Output: NSArray: (</span></span><br><span class="line"><span class="comment">//          21,</span></span><br><span class="line"><span class="comment">//          blog,</span></span><br><span class="line"><span class="comment">//          &quot;iderzheng.com&quot;,</span></span><br><span class="line"><span class="comment">//          &quot;&lt;null&gt;&quot;,</span></span><br><span class="line"><span class="comment">//          &quot;&lt;null&gt;&quot;,</span></span><br><span class="line"><span class="comment">//          &quot;&lt;null&gt;&quot;,</span></span><br><span class="line"><span class="comment">//          &quot;&lt;null&gt;&quot;,</span></span><br><span class="line"><span class="comment">//          7</span></span><br><span class="line"><span class="comment">//          )</span></span><br></pre></td></tr></table></figure>
+
+<p>通过输出结果很容易看出代码成功把数据从Objective-C赋到了JavaScript数组上，而且<code>JSValue</code>是遵循JavaScript的数组特性：无下标越位，自动延展数组大小。并且通过<code>JSValue</code>还可以获取JavaScript对象上的属性，比如例子中通过<code>length</code>就获取到了JavaScript数组的长度。在转成<code>NSArray</code>的时候，所有的信息也都正确转换了过去。</p>
+<h2 id="方法的转换"><a href="#方法的转换" class="headerlink" title="方法的转换"></a>方法的转换</h2><h3 id="block"><a href="#block" class="headerlink" title="block"></a>block</h3><p>Objective-C的block可以传入<code>JSContext</code>中当做JavaScript的方法使用。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">JSContext *context = [[JSContext alloc] init];</span><br><span class="line">context[<span class="string">@&quot;log&quot;</span>] = ^() &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;++++++++ Begin Log ++++++++&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSArray</span> *args = [JSContext currentArguments];</span><br><span class="line">    <span class="keyword">for</span> (JSValue *jsVal <span class="keyword">in</span> args) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, jsVal);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    JSValue *<span class="variable language_">this</span> = [JSContext currentThis];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;this: %@&quot;</span>, <span class="variable language_">this</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;++++++++ End Log ++++++++&quot;</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">[context evaluateScript:<span class="string">@&quot;log(&#x27;alan&#x27;, [7, 21], &#123; key1: &#x27;str&#x27;, key2: 100 &#125;);&quot;</span>];</span><br><span class="line"><span class="comment">//Output:</span></span><br><span class="line"><span class="comment">//  +++++++Begin Log+++++++</span></span><br><span class="line"><span class="comment">//  alan</span></span><br><span class="line"><span class="comment">//  7,21</span></span><br><span class="line"><span class="comment">//  [object Object]</span></span><br><span class="line"><span class="comment">//  this: [object GlobalObject]</span></span><br><span class="line"><span class="comment">//  -------End Log-------</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>通过block可以在JavaScript中调用Objective-C的方法，并且遵循JavaScript方法的特点，如方法参数不固定。也因为这样，<code>JSContext</code> 提供了类方法来获取参数列表(<code>+ (NSArray *)currentArguments</code>)和当前调用该方法的对象(<code>+ (JSValue *)currentThis</code>)。上边的例子中对于<code>this</code>输出的内容是<code>GlobalObject</code>，这也是<code>JSContext</code>对象方法<code>- (JSValue *)globalObject;</code>所返回的内容。因为我们知道在JavaScript里，所有全局变量和方法其实都是一个全局变量的属性，在浏览器中是window，在JavaScriptCore是什么就不得而知了。</p>
+<p>block可以传入 <code>JSContext</code> 中被JavaScript代码调用，但是 <code>JSValue</code> 没有 <code>toBlock</code> 方法把JavaScript方法变成block在Objective-C中使用，毕竟block的参数个数和类型已经返回类型都是固定的。虽然不能把方法提取出来，但是 <code>JSValue</code> 提供了 <code>- (JSValue *)callWithArguments:(NSArray *)arguments;</code> 方法可以反过来将参数传进去来调用方法。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">JSContext *context = [[JSContext alloc] init];</span><br><span class="line">[context evaluateScript:<span class="string">@&quot;function add(a, b) &#123; return a + b; &#125;&quot;</span>];</span><br><span class="line">JSValue *add = context[<span class="string">@&quot;add&quot;</span>];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;Func:  %@&quot;</span>, add);</span><br><span class="line"> </span><br><span class="line">JSValue *sum = [add callWithArguments:@[@(<span class="number">7</span>), @(<span class="number">21</span>)]];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;Sum:  %d&quot;</span>,[sum toInt32]);</span><br><span class="line"></span><br><span class="line">JSValue *ret = [sum invokeMethod:<span class="string">@&quot;toString&quot;</span> withArguments:<span class="literal">nil</span>];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;Ret:  %@&quot;</span>, ret);</span><br><span class="line"></span><br><span class="line"><span class="comment">//OutPut:</span></span><br><span class="line"><span class="comment">//  Func:  function add(a, b) &#123; return a + b; &#125;</span></span><br><span class="line"><span class="comment">//  Sum:  28</span></span><br><span class="line"><span class="comment">//  Ret:  28</span></span><br></pre></td></tr></table></figure>
+
+<p><code>JSValue</code>还提供<code>- (JSValue *)invokeMethod:(NSString *)method withArguments:(NSArray *)arguments;</code>让我们可以直接简单地调用JavaScript对象上的方法。只是如果定义的方法是全局函数，那么很显然应该在<code>JSContext</code> 的 <code>globalObject</code>对象上调用该方法；如果是某JavaScript对象上的方法，就应该用相应的<code>JSValue</code>对象调用。</p>
+<h3 id="JSExport"><a href="#JSExport" class="headerlink" title="JSExport"></a>JSExport</h3><p>JavaScript可以脱离prototype继承完全用JSON来定义对象，但是Objective-C编程里可不能脱离类和继承了写代码。所以JavaScriptCore就提供了<code>JSExport</code>作为两种语言的互通协议。<code>JSExport</code>中没有约定任何的方法，连可选的(@optional)都没有，但是所有继承了该协议(@protocol)的协议（注意不是Objective-C的类(@interface)）中定义的方法，都可以在<code>JSContext</code>中被使用。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 首先定义一个JSExporter协议</span></span><br><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">JSExportTarget</span> &lt;<span class="title">JSExport</span>&gt;</span></span><br><span class="line"></span><br><span class="line">- (<span class="built_in">NSInteger</span>)add:(<span class="built_in">NSInteger</span>)a b:(<span class="built_in">NSInteger</span>)b;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">assign</span>) <span class="built_in">NSInteger</span> sum;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 建一个对象去实现这个协议</span></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">JSExporter</span> : <span class="title">NSObject</span> &lt;<span class="title">JSExportTarget</span>&gt;</span></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">JSExporter</span></span></span><br><span class="line"><span class="keyword">@synthesize</span> sum = _sum;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">NSInteger</span>)add:(<span class="built_in">NSInteger</span>)a b:(<span class="built_in">NSInteger</span>)b &#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="type">void</span>)setSum:(<span class="built_in">NSInteger</span>)sum &#123;</span><br><span class="line">     <span class="built_in">NSLog</span>(<span class="string">@&quot;--%@&quot;</span>, @(sum));</span><br><span class="line">    _sum = sum;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用时</span></span><br><span class="line">JSContext *context = [[JSContext alloc] init];</span><br><span class="line"></span><br><span class="line">JSExporter *exporter = [[JSExporter alloc] init];</span><br><span class="line">context[<span class="string">@&quot;exp&quot;</span>] = exporter;</span><br><span class="line"></span><br><span class="line">[context evaluateScript:<span class="string">@&quot;exp.sum = exp.addB(2,3);&quot;</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// Output:</span></span><br><span class="line"><span class="comment">// --5</span></span><br></pre></td></tr></table></figure>
+
+<p>要注意的是OC的函数命名和JS函数命名规则问题。协议中定义的是add: b:，但是JS里面方法名字是addB(a,b)。可以通过JSExportAs这个宏转换成JS的函数名字。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">JSExportTarget</span> &lt;<span class="title">JSExport</span>&gt;</span></span><br><span class="line"></span><br><span class="line">JSExportAs(add, - (<span class="built_in">NSInteger</span>)add:(<span class="built_in">NSInteger</span>)a b:(<span class="built_in">NSInteger</span>)b);</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">assign</span>) <span class="built_in">NSInteger</span> sum;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用时</span></span><br><span class="line">[context evaluateScript:<span class="string">@&quot;exp.sum = exp.add(2,3);&quot;</span>];</span><br></pre></td></tr></table></figure>
+
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p><code>JSContext</code>中执行的JavaScript代码如果出现异常，会被<code>JSContext</code>捕获并存储在<code>exception</code>属性上，不会向外抛出。时刻检查<code>exception</code>属性是否为<code>nil</code>显示不合适，更合理的方式是给JSContext对象设置<code>exceptionHanlder</code>，它接受的是<code>^(JSContext *context, JSValue *exceptionValue)</code>形式的block，默认的实现就是将传入的<code>exceptionValue</code>赋值给传入的<code>context</code>的<code>exception</code>属性。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">^(JSContext *context, JSValue *exceptionValue) &#123;</span><br><span class="line">    context.exception = exceptionValue;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>可以提供一个新的block，加入自己的处理逻辑：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">JSContext *context = [[JSContext alloc] init];</span><br><span class="line">context.exceptionHandler = ^(JSContext *context, JSValue *exceptionValue) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;%@&quot;</span>, exception);</span><br><span class="line">    context.exception = exceptionValue;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><p>在内存管理方面，Objective-C使用的ARC，JavaScript使用垃圾回收机制，并且所有的引用都是强引用，JS中的循环引用，垃圾回收会负责处理。JavaScriptCore里的API，正常情况下，不需要开发者去关心Objective-C和JavaScript的内存管理问题。不过还有几点需要留意。</p>
+<h3 id="block注意事项"><a href="#block注意事项" class="headerlink" title="block注意事项"></a>block注意事项</h3><p>block在JavaScriptCore中起到的强大作用，它在JavaScript和Objective-C之间的转换 建立起更多的桥梁，让互通更方便。但是要注意的是无论是把block传给<code>JSContext</code>对象让其变成JavaScript方法，还是把它赋给<code>exceptionHandler</code>属性，在block内都不要直接使用其外部定义的<code>JSContext</code>对象或者<code>JSValue</code>，应该将其当做参数传入到block中，或者通过<code>JSContext</code>的类方法<code>+ (JSContext *)currentContext;</code>来获得。否则会造成循环引用使得内存无法被正确释放。</p>
+<p>比如上边自定义异常处理方法，就是赋给传入<code>JSContext</code>对象con，而不是其外创建的context对象，虽然它们其实是同一个对象。这是因为block会对内部使用的在外部定义创建的对象做强引用，而<code>JSContext</code>也会对被赋予的block做强引用，这样它们之间就形成了循环引用(Circular Reference)使得内存无法正常释放。</p>
+<p>对于<code>JSValue</code>也不能直接从外部引用到block中，因为每个<code>JSValue</code>上都有<code>JSContext</code>的引用 (<code>@property(readonly, retain) JSContext *context;</code>)，<code>JSContext</code>再引用block同样也会形成引用循环。</p>
+<h3 id="JSManagedValue的使用"><a href="#JSManagedValue的使用" class="headerlink" title="JSManagedValue的使用"></a>JSManagedValue的使用</h3><p>Objective-C和JavaScript两种不同的内存管理机制出现在同一个程序中时难免会产生冲突。</p>
+<p>比如，在一个方法中创建了一个临时的Objective-C对象，然后将其加入到JSContext放在JavaScript中的变量中被使用。因为JavaScript中的变量有引用所以不会被释放回收，但是Objective-C上的对象可能在方法调用结束后，引用计数变0而被回收内存，因此JavaScript层面也会造成错误访问。</p>
+<p>同样的，如果用JSContext创建了对象或者数组，返回JSValue到Objective-C，即使把JSValue变量retain下，但可能因为JavaScript中因为变量没有了引用而被释放内存，那么对应的JSValue也没有用了。</p>
+<p>怎么在两种内存回收机制中处理好对象内存就成了问题。JavaScriptCore提供了JSManagedValue类型帮助开发人员更好地管理对象内存。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">JSManagedValue</span> : <span class="title">NSObject</span></span></span><br><span class="line"> </span><br><span class="line"><span class="comment">// Convenience method for creating JSManagedValues from JSValues.</span></span><br><span class="line">+ (JSManagedValue *)managedValueWithValue:(JSValue *)value;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Create a JSManagedValue.</span></span><br><span class="line">- (<span class="type">id</span>)initWithValue:(JSValue *)value;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// Get the JSValue to which this JSManagedValue refers. If the JavaScript value has been collected,</span></span><br><span class="line"><span class="comment">// this method returns nil.</span></span><br><span class="line">- (JSValue *)value;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<p><code>JSVirtualMachine</code>为整个JavaScriptCore的执行提供资源，所以当将一个<code>JSValue</code>转成<code>JSManagedValue</code>后，就可以添加到<code>JSVirtualMachine</code>中，这样在运行期间就可以保证在Objective-C和JavaScript两侧都可以正确访问对象而不会造成不必要的麻烦。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">JSVirtualMachine</span> : <span class="title">NSObject</span></span></span><br><span class="line"> </span><br><span class="line"><span class="comment">// Create a new JSVirtualMachine.</span></span><br><span class="line">- (<span class="type">id</span>)init;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// addManagedReference:withOwner and removeManagedReference:withOwner allow </span></span><br><span class="line"><span class="comment">// clients of JSVirtualMachine to make the JavaScript runtime aware of </span></span><br><span class="line"><span class="comment">// arbitrary external Objective-C object graphs. The runtime can then use </span></span><br><span class="line"><span class="comment">// this information to retain any JavaScript values that are referenced </span></span><br><span class="line"><span class="comment">// from somewhere in said object graph.</span></span><br><span class="line"><span class="comment">// </span></span><br><span class="line"><span class="comment">// For correct behavior clients must make their external object graphs </span></span><br><span class="line"><span class="comment">// reachable from within the JavaScript runtime. If an Objective-C object is </span></span><br><span class="line"><span class="comment">// reachable from within the JavaScript runtime, all managed references </span></span><br><span class="line"><span class="comment">// transitively reachable from it as recorded with </span></span><br><span class="line"><span class="comment">// addManagedReference:withOwner: will be scanned by the garbage collector.</span></span><br><span class="line"><span class="comment">// </span></span><br><span class="line">- (<span class="type">void</span>)addManagedReference:(<span class="type">id</span>)object withOwner:(<span class="type">id</span>)owner;</span><br><span class="line">- (<span class="type">void</span>)removeManagedReference:(<span class="type">id</span>)object withOwner:(<span class="type">id</span>)owner;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="JSVirtualMachine"><a href="#JSVirtualMachine" class="headerlink" title="JSVirtualMachine"></a>JSVirtualMachine</h3><p>一个<code>JSVirtualMachine</code>可以运行多个<code>context</code>，由于都是在同一个堆内存和同一个垃圾回收下，所以相互之间传值是没问题的。但是如果在不同的 <code>JSVirtualMachine</code>传值，垃圾回收就不知道他们之间的关系了，可能会引起异常。</p>
+<h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><p><code>JavaScriptCore</code>线程是安全的，每个<code>context</code>运行的时候通过lock关联的<code>JSVirtualMachine</code>。如果要进行并发操作，可以创建多个<code>JSVirtualMachine</code>实例进行操作。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017-01-03-hangzhou/" rel="prev" title="杭州">
+                  <i class="fa fa-angle-left"></i> 杭州
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2017-02-09-cocoapods-lib/" rel="next" title="使用CocoaPods开发静态库时的几点问题">
+                  使用CocoaPods开发静态库时的几点问题 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

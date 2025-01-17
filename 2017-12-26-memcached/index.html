@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Memcached 是一个免费开源的，高性能的，具有分布式对象的缓存系统，它可以用来保存一些经常存取的对象或数据，保存的数据像一张巨大的HASH表，该表以Key-value对的方式存在内存中。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Memcached 的简单使用">
+<meta property="og:url" content="https://godshang.github.io/2017-12-26-memcached/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="Memcached 是一个免费开源的，高性能的，具有分布式对象的缓存系统，它可以用来保存一些经常存取的对象或数据，保存的数据像一张巨大的HASH表，该表以Key-value对的方式存在内存中。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-12-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.686Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Memcached">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://godshang.github.io/2017-12-26-memcached/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2017-12-26-memcached/","path":"2017-12-26-memcached/","title":"Memcached 的简单使用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Memcached 的简单使用 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Memcached-%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">Memcached 的特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Memcached-%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E5%90%AF%E5%8A%A8"><span class="nav-number">2.</span> <span class="nav-text">Memcached 的安装与启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Memcached-%E5%91%BD%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">Memcached 命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#set"><span class="nav-number">3.1.</span> <span class="nav-text">set</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#add"><span class="nav-number">3.2.</span> <span class="nav-text">add</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#replace"><span class="nav-number">3.3.</span> <span class="nav-text">replace</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#append"><span class="nav-number">3.4.</span> <span class="nav-text">append</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#prepend"><span class="nav-number">3.5.</span> <span class="nav-text">prepend</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CAS"><span class="nav-number">3.6.</span> <span class="nav-text">CAS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#get"><span class="nav-number">3.7.</span> <span class="nav-text">get</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gets"><span class="nav-number">3.8.</span> <span class="nav-text">gets</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#delete"><span class="nav-number">3.9.</span> <span class="nav-text">delete</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#incr-%E4%B8%8E-decr"><span class="nav-number">3.10.</span> <span class="nav-text">incr 与 decr</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stats"><span class="nav-number">3.11.</span> <span class="nav-text">stats</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stats-items"><span class="nav-number">3.12.</span> <span class="nav-text">stats items</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stats-slabs"><span class="nav-number">3.13.</span> <span class="nav-text">stats slabs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stats-sizes"><span class="nav-number">3.14.</span> <span class="nav-text">stats sizes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flush-all"><span class="nav-number">3.15.</span> <span class="nav-text">flush_all</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Memcached-%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">Memcached 的设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Memcached-%E5%86%85%E5%AD%98%E7%AE%97%E6%B3%95"><span class="nav-number">4.1.</span> <span class="nav-text">Memcached 内存算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Memcached%E7%9A%84%E7%BC%93%E5%AD%98%E7%AD%96%E7%95%A5"><span class="nav-number">4.2.</span> <span class="nav-text">Memcached的缓存策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Memcached%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E7%AE%97%E6%B3%95"><span class="nav-number">4.3.</span> <span class="nav-text">Memcached的分布式算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.4.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.5.</span> <span class="nav-text">不适用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%97%B6%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">4.6.</span> <span class="nav-text">使用时注意事项</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2017-12-26-memcached/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Memcached 的简单使用 | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Memcached 的简单使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-12-26 00:00:00" itemprop="dateCreated datePublished" datetime="2017-12-26T00:00:00+08:00">2017-12-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Memcached 是一个免费开源的，高性能的，具有分布式对象的缓存系统，它可以用来保存一些经常存取的对象或数据，保存的数据像一张巨大的HASH表，该表以Key-value对的方式存在内存中。</p>
+<span id="more"></span>
+
+<h2 id="Memcached-的特点"><a href="#Memcached-的特点" class="headerlink" title="Memcached 的特点"></a>Memcached 的特点</h2><ol>
+<li>协议简单：它是基于文本行的协议，直接通过telnet在memcached服务器上可进行存取数据操作</li>
+<li>基于libevent事件处理：Libevent是一套利用C开发的程序库，它将BSD系统的kqueue,Linux系统的epoll等事件处理功能封装成一个接口，与传统的select相比，提高了性能。</li>
+<li>内置的内存管理方式：所有数据都保存在内存中，存取数据比硬盘快，当内存满后，通过LRU算法自动删除不使用的缓存，但没有考虑数据的容灾问题，重启服务，所有数据会丢失。</li>
+<li>分布式：各个memcached服务器之间互不通信，各自独立存取数据，不共享任何信息。服务器并不具有分布式功能，分布式部署取决于memcache客户端。</li>
+</ol>
+<h2 id="Memcached-的安装与启动"><a href="#Memcached-的安装与启动" class="headerlink" title="Memcached 的安装与启动"></a>Memcached 的安装与启动</h2><p>Memcached安装时依赖libevent，因此先安装libevent。</p>
+<p>在官网上下载libevent的tar包。</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line">tar -zxvf libevent-<span class="number">2.1</span>.<span class="number">8</span>-stable.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="keyword">cd</span> libevent-<span class="number">2.1</span>.<span class="number">8</span>-stable/</span><br><span class="line"></span><br><span class="line">./configure</span><br><span class="line"></span><br><span class="line"><span class="keyword">make</span></span><br><span class="line"></span><br><span class="line">sudo <span class="keyword">make</span> install</span><br></pre></td></tr></table></figure>
+
+<p>安装成功之后，就可以安装Memcached了。</p>
+<p>同样地，到官网上下载Memcached的tar包。</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line">tar -zxvf memcached-<span class="number">1.5</span>.<span class="number">4</span>.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="keyword">cd</span> memcached-<span class="number">1.5</span>.<span class="number">4</span></span><br><span class="line"></span><br><span class="line">./configure --prefix=/<span class="keyword">opt</span>/local/memcached</span><br><span class="line"></span><br><span class="line"><span class="keyword">make</span> &amp;&amp; <span class="keyword">make</span> test &amp;&amp; sudo <span class="keyword">make</span> install</span><br></pre></td></tr></table></figure>
+
+<p>进入 /opt/local/memcached/bin 目录下，执行 ./memcached 时有可能会报错：</p>
+<figure class="highlight stata"><table><tr><td class="code"><pre><span class="line">[root@djt_21_177 bin]## ./memcached <span class="keyword">help</span></span><br><span class="line">./memcached: <span class="keyword">error</span> <span class="keyword">while</span> loading shared libraries: libevent-2.1.<span class="keyword">so</span>.6: cannot <span class="keyword">open</span> shared object <span class="keyword">file</span>: <span class="keyword">No</span> such <span class="keyword">file</span> or directory</span><br></pre></td></tr></table></figure>
+
+<p>提示libevent找不到，实际上我们之前已经安装成功了。可以创建一个软链接：</p>
+<figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line">[root@djt_21_177 bin]## ln -s <span class="regexp">/usr/</span>local<span class="regexp">/lib/</span>libevent-<span class="number">2.1</span>.so.<span class="number">6</span> <span class="regexp">/usr/</span>lib64/libevent-<span class="number">2.1</span>.so.<span class="number">6</span></span><br></pre></td></tr></table></figure>
+
+<p>之后应该就可以成功启动了。</p>
+<p>Memcached有几个启动参数需要关注：</p>
+<ul>
+<li>-d：以守护进程启动</li>
+<li>-m：分配给Memcached使用的内存数量，单位是MB，默认64MB</li>
+<li>-u：指定运行Memcached的用户</li>
+<li>-l：监听的服务器IP地址，默认localhost</li>
+<li>-p：设置Memcached监听的端口，默认11211</li>
+<li>-c：最大运行的并发连接数，默认1024</li>
+<li>-P：设置保存Memcached的pid文件</li>
+</ul>
+<h2 id="Memcached-命令"><a href="#Memcached-命令" class="headerlink" title="Memcached 命令"></a>Memcached 命令</h2><h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p>set 命令用于将 value(数据值) 存储在指定的 key(键) 中。如果set的key已经存在，该命令可以更新该key所对应的原来的数据，也就是实现更新的作用。</p>
+<p>set 命令的基本语法格式如下：</p>
+<figure class="highlight gams"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span> key <span class="comment">flags exptime bytes [noreply]</span> </span><br><span class="line">value </span><br></pre></td></tr></table></figure>
+
+<p>参数说明如下：</p>
+<ul>
+<li>key：键值 key-value 结构中的 key，用于查找缓存值。</li>
+<li>flags：可以包括键值对的整型参数，客户机使用它存储关于键值对的额外信息 。</li>
+<li>exptime：在缓存中保存键值对的时间长度（以秒为单位，0 表示永远）</li>
+<li>bytes：在缓存中存储的字节数</li>
+<li>noreply（可选）： 该参数告知服务器不需要返回数据</li>
+<li>value：存储的值（始终位于第二行）（可直接理解为key-value结构中的value）</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">[root@sjs_59_130 ~]<span class="comment">## telnet 10.148.21.177 12345</span></span><br><span class="line">Trying <span class="number">10.148</span><span class="number">.21</span><span class="number">.177</span>...</span><br><span class="line">Connected <span class="keyword">to</span> <span class="number">10.148</span><span class="number">.21</span><span class="number">.177</span> (<span class="number">10.148</span><span class="number">.21</span><span class="number">.177</span>).</span><br><span class="line">Escape <span class="built_in">character</span> <span class="keyword">is</span> &#x27;^]&#x27;.</span><br><span class="line"><span class="keyword">set</span> key1 <span class="number">0</span> <span class="number">180</span> <span class="number">3</span></span><br><span class="line">abc</span><br><span class="line">STORED</span><br></pre></td></tr></table></figure>
+
+<h3 id="add"><a href="#add" class="headerlink" title="add"></a>add</h3><p>add 命令用于将 value(数据值) 存储在指定的 key(键) 中。如果 add 的 key 已经存在，则不会更新数据(过期的 key 会更新)，之前的值将仍然保持相同，并且您将获得响应 NOT_STORED。</p>
+<p>add 命令的基本语法格式如下：</p>
+<figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">add </span>key flags exptime <span class="keyword">bytes </span>[<span class="keyword">noreply]</span></span><br><span class="line"><span class="keyword"></span>value</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">add</span> key1 <span class="number">0</span> <span class="number">180</span> <span class="number">3</span></span><br><span class="line"><span class="attribute">xyz</span></span><br><span class="line"><span class="attribute">NOT_STORED</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="replace"><a href="#replace" class="headerlink" title="replace"></a>replace</h3><p>replace 命令用于替换已存在的 key(键) 的 value(数据值)。如果 key 不存在，则替换失败，并且您将获得响应 NOT_STORED。</p>
+<p>replace 命令的基本语法格式如下：</p>
+<figure class="highlight livecodeserver"><table><tr><td class="code"><pre><span class="line"><span class="built_in">replace</span> key flags exptime <span class="keyword">bytes</span> [noreply]</span><br><span class="line"><span class="built_in">value</span></span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">replace</span> key1 <span class="number">0</span> <span class="number">180</span> <span class="number">3</span></span><br><span class="line"><span class="attribute">fuc</span></span><br><span class="line"><span class="attribute">STORED</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="append"><a href="#append" class="headerlink" title="append"></a>append</h3><p>append 命令用于向已存在 key(键) 的 value(数据值) 后面追加数据 。</p>
+<p>append 命令的基本语法格式如下：</p>
+<figure class="highlight maxima"><table><tr><td class="code"><pre><span class="line"><span class="built_in">append</span> <span class="built_in">key</span> flags exptime bytes [noreply]</span><br><span class="line">value</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">append</span> key1 <span class="number">0</span> <span class="number">180</span> <span class="number">1</span></span><br><span class="line"><span class="attribute">k</span></span><br><span class="line"><span class="attribute">STORED</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">get</span> key1</span><br><span class="line"><span class="attribute">VALUE</span> key1 <span class="number">0</span> <span class="number">4</span></span><br><span class="line"><span class="attribute">fuck</span></span><br><span class="line"><span class="attribute">END</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="prepend"><a href="#prepend" class="headerlink" title="prepend"></a>prepend</h3><p>prepend 命令用于向已存在 key(键) 的 value(数据值) 前面追加数据 。</p>
+<p>prepend 命令的基本语法格式如下：</p>
+<figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line">prepend key flags exptime <span class="keyword">bytes </span>[<span class="keyword">noreply]</span></span><br><span class="line"><span class="keyword"></span>value</span><br></pre></td></tr></table></figure>
+
+<p>例如：</p>
+<figure class="highlight vbnet"><table><tr><td class="code"><pre><span class="line">prepend key1 <span class="number">0</span> <span class="number">180</span> <span class="number">5</span></span><br><span class="line"><span class="keyword">let</span><span class="comment">&#x27;s</span></span><br><span class="line">STORED</span><br><span class="line"></span><br><span class="line"><span class="keyword">get</span> key1</span><br><span class="line">VALUE key1 <span class="number">0</span> <span class="number">9</span></span><br><span class="line"><span class="keyword">let</span><span class="comment">&#x27;sfuck</span></span><br><span class="line"><span class="keyword">END</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h3><p>CAS（Check-And-Set 或 Compare-And-Swap） 命令用于执行一个”检查并设置”的操作。它仅在当前客户端最后一次取值后，该key 对应的值没有被其他客户端修改的情况下，才能够将值写入。</p>
+<p>检查是通过cas_token参数进行的，这个参数是Memcach指定给已经存在的元素的一个唯一的64位值。</p>
+<p>CAS 命令的基本语法格式如下：</p>
+<figure class="highlight mipsasm"><table><tr><td class="code"><pre><span class="line">cas key flags exptime <span class="keyword">bytes </span>unique_cas_token [<span class="keyword">noreply]</span></span><br><span class="line"><span class="keyword"></span>value</span><br></pre></td></tr></table></figure>
+
+<p>要在 Memcached 上使用 CAS 命令，你需要从 Memcached 服务商通过 gets 命令获取令牌（token）。</p>
+<p>gets 命令的功能类似于基本的 get 命令。两个命令之间的差异在于，gets 返回的信息稍微多一些：64 位的整型值非常像名称/值对的 “版本” 标识符。</p>
+<p>例如：</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">get</span> key1</span><br><span class="line"><span class="attribute">VALUE</span> key1 <span class="number">0</span> <span class="number">3</span></span><br><span class="line"><span class="attribute">abc</span></span><br><span class="line"><span class="attribute">END</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">gets</span> key1</span><br><span class="line"><span class="attribute">VALUE</span> key1 <span class="number">0</span> <span class="number">3</span> <span class="number">15</span></span><br><span class="line"><span class="attribute">abc</span></span><br><span class="line"><span class="attribute">END</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">cas</span> key1 <span class="number">0</span> <span class="number">180</span> <span class="number">5</span> <span class="number">15</span></span><br><span class="line"><span class="attribute">redis</span></span><br><span class="line"><span class="attribute">STORED</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">get</span> key1</span><br><span class="line"><span class="attribute">VALUE</span> key1 <span class="number">0</span> <span class="number">5</span></span><br><span class="line"><span class="attribute">redis</span></span><br><span class="line"><span class="attribute">END</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="get"><a href="#get" class="headerlink" title="get"></a>get</h3><p>get 命令获取存储在 key(键) 中的 value(数据值) ，如果 key 不存在，则返回空。</p>
+<p>get 命令的基本语法格式如下：</p>
+<figure class="highlight maxima"><table><tr><td class="code"><pre><span class="line"><span class="built_in">get</span> <span class="built_in">key</span></span><br></pre></td></tr></table></figure>
+
+<p>多个 key 使用空格隔开，如下:</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="built_in">get</span> key1 key2 key3</span><br></pre></td></tr></table></figure>
+
+<h3 id="gets"><a href="#gets" class="headerlink" title="gets"></a>gets</h3><p>gets 命令获取带有 CAS 令牌存 的 value(数据值) ，如果 key 不存在，则返回空。</p>
+<p>gets 命令的基本语法格式如下：</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">gets key</span></span><br></pre></td></tr></table></figure>
+
+<p>多个 key 使用空格隔开，如下:</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">gets</span> key1 key2 key3</span><br></pre></td></tr></table></figure>
+
+<h3 id="delete"><a href="#delete" class="headerlink" title="delete"></a>delete</h3><p>delete 命令用于删除已存在的 key(键)。</p>
+<p>delete 命令的基本语法格式如下：</p>
+<figure class="highlight gauss"><table><tr><td class="code"><pre><span class="line"><span class="keyword">delete</span> <span class="built_in">key</span> [noreply]</span><br></pre></td></tr></table></figure>
+
+<p>参数说明如下：</p>
+<ul>
+<li>key：键值 key-value 结构中的 key，用于查找缓存值。</li>
+<li>noreply（可选）： 该参数告知服务器不需要返回数据</li>
+</ul>
+<h3 id="incr-与-decr"><a href="#incr-与-decr" class="headerlink" title="incr 与 decr"></a>incr 与 decr</h3><p>incr 与 decr 命令用于对已存在的 key(键) 的数字值进行自增或自减操作。</p>
+<p>incr 与 decr 命令操作的数据必须是十进制的32位无符号整数。</p>
+<p>如果 key 不存在返回 NOT_FOUND，如果键的值不为数字，则返回 CLIENT_ERROR，其他错误返回 ERROR。</p>
+<p>incr 命令的基本语法格式如下：</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">incr key increment_value</span></span><br></pre></td></tr></table></figure>
+
+<p>参数说明如下：</p>
+<ul>
+<li>key：键值 key-value 结构中的 key，用于查找缓存值。</li>
+<li>increment_value： 增加的数值。</li>
+</ul>
+<p>decr 命令的基本语法格式如下：</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">decr key decrement_value</span></span><br></pre></td></tr></table></figure>
+
+<p>参数说明如下：</p>
+<ul>
+<li>key：键值 key-value 结构中的 key，用于查找缓存值。</li>
+<li>decrement_value： 减少的数值。</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="built_in">count</span> <span class="number">0</span> <span class="number">89</span> <span class="number">2</span></span><br><span class="line"><span class="number">10</span></span><br><span class="line">STORED</span><br><span class="line"></span><br><span class="line"><span class="keyword">get</span> <span class="built_in">count</span></span><br><span class="line">VALUE <span class="built_in">count</span> <span class="number">0</span> <span class="number">2</span></span><br><span class="line"><span class="number">10</span></span><br><span class="line">END</span><br><span class="line"></span><br><span class="line">incr <span class="built_in">count</span> <span class="number">2</span></span><br><span class="line"><span class="number">12</span></span><br><span class="line"></span><br><span class="line">decr <span class="built_in">count</span> <span class="number">3</span></span><br><span class="line"><span class="number">9</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">get</span> <span class="built_in">count</span></span><br><span class="line">VALUE <span class="built_in">count</span> <span class="number">0</span> <span class="number">2</span></span><br><span class="line"><span class="number">9</span> </span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+
+<h3 id="stats"><a href="#stats" class="headerlink" title="stats"></a>stats</h3><p>stats 命令用于返回统计信息例如 PID(进程号)、版本号、连接数等。</p>
+<p>stats 命令的基本语法格式如下：</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">stats</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="stats-items"><a href="#stats-items" class="headerlink" title="stats items"></a>stats items</h3><p>stats items 命令用于显示各个 slab 中 item 的数目和存储时长(最后一次访问距离现在的秒数)。</p>
+<p>stats items 命令的基本语法格式如下：</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">stats items</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="stats-slabs"><a href="#stats-slabs" class="headerlink" title="stats slabs"></a>stats slabs</h3><p>stats slabs 命令用于显示各个slab的信息，包括chunk的大小、数目、使用情况等。</p>
+<p>stats slabs 命令的基本语法格式如下：</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">stats slabs</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="stats-sizes"><a href="#stats-sizes" class="headerlink" title="stats sizes"></a>stats sizes</h3><p>stats sizes 命令用于显示所有item的大小和个数。该信息返回两列，第一列是 item 的大小，第二列是 item 的个数。</p>
+<p>stats sizes 命令的基本语法格式如下：</p>
+<figure class="highlight ebnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">stats sizes</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="flush-all"><a href="#flush-all" class="headerlink" title="flush_all"></a>flush_all</h3><p>flush_all 命令用于用于清理缓存中的所有 key=&gt;value(键=&gt;值) 对。</p>
+<p>该命令提供了一个可选参数 time，用于在指定的时间后执行清理缓存操作。</p>
+<p>flush_all 命令的基本语法格式如下：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line">flush_all <span class="selector-attr">[time]</span> <span class="selector-attr">[noreply]</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Memcached-的设计"><a href="#Memcached-的设计" class="headerlink" title="Memcached 的设计"></a>Memcached 的设计</h2><h3 id="Memcached-内存算法"><a href="#Memcached-内存算法" class="headerlink" title="Memcached 内存算法"></a>Memcached 内存算法</h3><p>Memcached利用slab allocation机制来分配和管理内存，它按照预先规定的大小，将分配的内存分割成特定长度的内存块，再把尺寸相同的内存块分成组，数据在存放时，根据键值 大小去匹配slab大小，找就近的slab存放，所以存在空间浪费现象。</p>
+<p>传统的内存管理方式是，使用完通过malloc分配的内存后通过free来回收内存，这种方式容易产生内存碎片并降低操作系统对内存的管理效率。Memcached的内存管理制效率高，而且不会造成内存碎片，但是它最大的缺点就是会导致空间浪费。因为每个 Chunk都分配了特定长度的内存空间，所以变长数据无法充分利用这些空间。</p>
+<h3 id="Memcached的缓存策略"><a href="#Memcached的缓存策略" class="headerlink" title="Memcached的缓存策略"></a>Memcached的缓存策略</h3><p>Memcached的缓存策略是LRU（最近最少使用）加上到期失效策略。当你在memcached内存储数据项时，你有可能会指定它在缓存的失效时间，默认为永久。当memcached服务器用完分配的内时，失效的数据被首先替换，然后也是最近未使用的数据。在LRU中，memcached使用的是一种Lazy Expiration策略，自己不会监控存入的key/vlue对是否过期，而是在获取key值时查看记录的时间戳，检查key/value对空间是否过期，这样可减轻服务器的负载。</p>
+<h3 id="Memcached的分布式算法"><a href="#Memcached的分布式算法" class="headerlink" title="Memcached的分布式算法"></a>Memcached的分布式算法</h3><p>Memcached 虽然称为“分布式”缓存服务器，但服务器端并没有“分布式”功能。互不通信，怎么实现分布式？事实上，Memcached 的分布式是完全由客户端程序库实现的。这种分布式是 Memcached 的最大特点。通过这种方式，Memcached server 之间的数据不需要同步，也就不需要互相通信了。</p>
+<p>当向memcached集群存入/取出key/value时，memcached客户端程序根据一定的算法计算存入哪台服务器，然后再把key/value值存到此服务器中。也就是说，存取数据分二步走，第一步，选择服务器，第二步存取数据。</p>
+<p>选择服务器算法有两种，一种是根据余数来计算分布，另一种是根据一致性哈希算法来计算分布。</p>
+<h3 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h3><ol>
+<li>网站包含了访问量很大的动态网页，因而数据库的负载将会很高, 且大部分数据库请求都是读操作；</li>
+<li>数据库服务器的负载比较低，CPU 使用率却很高；</li>
+<li>小型需要共享的数据，如 session 等临时数据；</li>
+<li>缓存一些很小但是被频繁访问的文件。图片这种大点儿的文件就由 CDN（内容分发网络）来处理了。</li>
+</ol>
+<h3 id="不适用场景"><a href="#不适用场景" class="headerlink" title="不适用场景"></a>不适用场景</h3><ol>
+<li>缓存对象的大小大于 1 MB, Memcached 本身就不是为了处理庞大的多媒体和巨大的二进制块而设计的，如果你任性，要存这么大的数据，可以自己修改源代码，它是开源的，不过请慎改；</li>
+<li>key 的长度大于 250 字符（硬性要求）；</li>
+<li>环境不允许运行 memcached 服务，如虚拟主机；</li>
+<li>应用运行在不安全的环境中，Memcached 未提供任何安全策略，仅仅通过 telnet 就可以访问到 memcached。数据安全越来越重要了，so，请把它放在防火墙后；</li>
+<li>业务需要的是持久化数据时请使用数据库。</li>
+</ol>
+<h3 id="使用时注意事项"><a href="#使用时注意事项" class="headerlink" title="使用时注意事项"></a>使用时注意事项</h3><ul>
+<li>key 不能有空格和控制字符。</li>
+<li>在 Memcached Memcached 中可以保存的 item 数据量是没有限制的，只有内存足够</li>
+<li>Memcached Memcached单进程最大使用内存为 单进程最大使用内存为2G，要使用更多内存，可以分多个端口开启多个 </li>
+<li>最大30天的数据过期时间 天的数据过期时间, 设置为永久的也会在这个时间过期，常量REALTIME_MAXDELTA REALTIME_MAXDELTA 60<em>60</em>24*30 控制</li>
+<li>最大键长为250字节，大于该长度无法存储，常量 KEY_MAX_LENGTH 250 KEY_MAX_LENGTH 250 控制</li>
+<li>单个item最大数据是1MB，超过1MB数据不予存储，常量 POWER_BLOCK 1048576 POWER_BLOCK 1048576 进行控制，它是默认的slab大小</li>
+<li>最大同时连接数是 200，通过 conn_init() conn_init()中的freetotal freetotal 进行控制，最大软连接数是 1024，通过 settings.maxconns=1024 settings.maxconns=1024 进行控制</li>
+<li>跟空间占用相关的参数：settings.factor=1.25, settings.chunk_size=48, 影响slab的数据占用和步进方式</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Memcached/" rel="tag"># Memcached</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017-12-21-redis-advance/" rel="prev" title="Redis的一些原理">
+                  <i class="fa fa-angle-left"></i> Redis的一些原理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2017-12-28-kafka-source/" rel="next" title="Apache Kafka 源码开发环境">
+                  Apache Kafka 源码开发环境 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

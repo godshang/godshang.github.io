@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Guava是一个Java项目、Android项目中广泛使用的库，提供了集合、缓存、原生类型支持、并发、字符串处理、IO等多个方面的工具，能够简化Java代码的开发。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Guava使用">
+<meta property="og:url" content="https://godshang.github.io/2017-11-29-guava/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="Guava是一个Java项目、Android项目中广泛使用的库，提供了集合、缓存、原生类型支持、并发、字符串处理、IO等多个方面的工具，能够简化Java代码的开发。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-11-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.686Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://godshang.github.io/2017-11-29-guava/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2017-11-29-guava/","path":"2017-11-29-guava/","title":"Guava使用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Guava使用 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%B7%A5%E5%85%B7%E9%9B%86"><span class="nav-number">1.</span> <span class="nav-text">基本工具集</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Optional%EF%BC%9A%E4%BD%BF%E7%94%A8%E5%92%8C%E9%81%BF%E5%85%8Dnull"><span class="nav-number">1.1.</span> <span class="nav-text">Optional：使用和避免null</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Preconditions%EF%BC%9A%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6"><span class="nav-number">1.2.</span> <span class="nav-text">Preconditions：前置条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Objects"><span class="nav-number">1.3.</span> <span class="nav-text">Objects</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#equals"><span class="nav-number">1.3.1.</span> <span class="nav-text">equals</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hashCode"><span class="nav-number">1.3.2.</span> <span class="nav-text">hashCode</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#toString-NaN"><span class="nav-number">1.3.3.</span> <span class="nav-text">toString</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#compare-compareTo"><span class="nav-number">1.3.4.</span> <span class="nav-text">compare&#x2F;compareTo</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%92%E5%BA%8F%EF%BC%9AGuava%E5%BC%BA%E5%A4%A7%E7%9A%84%E6%B5%81%E7%95%85%E9%A3%8E%E6%A0%BC%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-number">1.4.</span> <span class="nav-text">排序：Guava强大的流畅风格比较器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Throwables%EF%BC%8C%E7%AE%80%E5%8C%96%E5%BC%82%E5%B8%B8%E5%92%8C%E9%94%99%E8%AF%AF%E7%9A%84%E4%BC%A0%E6%92%AD%E4%B8%8E%E6%A3%80%E6%9F%A5"><span class="nav-number">1.5.</span> <span class="nav-text">Throwables，简化异常和错误的传播与检查</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E5%90%88"><span class="nav-number">2.</span> <span class="nav-text">集合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E5%8F%AF%E5%8F%98%E9%9B%86%E5%90%88"><span class="nav-number">2.1.</span> <span class="nav-text">不可变集合</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%8E%E4%B9%88%E4%BD%BF%E7%94%A8%E4%B8%8D%E5%8F%AF%E5%8F%98%E9%9B%86%E5%90%88"><span class="nav-number">2.1.1.</span> <span class="nav-text">怎么使用不可变集合</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AF%94%E6%83%B3%E8%B1%A1%E4%B8%AD%E6%9B%B4%E6%99%BA%E8%83%BD%E7%9A%84copyOf"><span class="nav-number">2.1.2.</span> <span class="nav-text">比想象中更智能的copyOf</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#asList%E8%A7%86%E5%9B%BE"><span class="nav-number">2.1.3.</span> <span class="nav-text">asList视图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%86%E8%8A%82%EF%BC%9A%E5%85%B3%E8%81%94%E5%8F%AF%E5%8F%98%E9%9B%86%E5%90%88%E5%92%8C%E4%B8%8D%E5%8F%AF%E5%8F%98%E9%9B%86%E5%90%88"><span class="nav-number">2.1.4.</span> <span class="nav-text">细节：关联可变集合和不可变集合</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B0%E9%9B%86%E5%90%88%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.2.</span> <span class="nav-text">新集合类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Multiset"><span class="nav-number">2.2.1.</span> <span class="nav-text">Multiset</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Multimap"><span class="nav-number">2.2.2.</span> <span class="nav-text">Multimap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BiMap"><span class="nav-number">2.2.3.</span> <span class="nav-text">BiMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Table"><span class="nav-number">2.2.4.</span> <span class="nav-text">Table</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ClassToInstanceMap"><span class="nav-number">2.2.5.</span> <span class="nav-text">ClassToInstanceMap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RangeSet"><span class="nav-number">2.2.6.</span> <span class="nav-text">RangeSet</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RangeMap"><span class="nav-number">2.2.7.</span> <span class="nav-text">RangeMap</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%BA%E5%A4%A7%E7%9A%84%E9%9B%86%E5%90%88%E5%B7%A5%E5%85%B7%E7%B1%BB"><span class="nav-number">2.3.</span> <span class="nav-text">强大的集合工具类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95"><span class="nav-number">2.3.1.</span> <span class="nav-text">静态工厂方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Lists"><span class="nav-number">2.3.2.</span> <span class="nav-text">Lists</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Sets"><span class="nav-number">2.3.3.</span> <span class="nav-text">Sets</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Maps"><span class="nav-number">2.3.4.</span> <span class="nav-text">Maps</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#uniqueIndex"><span class="nav-number">2.3.4.1.</span> <span class="nav-text">uniqueIndex</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#difference"><span class="nav-number">2.3.4.2.</span> <span class="nav-text">difference</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98"><span class="nav-number">3.</span> <span class="nav-text">缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CacheLoader"><span class="nav-number">3.1.</span> <span class="nav-text">CacheLoader</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Callable"><span class="nav-number">3.2.</span> <span class="nav-text">Callable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%98%BE%E5%BC%8F%E6%8F%92%E5%85%A5"><span class="nav-number">3.3.</span> <span class="nav-text">显式插入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E5%9B%9E%E6%94%B6"><span class="nav-number">3.4.</span> <span class="nav-text">缓存回收</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%AE%B9%E9%87%8F%E7%9A%84%E5%9B%9E%E6%94%B6%EF%BC%88size-based-eviction%EF%BC%89"><span class="nav-number">3.4.1.</span> <span class="nav-text">基于容量的回收（size-based eviction）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E6%97%B6%E5%9B%9E%E6%94%B6%EF%BC%88Timed-Eviction%EF%BC%89"><span class="nav-number">3.4.2.</span> <span class="nav-text">定时回收（Timed Eviction）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%BC%95%E7%94%A8%E7%9A%84%E5%9B%9E%E6%94%B6%EF%BC%88Reference-based-Eviction%EF%BC%89"><span class="nav-number">3.4.3.</span> <span class="nav-text">基于引用的回收（Reference-based Eviction）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%98%BE%E5%BC%8F%E6%B8%85%E9%99%A4"><span class="nav-number">3.4.4.</span> <span class="nav-text">显式清除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A7%BB%E9%99%A4%E7%9B%91%E5%90%AC%E5%99%A8"><span class="nav-number">3.4.5.</span> <span class="nav-text">移除监听器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B8%85%E7%90%86%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%8F%91%E7%94%9F%EF%BC%9F"><span class="nav-number">3.4.6.</span> <span class="nav-text">清理什么时候发生？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%B7%E6%96%B0"><span class="nav-number">3.4.7.</span> <span class="nav-text">刷新</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91"><span class="nav-number">4.</span> <span class="nav-text">并发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.1.</span> <span class="nav-text">接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E5%9B%9E%E8%B0%83%EF%BC%88Callbacks%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">添加回调（Callbacks）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ListenableFuture%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">4.3.</span> <span class="nav-text">ListenableFuture的创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CheckedFuture"><span class="nav-number">4.4.</span> <span class="nav-text">CheckedFuture</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A4%84%E7%90%86%EF%BC%9A%E5%88%86%E5%89%B2%EF%BC%8C%E8%BF%9E%E6%8E%A5%EF%BC%8C%E5%A1%AB%E5%85%85"><span class="nav-number">5.</span> <span class="nav-text">字符串处理：分割，连接，填充</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8-Joiner"><span class="nav-number">5.1.</span> <span class="nav-text">连接器[Joiner]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%86%E5%88%86%E5%99%A8-Splitter"><span class="nav-number">5.2.</span> <span class="nav-text">拆分器[Splitter]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E9%9B%86-Charsets"><span class="nav-number">5.3.</span> <span class="nav-text">字符集[Charsets]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%A7%E5%B0%8F%E5%86%99%E6%A0%BC%E5%BC%8F-CaseFormat"><span class="nav-number">5.4.</span> <span class="nav-text">大小写格式[CaseFormat]</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2017-11-29-guava/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Guava使用 | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Guava使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-11-29 00:00:00" itemprop="dateCreated datePublished" datetime="2017-11-29T00:00:00+08:00">2017-11-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Guava是一个Java项目、Android项目中广泛使用的库，提供了集合、缓存、原生类型支持、并发、字符串处理、IO等多个方面的工具，能够简化Java代码的开发。</p>
+<span id="more"></span>
+
+<h2 id="基本工具集"><a href="#基本工具集" class="headerlink" title="基本工具集"></a>基本工具集</h2><h3 id="Optional：使用和避免null"><a href="#Optional：使用和避免null" class="headerlink" title="Optional：使用和避免null"></a>Optional：使用和避免null</h3><p>Java中Null的语义是很含糊的。Null很少可以明确地表示某种语义，例如，Map.get(key)返回Null时，可能表示map中的值是null，亦或map中没有key对应的值。</p>
+<p>Guava用Optional<T>表示可能为null的T类型引用。一个Optional实例可能包含非null的引用（我们称之为引用存在），也可能什么也不包括（称之为引用缺失）。它从不说包含的是null值，而是用存在或缺失来表示。但Optional从不会包含null值引用。</p>
+<p>创建Optional实例（以下都是静态方法）：</p>
+<figure class="highlight fortran"><table><tr><td class="code"><pre><span class="line"><span class="keyword">Optional</span>.of(T)      创建指定引用的<span class="keyword">Optional</span>实例，若引用为null则快速失败</span><br><span class="line"><span class="keyword">Optional</span>.absent())  创建引用缺失的<span class="keyword">Optional</span>实例</span><br><span class="line"><span class="keyword">Optional</span>.fromNullable(T))   创建指定引用的<span class="keyword">Optional</span>实例，若引用为null则表示缺失</span><br></pre></td></tr></table></figure>
+
+<p>用Optional实例查询引用（以下都是非静态方法）：</p>
+<figure class="highlight scss"><table><tr><td class="code"><pre><span class="line">boolean <span class="built_in">isPresent</span>()    如果Optional包含非null的引用（引用存在），返回true</span><br><span class="line">T <span class="built_in">get</span>()    返回Optional所包含的引用，若引用缺失，则抛出java<span class="selector-class">.lang</span><span class="selector-class">.IllegalStateException</span></span><br><span class="line">T <span class="built_in">or</span>(T)    返回Optional所包含的引用，若引用缺失，返回指定的值</span><br><span class="line">T <span class="built_in">orNull</span>() 返回Optional所包含的引用，若引用缺失，返回null</span><br><span class="line">Set&lt;T&gt; <span class="built_in">asSet</span>()) 返回Optional所包含引用的单例不可变集，如果引用存在，返回一个只有单一元素的集合，如果引用缺失，返回一个空集合。</span><br></pre></td></tr></table></figure>
+
+<p>使用Optional除了赋予null语义，增加了可读性，最大的优点在于它是一种傻瓜式的防护。Optional迫使你积极思考引用缺失的情况，因为你必须显式地从Optional获取引用。</p>
+<p>当你需要用一个默认值来替换可能的null，请使用Objects.firstNonNull(T, T)) 方法。如果两个值都是null，该方法会抛出NullPointerException。Optional也是一个比较好的替代方案，例如：Optional.of(first).or(second).</p>
+<h3 id="Preconditions：前置条件"><a href="#Preconditions：前置条件" class="headerlink" title="Preconditions：前置条件"></a>Preconditions：前置条件</h3><p>Preconditions类中提供了若干前置条件判断的实用方法，每个方法都有三个变种：</p>
+<ul>
+<li>没有额外参数：抛出的异常中没有错误消息；</li>
+<li>有一个Object对象作为额外参数：抛出的异常使用Object.toString() 作为错误消息；</li>
+<li>有一个String对象作为额外参数，并且有一组任意数量的附加Object对象：这个变种处理异常消息的方式有点类似printf，但考虑GWT的兼容性和效率，只支持%s指示符。例如：</li>
+</ul>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">check<span class="constructor">Argument(<span class="params">i</span> &gt;= 0, <span class="string">&quot;Argument was %s but expected nonnegative&quot;</span>, <span class="params">i</span>)</span>;</span><br><span class="line">check<span class="constructor">Argument(<span class="params">i</span> &lt; <span class="params">j</span>, <span class="string">&quot;Expected i &lt; j, but %s &gt; %s&quot;</span>, <span class="params">i</span>, <span class="params">j</span>)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>提供的方法：</p>
+<table>
+<thead>
+<tr>
+<th align="left">方法声明（不包括额外参数）</th>
+<th align="left">描述</th>
+<th align="left">检查失败时抛出的异常</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">checkArgument(boolean)</td>
+<td align="left">检查boolean是否为true，用来检查传递给方法的参数。</td>
+<td align="left">IllegalArgumentException</td>
+</tr>
+<tr>
+<td align="left">checkNotNull(T)</td>
+<td align="left">检查value是否为null，该方法直接返回value，因此可以内嵌使用checkNotNull。</td>
+<td align="left">NullPointerException</td>
+</tr>
+<tr>
+<td align="left">checkState(boolean)</td>
+<td align="left">用来检查对象的某些状态。</td>
+<td align="left">IllegalStateException</td>
+</tr>
+<tr>
+<td align="left">checkElementIndex(int index, int size)</td>
+<td align="left">检查index作为索引值对某个列表、字符串或数组是否有效。index&gt;=0 &amp;&amp; index&lt;size</td>
+<td align="left">IndexOutOfBoundsException</td>
+</tr>
+<tr>
+<td align="left">checkPositionIndex(int index, int size)</td>
+<td align="left">检查index作为位置值对某个列表、字符串或数组是否有效。index&gt;=0 &amp;&amp; index&lt;=size</td>
+<td align="left">IndexOutOfBoundsException</td>
+</tr>
+<tr>
+<td align="left">checkPositionIndexes(int start, int end, int size)</td>
+<td align="left">检查[start, end]表示的位置范围对某个列表、字符串或数组是否有效</td>
+<td align="left">IndexOutOfBoundsException</td>
+</tr>
+</tbody></table>
+<p>相比Apache Commons提供的类似方法，推荐把Guava中的Preconditions作为首选。理由如下：</p>
+<ul>
+<li>在静态导入后，Guava方法非常清楚明晰。checkNotNull清楚地描述做了什么，会抛出什么异常；</li>
+<li>checkNotNull直接返回检查的参数，让你可以在构造函数中保持字段的单行赋值风格：this.field = checkNotNull(field)</li>
+<li>简单的、参数可变的printf风格异常信息。鉴于这个优点，在JDK7已经引入Objects.requireNonNull的情况下，我们仍然建议你使用checkNotNull。</li>
+</ul>
+<h3 id="Objects"><a href="#Objects" class="headerlink" title="Objects"></a>Objects</h3><h4 id="equals"><a href="#equals" class="headerlink" title="equals"></a>equals</h4><p>当一个对象中的字段可以为null时，实现Object.equals方法会很痛苦，因为不得不分别对它们进行null检查。使用Objects.equal帮助你执行null敏感的equals判断，从而避免抛出NullPointerException。例如:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">Objects.equal(&quot;a&quot;, &quot;a&quot;); <span class="operator">/</span><span class="operator">/</span> <span class="keyword">returns</span> <span class="literal">true</span></span><br><span class="line">Objects.equal(<span class="keyword">null</span>, &quot;a&quot;); <span class="operator">/</span><span class="operator">/</span> <span class="keyword">returns</span> <span class="literal">false</span></span><br><span class="line">Objects.equal(&quot;a&quot;, <span class="keyword">null</span>); <span class="operator">/</span><span class="operator">/</span> <span class="keyword">returns</span> <span class="literal">false</span></span><br><span class="line">Objects.equal(<span class="keyword">null</span>, <span class="keyword">null</span>); <span class="operator">/</span><span class="operator">/</span> <span class="keyword">returns</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>注意：JDK7引入的Objects类提供了一样的方法Objects.equals。</p>
+<h4 id="hashCode"><a href="#hashCode" class="headerlink" title="hashCode"></a>hashCode</h4><p>用对象的所有字段作散列[hash]运算应当更简单。Guava的Objects.hashCode(Object…)会对传入的字段序列计算出合理的、顺序敏感的散列值。你可以使用Objects.hashCode(field1, field2, …, fieldn)来代替手动计算散列值。</p>
+<p>注意：JDK7引入的Objects类提供了一样的方法Objects.hash(Object…)</p>
+<h4 id="toString-NaN"><a href="#toString-NaN" class="headerlink" title="toString"></a>toString</h4><p>好的toString方法在调试时是无价之宝，但是编写toString方法有时候却很痛苦。使用 Objects.toStringHelper可以轻松编写有用的toString方法。例如：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Returns &quot;ClassName&#123;x=1&#125;&quot;</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">Objects</span>.</span></span><span class="keyword">to</span><span class="constructor">StringHelper(<span class="params">this</span>)</span>.add(<span class="string">&quot;x&quot;</span>, <span class="number">1</span>).<span class="keyword">to</span><span class="constructor">String()</span>;</span><br><span class="line"><span class="comment">// Returns &quot;MyObject&#123;x=1&#125;&quot;</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">Objects</span>.</span></span><span class="keyword">to</span><span class="constructor">StringHelper(<span class="string">&quot;MyObject&quot;</span>)</span>.add(<span class="string">&quot;x&quot;</span>, <span class="number">1</span>).<span class="keyword">to</span><span class="constructor">String()</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="compare-compareTo"><a href="#compare-compareTo" class="headerlink" title="compare/compareTo"></a>compare/compareTo</h4><p>实现一个比较器[Comparator]，或者直接实现Comparable接口有时也伤不起。考虑一下这种情况：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> Person implements Comparable &#123;</span><br><span class="line">  <span class="keyword">private</span> String lastName;</span><br><span class="line">  <span class="keyword">private</span> String firstName;</span><br><span class="line">  <span class="keyword">private</span> <span class="built_in">int</span> zipCode;</span><br><span class="line"></span><br><span class="line">  public <span class="built_in">int</span> compare<span class="constructor">To(Person <span class="params">other</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">int</span> cmp = lastName.compare<span class="constructor">To(<span class="params">other</span>.<span class="params">lastName</span>)</span>;</span><br><span class="line">    <span class="keyword">if</span> (cmp != <span class="number">0</span>) &#123;</span><br><span class="line">      return cmp;</span><br><span class="line">    &#125;</span><br><span class="line">    cmp = firstName.compare<span class="constructor">To(<span class="params">other</span>.<span class="params">firstName</span>)</span>;</span><br><span class="line">    <span class="keyword">if</span> (cmp != <span class="number">0</span>) &#123;</span><br><span class="line">      return cmp;</span><br><span class="line">    &#125;</span><br><span class="line">    return <span class="module-access"><span class="module"><span class="identifier">Integer</span>.</span></span>compare(zipCode, other.zipCode);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这部分代码太琐碎了，因此很容易搞乱，也很难调试。我们应该能把这种代码变得更优雅，为此，Guava提供了ComparisonChain。</p>
+<p>ComparisonChain执行一种懒比较：它执行比较操作直至发现非零的结果，在那之后的比较输入将被忽略。</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> int compareTo(Foo that) &#123;</span><br><span class="line">    <span class="keyword">return</span> ComparisonChain.start()</span><br><span class="line">            .compare(<span class="keyword">this</span>.aString, that.aString)</span><br><span class="line">            .compare(<span class="keyword">this</span>.anInt, that.anInt)</span><br><span class="line">            .compare(<span class="keyword">this</span>.anEnum, that.anEnum, Ordering.natural().nullsLast())</span><br><span class="line">            .result();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种Fluent接口风格的可读性更高，发生错误编码的几率更小，并且能避免做不必要的工作。更多Guava排序器工具可以在下一节里找到。</p>
+<h3 id="排序：Guava强大的流畅风格比较器"><a href="#排序：Guava强大的流畅风格比较器" class="headerlink" title="排序：Guava强大的流畅风格比较器"></a>排序：Guava强大的流畅风格比较器</h3><p>排序器[Ordering]是Guava流畅风格比较器[Comparator]的实现，它可以用来为构建复杂的比较器，以完成集合排序的功能。</p>
+<p>从实现上说，Ordering实例就是一个特殊的Comparator实例。Ordering把很多基于Comparator的静态方法（如Collections.max）包装为自己的实例方法（非静态方法），并且提供了链式调用方法，来定制和增强现有的比较器。</p>
+<p>创建排序器：常见的排序器可以由下面的静态方法创建</p>
+<table>
+<thead>
+<tr>
+<th align="left">方法</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">natural()</td>
+<td align="left">对可排序类型做自然排序，如数字按大小，日期按先后排序</td>
+</tr>
+<tr>
+<td align="left">usingToString()</td>
+<td align="left">按对象的字符串形式做字典排序[lexicographical ordering]</td>
+</tr>
+<tr>
+<td align="left">from(Comparator)</td>
+<td align="left">把给定的Comparator转化为排序器</td>
+</tr>
+</tbody></table>
+<p>实现自定义的排序器时，除了用上面的from方法，也可以跳过实现Comparator，而直接继承Ordering：</p>
+<figure class="highlight coq"><table><tr><td class="code"><pre><span class="line">Ordering byLengthOrdering = new Ordering() &#123;</span><br><span class="line">  public int <span class="built_in">compare</span>(String <span class="built_in">left</span>, String <span class="built_in">right</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> Ints.<span class="built_in">compare</span>(<span class="built_in">left</span>.length(), <span class="built_in">right</span>.length());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>链式调用方法：通过链式调用，可以由给定的排序器衍生出其它排序器</p>
+<table>
+<thead>
+<tr>
+<th align="left">方法</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">reverse()</td>
+<td align="left">获取语义相反的排序器</td>
+</tr>
+<tr>
+<td align="left">nullsFirst()</td>
+<td align="left">使用当前排序器，但额外把null值排到最前面。</td>
+</tr>
+<tr>
+<td align="left">nullsLast()</td>
+<td align="left">使用当前排序器，但额外把null值排到最后面。</td>
+</tr>
+<tr>
+<td align="left">compound(Comparator)</td>
+<td align="left">合成另一个比较器，以处理当前排序器中的相等情况。</td>
+</tr>
+<tr>
+<td align="left">lexicographical()</td>
+<td align="left">基于处理类型T的排序器，返回该类型的可迭代对象Iterable<T>的排序器。</td>
+</tr>
+<tr>
+<td align="left">onResultOf(Function)</td>
+<td align="left">对集合中元素调用Function，再按返回值用当前排序器排序。</td>
+</tr>
+</tbody></table>
+<p>例如，你需要下面这个类的排序器。</p>
+<figure class="highlight coffeescript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Foo</span> &#123;</span><br><span class="line">    @Nullable <span class="built_in">String</span> sortedBy;</span><br><span class="line">    int notSortedBy;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>考虑到排序器应该能处理sortedBy为null的情况，我们可以使用下面的链式调用来合成排序器：</p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Ordering</span> ordering = <span class="title class_">Ordering</span>.<span class="title function_">natural</span>().<span class="title function_">nullsFirst</span>().<span class="title function_">onResultOf</span>(<span class="keyword">new</span> <span class="title class_">Function</span>() &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="title class_">String</span> <span class="title function_">apply</span>(<span class="params">Foo foo</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> foo.<span class="property">sortedBy</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>当阅读链式调用产生的排序器时，应该从后往前读。上面的例子中，排序器首先调用apply方法获取sortedBy值，并把sortedBy为null的元素都放到最前面，然后把剩下的元素按sortedBy进行自然排序。之所以要从后往前读，是因为每次链式调用都是用后面的方法包装了前面的排序器。</p>
+<p>注：用compound方法包装排序器时，就不应遵循从后往前读的原则。为了避免理解上的混乱，请不要把compound写在一长串链式调用的中间，你可以另起一行，在链中最先或最后调用compound。</p>
+<p>超过一定长度的链式调用，也可能会带来阅读和理解上的难度。我们建议按下面的代码这样，在一个链中最多使用三个方法。此外，你也可以把Function分离成中间对象，让链式调用更简洁紧凑。</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">Ordering ordering = <span class="module-access"><span class="module"><span class="identifier">Ordering</span>.</span></span>natural<span class="literal">()</span>.nulls<span class="constructor">First()</span>.on<span class="constructor">ResultOf(<span class="params">sortKeyFunction</span>)</span></span><br></pre></td></tr></table></figure>
+
+<p>运用排序器：Guava的排序器实现有若干操纵集合或元素值的方法</p>
+<table>
+<thead>
+<tr>
+<th align="left">方法</th>
+<th align="left">描述</th>
+<th align="left">另请参见</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">greatestOf(Iterable iterable, int k)</td>
+<td align="left">获取可迭代对象中最大的k个元素。</td>
+<td align="left">leastOf</td>
+</tr>
+<tr>
+<td align="left">isOrdered(Iterable)</td>
+<td align="left">判断可迭代对象是否已按排序器排序：允许有排序值相等的元素。</td>
+<td align="left">isStrictlyOrdered</td>
+</tr>
+<tr>
+<td align="left">sortedCopy(Iterable)</td>
+<td align="left">判断可迭代对象是否已严格按排序器排序：不允许排序值相等的元素。</td>
+<td align="left">immutableSortedCopy</td>
+</tr>
+<tr>
+<td align="left">min(E, E)</td>
+<td align="left">返回两个参数中最小的那个。如果相等，则返回第一个参数。</td>
+<td align="left">max(E, E)</td>
+</tr>
+<tr>
+<td align="left">min(E, E, E, E…)</td>
+<td align="left">返回多个参数中最小的那个。如果有超过一个参数都最小，则返回第一个最小的参数。</td>
+<td align="left">max(E, E, E, E…)</td>
+</tr>
+<tr>
+<td align="left">min(Iterable)</td>
+<td align="left">返回迭代器中最小的元素。如果可迭代对象中没有元素，则抛出NoSuchElementException。</td>
+<td align="left">max(Iterable), min(Iterator), max(Iterator)</td>
+</tr>
+</tbody></table>
+<h3 id="Throwables，简化异常和错误的传播与检查"><a href="#Throwables，简化异常和错误的传播与检查" class="headerlink" title="Throwables，简化异常和错误的传播与检查"></a>Throwables，简化异常和错误的传播与检查</h3><p>有时候，你会想把捕获到的异常再次抛出。这种情况通常发生在Error或RuntimeException被捕获的时候，你没想捕获它们，但是声明捕获Throwable和Exception的时候，也包括了了Error或RuntimeException。Guava提供了若干方法，来判断异常类型并且重新传播异常。例如：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    some<span class="constructor">MethodThatCouldThrowAnything()</span>;</span><br><span class="line">&#125; catch (IKnowWhatToDoWithThisException e) &#123;</span><br><span class="line">    handle(e);</span><br><span class="line">&#125; catch (Throwable t) &#123;</span><br><span class="line">    <span class="module-access"><span class="module"><span class="identifier">Throwables</span>.</span></span>propagate<span class="constructor">IfInstanceOf(<span class="params">t</span>, IOException.<span class="params">class</span>)</span>;</span><br><span class="line">    <span class="module-access"><span class="module"><span class="identifier">Throwables</span>.</span></span>propagate<span class="constructor">IfInstanceOf(<span class="params">t</span>, SQLException.<span class="params">class</span>)</span>;</span><br><span class="line">    throw <span class="module-access"><span class="module"><span class="identifier">Throwables</span>.</span></span>propagate(t);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所有这些方法都会自己决定是否要抛出异常，但也能直接抛出方法返回的结果——例如，throw Throwables.propagate(t);—— 这样可以向编译器声明这里一定会抛出异常。</p>
+<p>Guava中的异常传播方法简要列举如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">RuntimeException   propagate(Throwable)</td>
+<td align="left">如果Throwable是Error或RuntimeException，直接抛出；否则把Throwable包装成RuntimeException抛出。返回类型是RuntimeException，所以你可以像上面说的那样写成throw Throwables.propagate(t)，Java编译器会意识到这行代码保证抛出异常。</td>
+</tr>
+<tr>
+<td align="left">void propagateIfInstanceOf( Throwable, Class<X extends   Exception>) throws X</td>
+<td align="left">Throwable类型为X才抛出</td>
+</tr>
+<tr>
+<td align="left">void propagateIfPossible( Throwable)</td>
+<td align="left">Throwable类型为Error或RuntimeException才抛出</td>
+</tr>
+<tr>
+<td align="left">void   propagateIfPossible( Throwable, Class<X extends Throwable>) throws X</td>
+<td align="left">Throwable类型为X, Error或RuntimeException才抛出</td>
+</tr>
+</tbody></table>
+<h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><h3 id="不可变集合"><a href="#不可变集合" class="headerlink" title="不可变集合"></a>不可变集合</h3><p>不可变对象有很多优点，包括：</p>
+<ul>
+<li>当对象被不可信的库调用时，不可变形式是安全的</li>
+<li>不可变对象被多个线程调用时，不存在竞态条件问题</li>
+<li>不可变集合不需要考虑变化，因此可以节省时间和空间。所有不可变的集合都比它们的可变形式有更好的内存利用率</li>
+<li>不可变对象因为有固定不变，可以作为常量来安全使用</li>
+</ul>
+<p>Guava为所有JDK标准集合类型和Guava新集合类型都提供了简单易用的不可变版本。JDK也提供了Collections.unmodifiableXXX方法把集合包装为不可变形式，但存在以下问题：</p>
+<ul>
+<li>笨重而且累赘：不能舒适地用在所有想做防御性拷贝的场景；</li>
+<li>不安全：要保证没人通过原集合的引用进行修改，返回的集合才是事实上不可变的；</li>
+<li>低效：包装过的集合仍然保有可变集合的开销，比如并发修改的检查、散列表的额外空间，等等。</li>
+</ul>
+<p>如果你没有修改某个集合的需求，或者希望某个集合保持不变时，把它防御性地拷贝到不可变集合是个很好的实践。</p>
+<p>重要提示：所有Guava不可变集合的实现都不接受null值。</p>
+<h4 id="怎么使用不可变集合"><a href="#怎么使用不可变集合" class="headerlink" title="怎么使用不可变集合"></a>怎么使用不可变集合</h4><p>不可变集合可以用如下多种方式创建：</p>
+<ul>
+<li>copyOf方法，如ImmutableSet.copyOf(set);</li>
+<li>of方法，如ImmutableSet.of(“a”, “b”, “c”)或 ImmutableMap.of(“a”, 1, “b”, 2);</li>
+<li>Builder工具，如</li>
+</ul>
+<figure class="highlight actionscript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> ImmutableSet&lt;Color&gt; GOOGLE_COLORS =</span><br><span class="line">        ImmutableSet.&lt;Color&gt;builder()</span><br><span class="line">            .addAll(WEBSAFE_COLORS)</span><br><span class="line">            .add(<span class="keyword">new</span> Color(<span class="number">0</span>, <span class="number">191</span>, <span class="number">255</span>))</span><br><span class="line">            .build();</span><br></pre></td></tr></table></figure>
+
+<p>此外，对有序不可变集合来说，排序是在构造集合的时候完成的，如：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line"><span class="module-access"><span class="module"><span class="identifier">ImmutableSortedSet</span>.</span></span><span class="keyword">of</span>(<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;a&quot;</span>, <span class="string">&quot;d&quot;</span>, <span class="string">&quot;b&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>会在构造时就把元素排序为a, b, c, d。</p>
+<h4 id="比想象中更智能的copyOf"><a href="#比想象中更智能的copyOf" class="headerlink" title="比想象中更智能的copyOf"></a>比想象中更智能的copyOf</h4><p>请注意，ImmutableXXX.copyOf方法会尝试在安全的时候避免做拷贝——实际的实现细节不详，但通常来说是很智能的，比如：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="title class_">ImmutableSet</span>&lt;<span class="title class_">String</span>&gt; foobar = <span class="title class_">ImmutableSet</span>.<span class="title function_">of</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>, <span class="string">&quot;baz&quot;</span>);</span><br><span class="line"><span class="title function_">thingamajig</span>(foobar);</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">thingamajig</span>(<span class="params">Collection&lt;<span class="built_in">String</span>&gt; collection</span>) &#123;</span><br><span class="line">    <span class="title class_">ImmutableList</span>&lt;<span class="title class_">String</span>&gt; defensiveCopy = <span class="title class_">ImmutableList</span>.<span class="title function_">copyOf</span>(collection);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这段代码中，ImmutableList.copyOf(foobar)会智能地直接返回foobar.asList(),它是一个ImmutableSet的常量时间复杂度的List视图。<br>作为一种探索，ImmutableXXX.copyOf(ImmutableCollection)会试图对如下情况避免线性时间拷贝：</p>
+<ul>
+<li>在常量时间内使用底层数据结构是可能的——例如，ImmutableSet.copyOf(ImmutableList)就不能在常量时间内完成。</li>
+<li>不会造成内存泄露——例如，你有个很大的不可变集合ImmutableList<String> hugeList， ImmutableList.copyOf(hugeList.subList(0, 10))就会显式地拷贝，以免不必要地持有hugeList的引用。</li>
+<li>不改变语义——所以ImmutableSet.copyOf(myImmutableSortedSet)会显式地拷贝，因为和基于比较器的ImmutableSortedSet相比，ImmutableSet对hashCode()和equals有不同语义。</li>
+</ul>
+<p>在可能的情况下避免线性拷贝，可以最大限度地减少防御性编程风格所带来的性能开销。</p>
+<h4 id="asList视图"><a href="#asList视图" class="headerlink" title="asList视图"></a>asList视图</h4><p>所有不可变集合都有一个asList()方法提供ImmutableList视图，来帮助你用列表形式方便地读取集合元素。例如，你可以使用sortedSet.asList().get(k)从ImmutableSortedSet中读取第k个最小元素。</p>
+<p>asList()返回的ImmutableList通常是——并不总是——开销稳定的视图实现，而不是简单地把元素拷贝进List。也就是说，asList返回的列表视图通常比一般的列表平均性<br>能更好，比如，在底层集合支持的情况下，它总是使用高效的contains方法。</p>
+<h4 id="细节：关联可变集合和不可变集合"><a href="#细节：关联可变集合和不可变集合" class="headerlink" title="细节：关联可变集合和不可变集合"></a>细节：关联可变集合和不可变集合</h4><table>
+<thead>
+<tr>
+<th align="left">可变集合接口</th>
+<th align="left">属于JDK还是Guava</th>
+<th align="left">不可变版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Collection</td>
+<td align="left">JDK</td>
+<td align="left">ImmutableCollection</td>
+</tr>
+<tr>
+<td align="left">List</td>
+<td align="left">JDK</td>
+<td align="left">ImmutableList</td>
+</tr>
+<tr>
+<td align="left">Set</td>
+<td align="left">JDK</td>
+<td align="left">ImmutableSet</td>
+</tr>
+<tr>
+<td align="left">SortedSet/NavigableSet</td>
+<td align="left">JDK</td>
+<td align="left">ImmutableSortedSet</td>
+</tr>
+<tr>
+<td align="left">Map</td>
+<td align="left">JDK</td>
+<td align="left">ImmutableMap</td>
+</tr>
+<tr>
+<td align="left">SortedMap</td>
+<td align="left">JDK</td>
+<td align="left">ImmutableSortedMap</td>
+</tr>
+<tr>
+<td align="left">Multiset</td>
+<td align="left">Guava</td>
+<td align="left">ImmutableMultiset</td>
+</tr>
+<tr>
+<td align="left">SortedMultiset</td>
+<td align="left">Guava</td>
+<td align="left">ImmutableSortedMultiset</td>
+</tr>
+<tr>
+<td align="left">Multimap</td>
+<td align="left">Guava</td>
+<td align="left">ImmutableMultimap</td>
+</tr>
+<tr>
+<td align="left">ListMultimap</td>
+<td align="left">Guava</td>
+<td align="left">ImmutableListMultimap</td>
+</tr>
+<tr>
+<td align="left">SetMultimap</td>
+<td align="left">Guava</td>
+<td align="left">ImmutableSetMultimap</td>
+</tr>
+<tr>
+<td align="left">BiMap</td>
+<td align="left">Guava</td>
+<td align="left">ImmutableBiMap</td>
+</tr>
+<tr>
+<td align="left">ClassToInstanceMap</td>
+<td align="left">Guava</td>
+<td align="left">ImmutableClassToInstanceMap</td>
+</tr>
+<tr>
+<td align="left">Table</td>
+<td align="left">Guava</td>
+<td align="left">ImmutableTable</td>
+</tr>
+</tbody></table>
+<h3 id="新集合类型"><a href="#新集合类型" class="headerlink" title="新集合类型"></a>新集合类型</h3><p>Guava引入了很多JDK没有的、但我们发现明显有用的新集合类型。这些新类型是为了和JDK集合框架共存，而没有往JDK集合抽象中硬塞其他概念。作为一般规则，Guava集合非常精准地遵循了JDK接口契约。</p>
+<h4 id="Multiset"><a href="#Multiset" class="headerlink" title="Multiset"></a>Multiset</h4><p>统计一个词在文档中出现了多少次，传统的做法是这样的：</p>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">Map&lt;String, Integer&gt; counts = new HashMap&lt;String, Integer&gt;();</span><br><span class="line"><span class="keyword">for</span> (String <span class="built_in">word</span> : <span class="built_in">words</span>) &#123;</span><br><span class="line">    Integer <span class="built_in">count</span> = counts.<span class="keyword">get</span>(<span class="built_in">word</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">count</span> == null) &#123;</span><br><span class="line">        counts.<span class="keyword">put</span>(<span class="built_in">word</span>, <span class="number">1</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        counts.<span class="keyword">put</span>(<span class="built_in">word</span>, <span class="built_in">count</span> + <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种写法很笨拙，也容易出错，并且不支持同时收集多种统计信息，如总词数。我们可以做的更好。</p>
+<p>Guava提供了一个新集合类型 Multiset，它可以多次添加相等的元素。</p>
+<p>可以用两种方式看待Multiset：</p>
+<ul>
+<li>没有元素顺序限制的ArrayList<E></li>
+<li>Map&lt;E, Integer&gt;，键为元素，值为计数</li>
+</ul>
+<p>Guava的Multiset API也结合考虑了这两种方式：</p>
+<p>当把Multiset看成普通的Collection时，它表现得就像无序的ArrayList：</p>
+<ul>
+<li>add(E)添加单个给定元素</li>
+<li>iterator()返回一个迭代器，包含Multiset的所有元素（包括重复的元素）</li>
+<li>size()返回所有元素的总个数（包括重复的元素）</li>
+</ul>
+<p>当把Multiset看作Map&lt;E, Integer&gt;时，它也提供了符合性能期望的查询操作：</p>
+<ul>
+<li>count(Object)返回给定元素的计数。HashMultiset.count的复杂度为O(1)，TreeMultiset.count的复杂度为O(log n)。</li>
+<li>entrySet()返回Set&lt;Multiset.Entry<E>&gt;，和Map的entrySet类似。</li>
+<li>elementSet()返回所有不重复元素的Set<E>，和Map的keySet()类似。</li>
+<li>所有Multiset实现的内存消耗随着不重复元素的个数线性增长。</li>
+</ul>
+<p>值得注意的是，除了极少数情况，Multiset和JDK中原有的Collection接口契约完全一致——具体来说，TreeMultiset在判断元素是否相等时，与TreeSet一样用compare，而不是Object.equals。另外特别注意，Multiset.addAll(Collection)可以添加Collection中的所有元素并进行计数，这比用for循环往Map添加元素和计数方便多了。</p>
+<h4 id="Multimap"><a href="#Multimap" class="headerlink" title="Multimap"></a>Multimap</h4><p>每个有经验的Java程序员都在某处实现过Map&lt;K, List<V>&gt;或Map&lt;K, Set<V>&gt;，并且要忍受这个结构的笨拙。例如，Map&lt;K, Set<V>&gt;通常用来表示非标定有向图。Guava的 Multimap可以很容易地把一个键映射到多个值。换句话说，Multimap是把键映射到任意多个值的一般方式。</p>
+<p>可以用两种方式思考Multimap的概念：”键-单个值映射”的集合：</p>
+<figure class="highlight xl"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">a</span> -&gt;</span> <span class="number">1</span> <span class="function"><span class="title">a</span> -&gt;</span> <span class="number">2</span> <span class="function"><span class="title">a</span> -&gt;</span><span class="number">4</span> <span class="function"><span class="title">b</span> -&gt;</span> <span class="number">3</span> <span class="function"><span class="title">c</span> -&gt;</span> <span class="number">5</span></span><br></pre></td></tr></table></figure>
+
+<p>或者”键-值集合映射”的映射：</p>
+<figure class="highlight xl"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">a</span> -&gt;</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>] <span class="function"><span class="title">b</span> -&gt;</span> <span class="number">3</span> <span class="function"><span class="title">c</span> -&gt;</span> <span class="number">5</span></span><br></pre></td></tr></table></figure>
+
+<p>一般来说，Multimap接口应该用第一种方式看待，但asMap()视图返回Map&lt;K, Collection<V>&gt;，让你可以按另一种方式看待Multimap。重要的是，不会有任何键映射到空集合：一个键要么至少到一个值，要么根本就不在Multimap中。</p>
+<p>很少会直接使用Multimap接口，更多时候你会用ListMultimap或SetMultimap接口，它们分别把键映射到List或Set。</p>
+<h4 id="BiMap"><a href="#BiMap" class="headerlink" title="BiMap"></a>BiMap</h4><p>传统上，实现键值对的双向映射需要维护两个单独的map，并保持它们间的同步。但这种方式很容易出错，而且对于值已经在map中的情况，会变得非常混乱。例如：</p>
+<figure class="highlight vhdl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">Integer</span>&gt; nameToId = Maps.newHashMap();</span><br><span class="line"><span class="keyword">Map</span>&lt;<span class="built_in">Integer</span>, <span class="built_in">String</span>&gt; idToName = Maps.newHashMap();</span><br><span class="line"></span><br><span class="line">nameToId.put(<span class="string">&quot;Bob&quot;</span>, <span class="number">42</span>);</span><br><span class="line">idToName.put(<span class="number">42</span>, <span class="string">&quot;Bob&quot;</span>);</span><br><span class="line"></span><br><span class="line">//如果<span class="string">&quot;Bob&quot;</span>和<span class="number">42</span>已经在<span class="keyword">map</span>中了，会发生什么?</span><br><span class="line">//如果我们忘了同步两个<span class="keyword">map</span>，会有诡异的bug发生...</span><br></pre></td></tr></table></figure>
+
+<p>BiMap&lt;K, V&gt;是特殊的Map：</p>
+<ul>
+<li>可以用 inverse()反转BiMap&lt;K, V&gt;的键值映射</li>
+<li>保证值是唯一的，因此 values()返回Set而不是普通的Collection</li>
+</ul>
+<p>在BiMap中，如果你想把键映射到已经存在的值，会抛出IllegalArgumentException异常。如果对特定值，你想要强制替换它的键，请使用 BiMap.forcePut(key, value)。</p>
+<figure class="highlight lasso"><table><tr><td class="code"><pre><span class="line">BiMap&lt;<span class="built_in">String</span>, <span class="built_in">Integer</span>&gt; userId = HashBiMap.create();</span><br><span class="line"><span class="params">...</span></span><br><span class="line"><span class="built_in">String</span> userForId = userId.inverse().get(id);</span><br></pre></td></tr></table></figure>
+
+<h4 id="Table"><a href="#Table" class="headerlink" title="Table"></a>Table</h4><p>通常来说，当你想使用多个键做索引的时候，你可能会用类似Map&lt;FirstName, Map&lt;LastName, Person&gt;&gt;的实现，这种方式很丑陋，使用上也不友好。Guava为此提供了新集合类型Table，它有两个支持所有类型的键：”行”和”列”。</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">Table</span>&lt;Vertex, Vertex, <span class="type">Double</span>&gt; weightedGraph = HashBasedTable.<span class="keyword">create</span>();</span><br><span class="line">weightedGraph.put(v1, v2, <span class="number">4</span>);</span><br><span class="line">weightedGraph.put(v1, v3, <span class="number">20</span>);</span><br><span class="line">weightedGraph.put(v2, v3, <span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">weightedGraph.<span class="keyword">row</span>(v1); // <span class="keyword">returns</span> a Map <span class="keyword">mapping</span> v2 <span class="keyword">to</span> <span class="number">4</span>, v3 <span class="keyword">to</span> <span class="number">20</span></span><br><span class="line">weightedGraph.<span class="keyword">column</span>(v3); // <span class="keyword">returns</span> a Map <span class="keyword">mapping</span> v1 <span class="keyword">to</span> <span class="number">20</span>, v2 <span class="keyword">to</span> <span class="number">5</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="ClassToInstanceMap"><a href="#ClassToInstanceMap" class="headerlink" title="ClassToInstanceMap"></a>ClassToInstanceMap</h4><p>ClassToInstanceMap是一种特殊的Map：它的键是类型，而值是符合键所指类型的对象。</p>
+<p>为了扩展Map接口，ClassToInstanceMap额外声明了两个方法：T getInstance(Class<T>) 和T putInstance(Class<T>, T)，从而避免强制类型转换，同时保证了类型安全。</p>
+<p>ClassToInstanceMap有唯一的泛型参数，通常称为B，代表Map支持的所有类型的上界。例如：</p>
+<figure class="highlight fortran"><table><tr><td class="code"><pre><span class="line">ClassToInstanceMap&lt;<span class="keyword">Number</span>&gt; numberDefaults=MutableClassToInstanceMap.create();</span><br><span class="line">numberDefaults.putInstance(<span class="keyword">Integer</span>.<span class="keyword">class</span>, <span class="keyword">Integer</span>.valueOf(<span class="number">0</span>));</span><br></pre></td></tr></table></figure>
+
+<p>从技术上讲，ClassToInstanceMap<B>实现了Map&lt;Class&lt;? extends B&gt;, B&gt;——或者换句话说，是一个映射B的子类型到对应实例的Map。这让ClassToInstanceMap包含的泛型声明有点令人困惑，但请记住B始终是Map所支持类型的上界——通常B就是Object。</p>
+<p>对于ClassToInstanceMap，Guava提供了两种有用的实现：MutableClassToInstanceMap和 ImmutableClassToInstanceMap。</p>
+<h4 id="RangeSet"><a href="#RangeSet" class="headerlink" title="RangeSet"></a>RangeSet</h4><p>RangeSet描述了一组不相连的、非空的区间。当把一个区间添加到可变的RangeSet时，所有相连的区间会被合并，空区间会被忽略。例如：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">Range<span class="keyword">Set</span>&lt;<span class="type">Integer</span>&gt; range<span class="keyword">Set</span> = TreeRangeSet.<span class="keyword">create</span>();</span><br><span class="line">range<span class="keyword">Set</span>.<span class="keyword">add</span>(Range.closed(<span class="number">1</span>, <span class="number">10</span>)); // &#123;[<span class="number">1</span>,<span class="number">10</span>]&#125;</span><br><span class="line">range<span class="keyword">Set</span>.<span class="keyword">add</span>(Range.closedOpen(<span class="number">11</span>, <span class="number">15</span>));//不相连区间:&#123;[<span class="number">1</span>,<span class="number">10</span>], [<span class="number">11</span>,<span class="number">15</span>)&#125;</span><br><span class="line">range<span class="keyword">Set</span>.<span class="keyword">add</span>(Range.closedOpen(<span class="number">15</span>, <span class="number">20</span>)); //相连区间; &#123;[<span class="number">1</span>,<span class="number">10</span>], [<span class="number">11</span>,<span class="number">20</span>)&#125;</span><br><span class="line">range<span class="keyword">Set</span>.<span class="keyword">add</span>(Range.openClosed(<span class="number">0</span>, <span class="number">0</span>)); //空区间; &#123;[<span class="number">1</span>,<span class="number">10</span>], [<span class="number">11</span>,<span class="number">20</span>)&#125;</span><br><span class="line">range<span class="keyword">Set</span>.remove(Range.<span class="keyword">open</span>(<span class="number">5</span>, <span class="number">10</span>)); //分割[<span class="number">1</span>, <span class="number">10</span>]; &#123;[<span class="number">1</span>,<span class="number">5</span>], [<span class="number">10</span>,<span class="number">10</span>], [<span class="number">11</span>,<span class="number">20</span>)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>请注意，要合并Range.closed(1, 10)和Range.closedOpen(11, 15)这样的区间，你需要首先用Range.canonical(DiscreteDomain)对区间进行预处理，例如DiscreteDomain.integers()。</p>
+<p>注：RangeSet不支持GWT，也不支持JDK5和更早版本；因为，RangeSet需要充分利用JDK6中NavigableMap的特性。</p>
+<h4 id="RangeMap"><a href="#RangeMap" class="headerlink" title="RangeMap"></a>RangeMap</h4><p>RangeMap描述了”不相交的、非空的区间”到特定值的映射。和RangeSet不同，RangeMap不会合并相邻的映射，即便相邻的区间映射到相同的值。例如：</p>
+<figure class="highlight coffeescript"><table><tr><td class="code"><pre><span class="line">RangeMap&lt;Integer, <span class="built_in">String</span>&gt; rangeMap = TreeRangeMap.create();</span><br><span class="line">rangeMap.put(Range.closed(<span class="number">1</span>, <span class="number">10</span>), <span class="string">&quot;foo&quot;</span>); <span class="regexp">//</span>&#123;[<span class="number">1</span>,<span class="number">10</span>] =&gt; <span class="string">&quot;foo&quot;</span>&#125;</span><br><span class="line">rangeMap.put(Range.open(<span class="number">3</span>, <span class="number">6</span>), <span class="string">&quot;bar&quot;</span>); <span class="regexp">//</span>&#123;[<span class="number">1</span>,<span class="number">3</span>] =&gt; <span class="string">&quot;foo&quot;</span>, <span class="function"><span class="params">(<span class="number">3</span>,<span class="number">6</span>)</span> =&gt;</span> <span class="string">&quot;bar&quot;</span>, [<span class="number">6</span>,<span class="number">10</span>] =&gt; <span class="string">&quot;foo&quot;</span>&#125;</span><br><span class="line">rangeMap.put(Range.open(<span class="number">10</span>, <span class="number">20</span>), <span class="string">&quot;foo&quot;</span>); <span class="regexp">//</span>&#123;[<span class="number">1</span>,<span class="number">3</span>] =&gt; <span class="string">&quot;foo&quot;</span>, <span class="function"><span class="params">(<span class="number">3</span>,<span class="number">6</span>)</span> =&gt;</span> <span class="string">&quot;bar&quot;</span>, [<span class="number">6</span>,<span class="number">10</span>] =&gt; <span class="string">&quot;foo&quot;</span>, <span class="function"><span class="params">(<span class="number">10</span>,<span class="number">20</span>)</span> =&gt;</span> <span class="string">&quot;foo&quot;</span>&#125;</span><br><span class="line">rangeMap.remove(Range.closed(<span class="number">5</span>, <span class="number">11</span>)); <span class="regexp">//</span>&#123;[<span class="number">1</span>,<span class="number">3</span>] =&gt; <span class="string">&quot;foo&quot;</span>, <span class="function"><span class="params">(<span class="number">3</span>,<span class="number">5</span>)</span> =&gt;</span> <span class="string">&quot;bar&quot;</span>, <span class="function"><span class="params">(<span class="number">11</span>,<span class="number">20</span>)</span> =&gt;</span> <span class="string">&quot;foo&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="强大的集合工具类"><a href="#强大的集合工具类" class="headerlink" title="强大的集合工具类"></a>强大的集合工具类</h3><p>任何对JDK集合框架有经验的程序员都熟悉和喜欢java.util.Collections包含的工具方法。Guava沿着这些路线提供了更多的工具方法：适用于所有集合的静态方法。这是Guava最流行和成熟的部分之一。</p>
+<p>工具类与特定集合接口的对应关系归纳如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">集合接口</th>
+<th align="left">属于JDK还是Guava</th>
+<th align="left">对应的Guava工具类</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Collection</td>
+<td align="left">JDK</td>
+<td align="left">Collections2：不要和java.util.Collections混淆</td>
+</tr>
+<tr>
+<td align="left">List</td>
+<td align="left">JDK</td>
+<td align="left">Lists</td>
+</tr>
+<tr>
+<td align="left">Set</td>
+<td align="left">JDK</td>
+<td align="left">Sets</td>
+</tr>
+<tr>
+<td align="left">SortedSet</td>
+<td align="left">JDK</td>
+<td align="left">Sets</td>
+</tr>
+<tr>
+<td align="left">Map</td>
+<td align="left">JDK</td>
+<td align="left">Maps</td>
+</tr>
+<tr>
+<td align="left">SortedMap</td>
+<td align="left">JDK</td>
+<td align="left">Maps</td>
+</tr>
+<tr>
+<td align="left">Queue</td>
+<td align="left">JDK</td>
+<td align="left">Queues</td>
+</tr>
+<tr>
+<td align="left">Multiset</td>
+<td align="left">Guava</td>
+<td align="left">Multisets</td>
+</tr>
+<tr>
+<td align="left">Multimap</td>
+<td align="left">Guava</td>
+<td align="left">Multimaps</td>
+</tr>
+<tr>
+<td align="left">BiMap</td>
+<td align="left">Guava</td>
+<td align="left">Maps</td>
+</tr>
+<tr>
+<td align="left">Table</td>
+<td align="left">Guava</td>
+<td align="left">Tables</td>
+</tr>
+</tbody></table>
+<h4 id="静态工厂方法"><a href="#静态工厂方法" class="headerlink" title="静态工厂方法"></a>静态工厂方法</h4><p>在JDK 7之前，构造新的范型集合时要讨厌地重复声明范型：</p>
+<figure class="highlight abnf"><table><tr><td class="code"><pre><span class="line">List&lt;TypeThatsTooLongForItsOwnGood&gt; list <span class="operator">=</span> new ArrayList&lt;TypeThatsTooLongForItsOwnGood&gt;()<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<p>我想我们都认为这很讨厌。因此Guava提供了能够推断范型的静态工厂方法：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">List&lt;TypeThatsTooLongForItsOwnGood&gt; <span class="built_in">list</span> = <span class="module-access"><span class="module"><span class="identifier">Lists</span>.</span></span><span class="keyword">new</span><span class="constructor">ArrayList()</span>;</span><br><span class="line">Map&lt;KeyType, LongishValueType&gt; map = <span class="module-access"><span class="module"><span class="identifier">Maps</span>.</span></span><span class="keyword">new</span><span class="constructor">LinkedHashMap()</span>;</span><br></pre></td></tr></table></figure>
+
+<p>可以肯定的是，JDK7版本的钻石操作符(&lt;&gt;)没有这样的麻烦：</p>
+<figure class="highlight abnf"><table><tr><td class="code"><pre><span class="line">List&lt;TypeThatsTooLongForItsOwnGood&gt; list <span class="operator">=</span> new ArrayList&lt;&gt;()<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<p>但Guava的静态工厂方法远不止这么简单。用工厂方法模式，我们可以方便地在初始化时就指定起始元素。</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">Set&lt;Type&gt; copySet = <span class="module-access"><span class="module"><span class="identifier">Sets</span>.</span></span><span class="keyword">new</span><span class="constructor">HashSet(<span class="params">elements</span>)</span>;</span><br><span class="line">List&lt;String&gt; theseElements = <span class="module-access"><span class="module"><span class="identifier">Lists</span>.</span></span><span class="keyword">new</span><span class="constructor">ArrayList(<span class="string">&quot;alpha&quot;</span>, <span class="string">&quot;beta&quot;</span>, <span class="string">&quot;gamma&quot;</span>)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>此外，通过为工厂方法命名（Effective Java第一条），我们可以提高集合初始化大小的可读性：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">List&lt;Type&gt; exactly100 = <span class="module-access"><span class="module"><span class="identifier">Lists</span>.</span></span><span class="keyword">new</span><span class="constructor">ArrayListWithCapacity(100)</span>;</span><br><span class="line">List&lt;Type&gt; approx100 = <span class="module-access"><span class="module"><span class="identifier">Lists</span>.</span></span><span class="keyword">new</span><span class="constructor">ArrayListWithExpectedSize(100)</span>;</span><br><span class="line">Set&lt;Type&gt; approx100Set = <span class="module-access"><span class="module"><span class="identifier">Sets</span>.</span></span><span class="keyword">new</span><span class="constructor">HashSetWithExpectedSize(100)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>确切的静态工厂方法和相应的工具类一起罗列在下面的章节。</p>
+<p>注意：Guava引入的新集合类型没有暴露原始构造器，也没有在工具类中提供初始化方法。而是直接在集合类中提供了静态工厂方法，例如：</p>
+<figure class="highlight abnf"><table><tr><td class="code"><pre><span class="line">Multiset&lt;String&gt; multiset <span class="operator">=</span> HashMultiset.create()<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Lists"><a href="#Lists" class="headerlink" title="Lists"></a>Lists</h4><p>除了静态工厂方法和函数式编程方法，Lists为List类型的对象提供了若干工具方法。</p>
+<table>
+<thead>
+<tr>
+<th align="left">方法</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">partition(List, int)</td>
+<td align="left">把List按指定大小分割</td>
+</tr>
+<tr>
+<td align="left">reverse(List)</td>
+<td align="left">返回给定List的反转视图。注: 如果List是不可变的，考虑改用ImmutableList.reverse()。</td>
+</tr>
+</tbody></table>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">List</span> countUp = Ints.asList(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>);</span><br><span class="line"><span class="attribute">List</span> countDown = Lists.reverse(theList); // &#123;<span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>&#125;</span><br><span class="line"><span class="attribute">List</span>&lt;List&gt; parts = Lists.partition(countUp, <span class="number">2</span>);//&#123;&#123;<span class="number">1</span>,<span class="number">2</span>&#125;, &#123;<span class="number">3</span>,<span class="number">4</span>&#125;, &#123;<span class="number">5</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Sets"><a href="#Sets" class="headerlink" title="Sets"></a>Sets</h4><p>Sets提供了很多标准的集合运算（Set-Theoretic）方法，这些方法接受Set参数并返回SetView，可用于：</p>
+<ul>
+<li>直接当作Set使用，因为SetView也实现了Set接口；</li>
+<li>用copyInto(Set)拷贝进另一个可变集合；</li>
+<li>用immutableCopy()对自己做不可变拷贝。</li>
+</ul>
+<h4 id="Maps"><a href="#Maps" class="headerlink" title="Maps"></a>Maps</h4><p>Maps类有若干值得单独说明的、很酷的方法。</p>
+<h5 id="uniqueIndex"><a href="#uniqueIndex" class="headerlink" title="uniqueIndex"></a>uniqueIndex</h5><p>Maps.uniqueIndex(Iterable,Function)通常针对的场景是：有一组对象，它们在某个属性上分别有独一无二的值，而我们希望能够按照这个属性值查找对象——译者注：这个方法返回一个Map，键为Function返回的属性值，值为Iterable中相应的元素，因此我们可以反复用这个Map进行查找操作。</p>
+<p>比方说，我们有一堆字符串，这些字符串的长度都是独一无二的，而我们希望能够按照特定长度查找字符串：</p>
+<figure class="highlight lasso"><table><tr><td class="code"><pre><span class="line">ImmutableMap&lt;<span class="built_in">Integer</span>, <span class="built_in">String</span>&gt; stringsByIndex = Maps.uniqueIndex(strings,</span><br><span class="line">    <span class="literal">new</span> Function&lt;<span class="built_in">String</span>, <span class="built_in">Integer</span>&gt; () &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="built_in">Integer</span> apply(<span class="built_in">String</span> <span class="built_in">string</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">string</span>.length();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>如果索引值不是独一无二的，请参见下面的Multimaps.index方法。</p>
+<h5 id="difference"><a href="#difference" class="headerlink" title="difference"></a>difference</h5><p>Maps.difference(Map, Map)用来比较两个Map以获取所有不同点。该方法返回MapDifference对象，把不同点的维恩图分解为：</p>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">entriesInCommon()</td>
+<td align="left">两个Map中都有的映射项，包括匹配的键与值</td>
+</tr>
+<tr>
+<td align="left">entriesDiffering()</td>
+<td align="left">键相同但是值不同值映射项。返回的Map的值类型为MapDifference.ValueDifference，以表示左右两个不同的值</td>
+</tr>
+<tr>
+<td align="left">entriesOnlyOnLeft()</td>
+<td align="left">键只存在于左边Map的映射项</td>
+</tr>
+<tr>
+<td align="left">entriesOnlyOnRight()</td>
+<td align="left">键只存在于右边Map的映射项</td>
+</tr>
+</tbody></table>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">Map</span>&lt;String, Integer&gt; left = ImmutableMap.of(<span class="string">&quot;a&quot;</span>, <span class="number">1</span>, <span class="string">&quot;b&quot;</span>, <span class="number">2</span>, <span class="string">&quot;c&quot;</span>, <span class="number">3</span>);</span><br><span class="line"><span class="attribute">Map</span>&lt;String, Integer&gt; left = ImmutableMap.of(<span class="string">&quot;a&quot;</span>, <span class="number">1</span>, <span class="string">&quot;b&quot;</span>, <span class="number">2</span>, <span class="string">&quot;c&quot;</span>, <span class="number">3</span>);</span><br><span class="line"><span class="attribute">MapDifference</span>&lt;String, Integer&gt; diff = Maps.difference(left, right);</span><br><span class="line"></span><br><span class="line"><span class="attribute">diff</span>.entriesInCommon(); // &#123;<span class="string">&quot;b&quot;</span> =&gt; <span class="number">2</span>&#125;</span><br><span class="line"><span class="attribute">diff</span>.entriesInCommon(); // &#123;<span class="string">&quot;b&quot;</span> =&gt; <span class="number">2</span>&#125;</span><br><span class="line"><span class="attribute">diff</span>.entriesOnlyOnLeft(); // &#123;<span class="string">&quot;a&quot;</span> =&gt; <span class="number">1</span>&#125;</span><br><span class="line"><span class="attribute">diff</span>.entriesOnlyOnRight(); // &#123;<span class="string">&quot;d&quot;</span> =&gt; <span class="number">5</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><p>缓存在很多场景下都是相当有用的。例如，计算或检索一个值的代价很高，并且对同样的输入需要不止一次获取值的时候，就应当考虑使用缓存。</p>
+<p>Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区别是ConcurrentMap会一直保存所有添加的元素，直到显式地移除。相对地，Guava Cache为了限制内存占用，通常都设定为自动回收元素。在某些场景下，尽管LoadingCache 不回收元素，它也是很有用的，因为它会自动加载缓存。</p>
+<p>通常来说，Guava Cache适用于：</p>
+<ul>
+<li>你愿意消耗一些内存空间来提升速度。</li>
+<li>你预料到某些键会被查询一次以上。</li>
+<li>缓存中存放的数据总量不会超出内存容量。（Guava Cache是单个应用运行时的本地缓存。它不把数据存放到文件或外部服务器。如果这不符合你的需求，请尝试Memcached这类工具）</li>
+</ul>
+<p>在使用缓存前，首先问自己一个问题：有没有合理的默认方法来加载或计算与键关联的值？如果有的话，你应当使用CacheLoader。如果没有，或者你想要覆盖默认的加载运算，同时保留”获取缓存-如果没有-则计算”[get-if-absent-compute]的原子语义，你应该在调用get时传入一个Callable实例。缓存元素也可以通过Cache.put方法直接插入，但自动加载是首选的，因为它可以更容易地推断所有缓存内容的一致性。</p>
+<h3 id="CacheLoader"><a href="#CacheLoader" class="headerlink" title="CacheLoader"></a>CacheLoader</h3><p>LoadingCache是附带CacheLoader构建而成的缓存实现。创建自己的CacheLoader通常只需要简单地实现V load(K key) throws Exception方法。例如，你可以用下面的代码构建LoadingCache：</p>
+<figure class="highlight haxe"><table><tr><td class="code"><pre><span class="line">LoadingCache&lt;Key, Graph&gt; graphs = CacheBuilder.<span class="keyword">new</span><span class="type">Builder</span>()</span><br><span class="line">        .maximumSize(<span class="number">1000</span>)</span><br><span class="line">        .build(</span><br><span class="line">            <span class="keyword">new</span> <span class="type">CacheLoader</span>&lt;Key, Graph&gt;() &#123;</span><br><span class="line">                <span class="keyword">public</span> Graph load(Key key) throws AnyException &#123;</span><br><span class="line">                    <span class="keyword">return</span> createExpensiveGraph(key);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> graphs.<span class="keyword">get</span>(key);</span><br><span class="line">&#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">OtherException</span>(e.getCause());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从LoadingCache查询的正规方式是使用get(K)方法。这个方法要么返回已经缓存的值，要么使用CacheLoader向缓存原子地加载新值。由于CacheLoader可能抛出异常，LoadingCache.get(K)也声明为抛出ExecutionException异常。如果你定义的CacheLoader没有声明任何检查型异常，则可以通过getUnchecked(K)查找缓存；但必须注意，一旦CacheLoader声明了检查型异常，就不可以调用getUnchecked(K)。</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">LoadingCache&lt;Key, Graph&gt; graphs = <span class="module-access"><span class="module"><span class="identifier">CacheBuilder</span>.</span></span><span class="keyword">new</span><span class="constructor">Builder()</span></span><br><span class="line">        .expire<span class="constructor">AfterAccess(10, TimeUnit.MINUTES)</span></span><br><span class="line">        .build(</span><br><span class="line">            <span class="keyword">new</span> CacheLoader&lt;Key, Graph&gt;<span class="literal">()</span> &#123;</span><br><span class="line">                public Graph load(Key key) &#123; <span class="comment">// no checked exception</span></span><br><span class="line">                    return create<span class="constructor">ExpensiveGraph(<span class="params">key</span>)</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);<span class="operator"></span></span><br><span class="line"><span class="operator"></span></span><br><span class="line"><span class="operator">...</span></span><br><span class="line"><span class="operator"></span>return graphs.get<span class="constructor">Unchecked(<span class="params">key</span>)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>getAll(Iterable&lt;? extends K&gt;)方法用来执行批量查询。默认情况下，对每个不在缓存中的键，getAll方法会单独调用CacheLoader.load来加载缓存项。如果批量的加载比多个单独加载更高效，你可以重载CacheLoader.loadAll来利用这一点。getAll(Iterable)的性能也会相应提升。</p>
+<p>注：CacheLoader.loadAll的实现可以为没有明确请求的键加载缓存值。例如，为某组中的任意键计算值时，能够获取该组中的所有键值，loadAll方法就可以实现为在同一时间获取该组的其他键值。校注：getAll(Iterable&lt;? extends K&gt;)方法会调用loadAll，但会筛选结果，只会返回请求的键值对。</p>
+<h3 id="Callable"><a href="#Callable" class="headerlink" title="Callable"></a>Callable</h3><p>所有类型的Guava Cache，不管有没有自动加载功能，都支持get(K, Callable<V>)方法。这个方法返回缓存中相应的值，或者用给定的Callable运算并把结果加入到缓存中。在整个加载方法完成前，缓存项相关的可观察状态都不会更改。这个方法简便地实现了模式”如果有缓存则返回；否则运算、缓存、然后返回”。</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">Cache&lt;Key, Graph&gt; cache = <span class="module-access"><span class="module"><span class="identifier">CacheBuilder</span>.</span></span><span class="keyword">new</span><span class="constructor">Builder()</span></span><br><span class="line">        .maximum<span class="constructor">Size(1000)</span></span><br><span class="line">        .build<span class="literal">()</span>; <span class="comment">// look Ma, no CacheLoader</span><span class="operator"></span></span><br><span class="line"><span class="operator">...</span></span><br><span class="line"><span class="operator"></span><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// If the key wasn&#x27;t in the &quot;easy to compute&quot; group, we need to</span></span><br><span class="line">    <span class="comment">// do things the hard way.</span></span><br><span class="line">    cache.get(key, <span class="keyword">new</span> Callable&lt;Key, Graph&gt;<span class="literal">()</span> &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public Value call<span class="literal">()</span> throws AnyException &#123;</span><br><span class="line">            return <span class="keyword">do</span><span class="constructor">ThingsTheHardWay(<span class="params">key</span>)</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125; catch (ExecutionException e) &#123;</span><br><span class="line">    throw <span class="keyword">new</span> <span class="constructor">OtherException(<span class="params">e</span>.<span class="params">getCause</span>()</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="显式插入"><a href="#显式插入" class="headerlink" title="显式插入"></a>显式插入</h3><p>使用cache.put(key, value)方法可以直接向缓存中插入值，这会直接覆盖掉给定键之前映射的值。使用Cache.asMap()视图提供的任何方法也能修改缓存。但请注意，asMap视图的任何方法都不能保证缓存项被原子地加载到缓存中。进一步说，asMap视图的原子运算在Guava Cache的原子加载范畴之外，所以相比于Cache.asMap().putIfAbsent(K, V)，Cache.get(K, Callable<V>) 应该总是优先使用。</p>
+<h3 id="缓存回收"><a href="#缓存回收" class="headerlink" title="缓存回收"></a>缓存回收</h3><p>一个残酷的现实是，我们几乎一定没有足够的内存缓存所有数据。你你必须决定：什么时候某个缓存项就不值得保留了？Guava Cache提供了三种基本的缓存回收方式：基于容量回收、定时回收和基于引用回收。</p>
+<h4 id="基于容量的回收（size-based-eviction）"><a href="#基于容量的回收（size-based-eviction）" class="headerlink" title="基于容量的回收（size-based eviction）"></a>基于容量的回收（size-based eviction）</h4><p>如果要规定缓存项的数目不超过固定值，只需使用CacheBuilder.maximumSize(long)。缓存将尝试回收最近没有使用或总体上很少使用的缓存项。——警告：在缓存项的数目达到限定值之前，缓存就可能进行回收操作——通常来说，这种情况发生在缓存项的数目逼近限定值时。</p>
+<p>另外，不同的缓存项有不同的“权重”（weights）——例如，如果你的缓存值，占据完全不同的内存空间，你可以使用CacheBuilder.weigher(Weigher)指定一个权重函数，并且用CacheBuilder.maximumWeight(long)指定最大总重。在权重限定场景中，除了要注意回收也是在重量逼近限定值时就进行了，还要知道重量是在缓存创建时计算的，因此要考虑重量计算的复杂度。</p>
+<figure class="highlight aspectj"><table><tr><td class="code"><pre><span class="line">LoadingCache&lt;Key, Graph&gt; graphs = CacheBuilder.newBuilder()</span><br><span class="line">        .maximumWeight(<span class="number">100000</span>)</span><br><span class="line">        .weigher(<span class="keyword">new</span> Weigher&lt;Key, Graph&gt;() &#123;</span><br><span class="line">            <span class="keyword">public</span> <span class="function"><span class="keyword">int</span> <span class="title">weigh</span><span class="params">(Key k, Graph g)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> g.vertices().size();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        .build(</span><br><span class="line">            <span class="keyword">new</span> CacheLoader&lt;Key, Graph&gt;() &#123;</span><br><span class="line">                <span class="keyword">public</span> <span class="function">Graph <span class="title">load</span><span class="params">(Key key)</span> </span>&#123; <span class="comment">// no checked exception</span></span><br><span class="line">                    <span class="function"><span class="keyword">return</span> <span class="title">createExpensiveGraph</span><span class="params">(key)</span></span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="定时回收（Timed-Eviction）"><a href="#定时回收（Timed-Eviction）" class="headerlink" title="定时回收（Timed Eviction）"></a>定时回收（Timed Eviction）</h4><p>CacheBuilder提供两种定时回收的方法：</p>
+<ul>
+<li>expireAfterAccess(long, TimeUnit)：缓存项在给定时间内没有被读/写访问，则回收。请注意这种缓存的回收顺序和基于大小回收一样。</li>
+<li>expireAfterWrite(long, TimeUnit)：缓存项在给定时间内没有被写访问（创建或覆盖），则回收。如果认为缓存数据总是在固定时候后变得陈旧不可用，这种回收方式是可取的。</li>
+</ul>
+<h4 id="基于引用的回收（Reference-based-Eviction）"><a href="#基于引用的回收（Reference-based-Eviction）" class="headerlink" title="基于引用的回收（Reference-based Eviction）"></a>基于引用的回收（Reference-based Eviction）</h4><p>通过使用弱引用的键、或弱引用的值、或软引用的值，Guava Cache可以把缓存设置为允许垃圾回收：</p>
+<ul>
+<li>CacheBuilder.weakKeys()：使用弱引用存储键。当键没有其它（强或软）引用时，缓存项可以被垃圾回收。因为垃圾回收仅依赖恒等式（==），使用弱引用键的缓存用==而不是equals比较键。</li>
+<li>CacheBuilder.weakValues()：使用弱引用存储值。当值没有其它（强或软）引用时，缓存项可以被垃圾回收。因为垃圾回收仅依赖恒等式（==），使用弱引用值的缓存用==而不是equals比较值。</li>
+<li>CacheBuilder.softValues()：使用软引用存储值。软引用只有在响应内存需要时，才按照全局最近最少使用的顺序回收。考虑到使用软引用的性能影响，我们通常建议使用更有性能预测性的缓存大小限定（见上文，基于容量回收）。使用软引用值的缓存同样用==而不是equals比较值。</li>
+</ul>
+<h4 id="显式清除"><a href="#显式清除" class="headerlink" title="显式清除"></a>显式清除</h4><p>任何时候，你都可以显式地清除缓存项，而不是等到它被回收：</p>
+<ul>
+<li>个别清除：Cache.invalidate(key)</li>
+<li>批量清除：Cache.invalidateAll(keys)</li>
+<li>清除所有缓存项：Cache.invalidateAll()</li>
+</ul>
+<h4 id="移除监听器"><a href="#移除监听器" class="headerlink" title="移除监听器"></a>移除监听器</h4><p>通过CacheBuilder.removalListener(RemovalListener)，你可以声明一个监听器，以便缓存项被移除时做一些额外操作。缓存项被移除时，RemovalListener会获取移除通知[RemovalNotification]，其中包含移除原因[RemovalCause]、键和值。</p>
+<p>请注意，RemovalListener抛出的任何异常都会在记录到日志后被丢弃[swallowed]。</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">CacheLoader&lt;Key, DatabaseConnection&gt; loader = <span class="keyword">new</span> CacheLoader&lt;Key, DatabaseConnection&gt; <span class="literal">()</span> &#123;</span><br><span class="line">    public DatabaseConnection load(Key key) throws Exception &#123;</span><br><span class="line">        return <span class="keyword">open</span><span class="constructor">Connection(<span class="params">key</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">RemovalListener&lt;Key, DatabaseConnection&gt; removalListener = <span class="keyword">new</span> RemovalListener&lt;Key, DatabaseConnection&gt;<span class="literal">()</span> &#123;</span><br><span class="line">    public void on<span class="constructor">Removal(RemovalNotification&lt;Key, DatabaseConnection&gt; <span class="params">removal</span>)</span> &#123;</span><br><span class="line">        DatabaseConnection conn = removal.get<span class="constructor">Value()</span>;</span><br><span class="line">        conn.close<span class="literal">()</span>; <span class="comment">// tear down properly</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">return <span class="module-access"><span class="module"><span class="identifier">CacheBuilder</span>.</span></span><span class="keyword">new</span><span class="constructor">Builder()</span></span><br><span class="line">    .expire<span class="constructor">AfterWrite(2, TimeUnit.MINUTES)</span></span><br><span class="line">    .removal<span class="constructor">Listener(<span class="params">removalListener</span>)</span></span><br><span class="line">    .build(loader);</span><br></pre></td></tr></table></figure>
+
+<p>警告：默认情况下，监听器方法是在移除缓存时同步调用的。因为缓存的维护和请求响应通常是同时进行的，代价高昂的监听器方法在同步模式下会拖慢正常的缓存请求。在这种情况下，你可以使用RemovalListeners.asynchronous(RemovalListener, Executor)把监听器装饰为异步操作。</p>
+<h4 id="清理什么时候发生？"><a href="#清理什么时候发生？" class="headerlink" title="清理什么时候发生？"></a>清理什么时候发生？</h4><p>使用CacheBuilder构建的缓存不会”自动”执行清理和回收工作，也不会在某个缓存项过期后马上清理，也没有诸如此类的清理机制。相反，它会在写操作时顺带做少量的维护工作，或者偶尔在读操作时做——如果写操作实在太少的话。</p>
+<p>这样做的原因在于：如果要自动地持续清理缓存，就必须有一个线程，这个线程会和用户操作竞争共享锁。此外，某些环境下线程创建可能受限制，这样CacheBuilder就不可用了。</p>
+<p>相反，我们把选择权交到你手里。如果你的缓存是高吞吐的，那就无需担心缓存的维护和清理等工作。如果你的 缓存只会偶尔有写操作，而你又不想清理工作阻碍了读操作，那么可以创建自己的维护线程，以固定的时间间隔调用Cache.cleanUp()。ScheduledExecutorService可以帮助你很好地实现这样的定时调度。</p>
+<h4 id="刷新"><a href="#刷新" class="headerlink" title="刷新"></a>刷新</h4><p>刷新和回收不太一样。正如LoadingCache.refresh(K)所声明，刷新表示为键加载新值，这个过程可以是异步的。在刷新操作进行时，缓存仍然可以向其他线程返回旧值，而不像回收操作，读缓存的线程必须等待新值加载完成。</p>
+<p>如果刷新过程抛出异常，缓存将保留旧值，而异常会在记录到日志后被丢弃[swallowed]。</p>
+<p>重载CacheLoader.reload(K, V)可以扩展刷新时的行为，这个方法允许开发者在计算新值时使用旧的值。</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line"><span class="comment">//有些键不需要刷新，并且我们希望刷新是异步完成的</span></span><br><span class="line">LoadingCache&lt;Key, Graph&gt; graphs = <span class="module-access"><span class="module"><span class="identifier">CacheBuilder</span>.</span></span><span class="keyword">new</span><span class="constructor">Builder()</span></span><br><span class="line">        .maximum<span class="constructor">Size(1000)</span></span><br><span class="line">        .refresh<span class="constructor">AfterWrite(1, TimeUnit.MINUTES)</span></span><br><span class="line">        .build(</span><br><span class="line">            <span class="keyword">new</span> CacheLoader&lt;Key, Graph&gt;<span class="literal">()</span> &#123;</span><br><span class="line">                public Graph load(Key key) &#123; <span class="comment">// no checked exception</span></span><br><span class="line">                    return get<span class="constructor">GraphFromDatabase(<span class="params">key</span>)</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                public ListenableFuture&lt;Key, Graph&gt; reload(final Key key, Graph prevGraph) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (never<span class="constructor">NeedsRefresh(<span class="params">key</span>)</span>) &#123;</span><br><span class="line">                        return <span class="module-access"><span class="module"><span class="identifier">Futures</span>.</span></span>immediate<span class="constructor">Future(<span class="params">prevGraph</span>)</span>;</span><br><span class="line">                    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                        <span class="comment">// asynchronous!</span></span><br><span class="line">                        ListenableFutureTask&lt;Key, Graph&gt; task=<span class="module-access"><span class="module"><span class="identifier">ListenableFutureTask</span>.</span></span>create(<span class="keyword">new</span> Callable&lt;Key, Graph&gt;<span class="literal">()</span> &#123;</span><br><span class="line">                            public Graph call<span class="literal">()</span> &#123;</span><br><span class="line">                                return get<span class="constructor">GraphFromDatabase(<span class="params">key</span>)</span>;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;);</span><br><span class="line">                        executor.execute(task);</span><br><span class="line">                        return task;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>CacheBuilder.refreshAfterWrite(long, TimeUnit)可以为缓存增加自动定时刷新功能。和expireAfterWrite相反，refreshAfterWrite通过定时刷新可以让缓存项保持可用，但请注意：缓存项只有在被检索时才会真正刷新（如果CacheLoader.refresh实现为异步，那么检索不会被刷新拖慢）。因此，如果你在缓存上同时声明expireAfterWrite和refreshAfterWrite，缓存并不会因为刷新盲目地定时重置，如果缓存项没有被检索，那刷新就不会真的发生，缓存项在过期时间后也变得可以回收。</p>
+<h2 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h2><p>并发编程是一个难题，但是一个强大而简单的抽象可以显著的简化并发的编写。出于这样的考虑，Guava 定义了 ListenableFuture接口并继承了JDK concurrent包下的Future 接口。</p>
+<h3 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h3><p>传统JDK中的Future通过异步的方式计算返回结果:在多线程运算中可能或者可能在没有结束返回结果，Future是运行中的多线程的一个引用句柄，确保在服务执行返回一个Result。</p>
+<p>ListenableFuture可以允许你注册回调方法(callbacks)，在运算（多线程执行）完成的时候进行调用,  或者在运算（多线程执行）完成后立即执行。这样简单的改进，使得可以明显的支持更多的操作，这样的功能在JDK concurrent中的Future是不支持的。</p>
+<p>ListenableFuture 中的基础方法是addListener(Runnable, Executor), 该方法会在多线程运算完的时候，指定的Runnable参数传入的对象会被指定的Executor执行。</p>
+<h3 id="添加回调（Callbacks）"><a href="#添加回调（Callbacks）" class="headerlink" title="添加回调（Callbacks）"></a>添加回调（Callbacks）</h3><p>多数用户喜欢使用 Futures.addCallback(ListenableFuture<V>, FutureCallback<V>, Executor)的方式, 或者 另外一个版本version，addCallback(ListenableFuture<V> future,FutureCallback&lt;? super V&gt; callback)，默认是采用 MoreExecutors.sameThreadExecutor()线程池, 为了简化使用，Callback采用轻量级的设计.  FutureCallback<V> 中实现了两个方法:</p>
+<ul>
+<li>onSuccess(V),在Future成功的时候执行，根据Future结果来判断。</li>
+<li>onFailure(Throwable), 在Future失败的时候执行，根据Future结果来判断。</li>
+</ul>
+<h3 id="ListenableFuture的创建"><a href="#ListenableFuture的创建" class="headerlink" title="ListenableFuture的创建"></a>ListenableFuture的创建</h3><p>对应JDK中的 ExecutorService.submit(Callable) 提交多线程异步运算的方式，Guava 提供了ListeningExecutorService 接口, 该接口返回 ListenableFuture 而相应的 ExecutorService 返回普通的 Future。将 ExecutorService 转为 ListeningExecutorService，可以使用MoreExecutors.listeningDecorator(ExecutorService)进行装饰。</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">ListeningExecutorService service = <span class="module-access"><span class="module"><span class="identifier">MoreExecutors</span>.</span></span>listening<span class="constructor">Decorator(Executors.<span class="params">newFixedThreadPool</span>(10)</span>);</span><br><span class="line">ListenableFuture explosion = service.submit(<span class="keyword">new</span> <span class="constructor">Callable()</span> &#123;</span><br><span class="line">  public Explosion call<span class="literal">()</span> &#123;</span><br><span class="line">    return push<span class="constructor">BigRedButton()</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">Futures</span>.</span></span>add<span class="constructor">Callback(<span class="params">explosion</span>, <span class="params">new</span> FutureCallback()</span> &#123;</span><br><span class="line">  <span class="comment">// we want this handler to run immediately after we push the big red button!</span></span><br><span class="line">  public void on<span class="constructor">Success(Explosion <span class="params">explosion</span>)</span> &#123;</span><br><span class="line">    walk<span class="constructor">AwayFrom(<span class="params">explosion</span>)</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  public void on<span class="constructor">Failure(Throwable <span class="params">thrown</span>)</span> &#123;</span><br><span class="line">    battle<span class="constructor">ArchNemesis()</span>; <span class="comment">// escaped the explosion!</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>另外, 假如你是从 FutureTask转换而来的, Guava 提供ListenableFutureTask.create(Callable<V>) 和ListenableFutureTask.create(Runnable, V). 和 JDK不同的是, ListenableFutureTask 不能随意被继承（译者注：ListenableFutureTask中的done方法实现了调用listener的操作）。</p>
+<p>假如你喜欢抽象的方式来设置future的值，而不是想实现接口中的方法，可以考虑继承抽象类AbstractFuture<V> 或者直接使用 SettableFuture 。</p>
+<p>假如你必须将其他API提供的Future转换成 ListenableFuture，你没有别的方法只能采用硬编码的方式JdkFutureAdapters.listenInPoolThread(Future) 来将 Future 转换成 ListenableFuture。尽可能地采用修改原生的代码返回 ListenableFuture会更好一些。</p>
+<h3 id="CheckedFuture"><a href="#CheckedFuture" class="headerlink" title="CheckedFuture"></a>CheckedFuture</h3><p>Guava也提供了 CheckedFuture&lt;V, X extends Exception&gt; 接口。CheckedFuture 是一个ListenableFuture ，其中包含了多个版本的get 方法，方法声明抛出检查异常.这样使得创建一个在执行逻辑中可以抛出异常的Future更加容易 。将 ListenableFuture 转换成CheckedFuture，可以使用 Futures.makeChecked(ListenableFuture<V>, Function&lt;Exception, X&gt;)。</p>
+<h2 id="字符串处理：分割，连接，填充"><a href="#字符串处理：分割，连接，填充" class="headerlink" title="字符串处理：分割，连接，填充"></a>字符串处理：分割，连接，填充</h2><h3 id="连接器-Joiner"><a href="#连接器-Joiner" class="headerlink" title="连接器[Joiner]"></a>连接器[Joiner]</h3><p>用分隔符把字符串序列连接起来也可能会遇上不必要的麻烦。如果字符串序列中含有null，那连接操作会更难。Fluent风格的Joiner让连接字符串更简单。</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">Joiner joiner = Joiner.<span class="keyword">on</span>(<span class="string">&quot;; &quot;</span>).skipNulls();</span><br><span class="line"><span class="keyword">return</span> joiner.<span class="keyword">join</span>(<span class="string">&quot;Harry&quot;</span>, <span class="literal">null</span>, <span class="string">&quot;Ron&quot;</span>, <span class="string">&quot;Hermione&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>上述代码返回”Harry; Ron; Hermione”。另外，useForNull(String)方法可以给定某个字符串来替换null，而不像skipNulls()方法是直接忽略null。 Joiner也可以用来连接对象类型，在这种情况下，它会把对象的toString()值连接起来。</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">Joiner</span>.<span class="literal">on</span>(<span class="string">&quot;,&quot;</span>).join(Arrays.asList(<span class="number">1</span>, <span class="number">5</span>, <span class="number">7</span>)); // returns <span class="string">&quot;1,5,7&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>警告：joiner实例总是不可变的。用来定义joiner目标语义的配置方法总会返回一个新的joiner实例。这使得joiner实例都是线程安全的，你可以将其定义为static final常量。</p>
+<h3 id="拆分器-Splitter"><a href="#拆分器-Splitter" class="headerlink" title="拆分器[Splitter]"></a>拆分器[Splitter]</h3><p>JDK内建的字符串拆分工具有一些古怪的特性。比如，String.split悄悄丢弃了尾部的分隔符。 问题：”,a,,b,”.split(“,”)返回？</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line">“”, “<span class="selector-tag">a</span>”, “”, “<span class="selector-tag">b</span>”, “”</span><br><span class="line">null, “<span class="selector-tag">a</span>”, null, “<span class="selector-tag">b</span>”, null</span><br><span class="line">“<span class="selector-tag">a</span>”, null, “<span class="selector-tag">b</span>”</span><br><span class="line">“<span class="selector-tag">a</span>”, “<span class="selector-tag">b</span>”</span><br><span class="line">以上都不对</span><br></pre></td></tr></table></figure>
+
+<p>正确答案是5：””, “a”, “”, “b”。只有尾部的空字符串被忽略了。 Splitter使用令人放心的、直白的流畅API模式对这些混乱的特性作了完全的掌控。</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line"><span class="module-access"><span class="module"><span class="identifier">Splitter</span>.</span></span>on(<span class="character">&#x27;,&#x27;</span>)</span><br><span class="line">        .trim<span class="constructor">Results()</span></span><br><span class="line">        .omit<span class="constructor">EmptyStrings()</span></span><br><span class="line">        .split(<span class="string">&quot;foo,bar,,   qux&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="字符集-Charsets"><a href="#字符集-Charsets" class="headerlink" title="字符集[Charsets]"></a>字符集[Charsets]</h3><p>不要这样做字符集处理：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="built_in">bytes</span> = <span class="built_in">string</span>.get<span class="constructor">Bytes(<span class="string">&quot;UTF-8&quot;</span>)</span>;</span><br><span class="line">&#125; catch (UnsupportedEncodingException e) &#123;</span><br><span class="line">    <span class="comment">// how can this possibly happen?</span></span><br><span class="line">    throw <span class="keyword">new</span> <span class="constructor">AssertionError(<span class="params">e</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>试试这样写：</p>
+<figure class="highlight abnf"><table><tr><td class="code"><pre><span class="line"><span class="attribute">bytes</span> <span class="operator">=</span> string.getBytes(Charsets.UTF_8)<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<p>Charsets针对所有Java平台都要保证支持的六种字符集提供了常量引用。尝试使用这些常量，而不是通过名称获取字符集实例。</p>
+<h3 id="大小写格式-CaseFormat"><a href="#大小写格式-CaseFormat" class="headerlink" title="大小写格式[CaseFormat]"></a>大小写格式[CaseFormat]</h3><p>CaseFormat被用来方便地在各种ASCII大小写规范间转换字符串——比如，编程语言的命名规范。CaseFormat支持的格式如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">格式</th>
+<th align="left">范例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">LOWER_CAMEL</td>
+<td align="left">lowerCamel</td>
+</tr>
+<tr>
+<td align="left">LOWER_HYPHEN</td>
+<td align="left">lower-hyphen</td>
+</tr>
+<tr>
+<td align="left">LOWER_UNDERSCORE</td>
+<td align="left">lower_underscore</td>
+</tr>
+<tr>
+<td align="left">UPPER_CAMEL</td>
+<td align="left">UpperCamel</td>
+</tr>
+<tr>
+<td align="left">UPPER_UNDERSCORE</td>
+<td align="left">UPPER_UNDERSCORE</td>
+</tr>
+</tbody></table>
+<p>CaseFormat的用法很直接：</p>
+<figure class="highlight awk"><table><tr><td class="code"><pre><span class="line">CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, <span class="string">&quot;CONSTANT_NAME&quot;</span>)); <span class="regexp">//</span> returns <span class="string">&quot;constantName&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017-02-23-diary/" rel="prev" title="2017-02-23">
+                  <i class="fa fa-angle-left"></i> 2017-02-23
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2017-12-08-java-performance/" rel="next" title="Java 性能调优工具">
+                  Java 性能调优工具 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

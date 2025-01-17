@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Jedis 简单使用pom 中增加如下依赖：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Jedis 的简单源码分析">
+<meta property="og:url" content="https://godshang.github.io/2017-12-13-jedis/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="Jedis 简单使用pom 中增加如下依赖：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://godshang.github.io/img/2017-12-13/1.png">
+<meta property="og:image" content="https://godshang.github.io/img/2017-12-13/2.png">
+<meta property="article:published_time" content="2017-12-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.686Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Jedis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://godshang.github.io/img/2017-12-13/1.png">
+
+
+<link rel="canonical" href="https://godshang.github.io/2017-12-13-jedis/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2017-12-13-jedis/","path":"2017-12-13-jedis/","title":"Jedis 的简单源码分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Jedis 的简单源码分析 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Jedis-%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">Jedis 简单使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jedis-%E7%9A%84%E7%AE%80%E5%8D%95%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">Jedis 的简单源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JedisPool-%E7%9A%84%E4%BD%BF%E7%94%A8%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">JedisPool 的使用与实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Jedis-%E7%9A%84%E5%88%86%E7%89%87"><span class="nav-number">4.</span> <span class="nav-text">Jedis 的分片</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2017-12-13-jedis/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Jedis 的简单源码分析 | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Jedis 的简单源码分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-12-13 00:00:00" itemprop="dateCreated datePublished" datetime="2017-12-13T00:00:00+08:00">2017-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="Jedis-简单使用"><a href="#Jedis-简单使用" class="headerlink" title="Jedis 简单使用"></a>Jedis 简单使用</h2><p>pom 中增加如下依赖：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>redis.clients<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jedis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">type</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>compile<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>简单使用：</p>
+<figure class="highlight haxe"><table><tr><td class="code"><pre><span class="line">Jedis jedis = <span class="keyword">new</span> <span class="type">Jedis</span>(<span class="string">&quot;10.148.21.177&quot;</span>, <span class="number">6379</span>);</span><br><span class="line">jedis.<span class="keyword">set</span>(<span class="string">&quot;hello&quot;</span>, <span class="string">&quot;world&quot;</span>);</span><br><span class="line"><span class="keyword">String</span> value = jedis.<span class="keyword">get</span>(<span class="string">&quot;hello&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Jedis-的简单源码分析"><a href="#Jedis-的简单源码分析" class="headerlink" title="Jedis 的简单源码分析"></a>Jedis 的简单源码分析</h2><p><img src="../img/2017-12-13/1.png"></p>
+<figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="symbol">Jedis</span> <span class="symbol">extends</span> <span class="symbol">BinaryJedis</span> <span class="symbol">implements</span> <span class="symbol">JedisCommands, <span class="symbol">MultiKeyCommands</span>,</span></span><br><span class="line"><span class="symbol">    <span class="symbol">AdvancedJedisCommands</span>, <span class="symbol">ScriptingCommands</span>, <span class="symbol">BasicCommands</span>, <span class="symbol">ClusterCommands</span>, <span class="symbol">SentinelCommands</span>, <span class="symbol">ModuleCommands</span></span></span><br></pre></td></tr></table></figure>
+
+<p>Jedis 继承自 BinaryJedis 同时实现了一系列的 Commands 接口，BinaryJedis 里主要和 Redis Server 进行交互，一系列Commands接口主要是对redis支持的接口进行分类，像BasicCommands主要包含了info、flush等操作，BinaryJedisCommands 主要包含了get、set等操作，MultiKeyBinaryCommands主要包含了一些批量操作的接口例如mset等。</p>
+<p>以上面简单的 Jedis 的 set 方法为例来分析 Jedis 的源码实现。</p>
+<p>首先看 Jedis 的实例化：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">public <span class="constructor">Jedis(<span class="params">final</span> String <span class="params">host</span>, <span class="params">final</span> <span class="params">int</span> <span class="params">port</span>)</span> &#123;</span><br><span class="line">	super(host, port);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public <span class="constructor">BinaryJedis(<span class="params">final</span> String <span class="params">host</span>, <span class="params">final</span> <span class="params">int</span> <span class="params">port</span>)</span> &#123;</span><br><span class="line">    client = <span class="keyword">new</span> <span class="constructor">Client(<span class="params">host</span>, <span class="params">port</span>)</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>BinaryJedis 里持有了一个 Client 的引用，可以将 BinaryJedis 视为 Client 的一个代理。</p>
+<p>Client 的继承结构如下：</p>
+<p><img src="../img/2017-12-13/2.png"></p>
+<p>Client 继承了 BinaryClient，BinaryClient 继承了 Connection，实现了 Commands 接口。Client 主要做了一些编解码的工作，BinaryClient 做了 Command 的发送操作，而所有与 Redis Server交互的工作由Connection完成。</p>
+<p>首先看 Jedis 中的 set 方法：</p>
+<figure class="highlight processing"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">String</span> <span class="built_in">set</span>(<span class="keyword">final</span> <span class="built_in">String</span> <span class="built_in">key</span>, <span class="keyword">final</span> <span class="built_in">String</span> value) &#123;</span><br><span class="line">    <span class="title function_">checkIsInMultiOrPipeline</span>();</span><br><span class="line">    client.<span class="property">set</span>(<span class="built_in">key</span>, value);</span><br><span class="line">    <span class="keyword">return</span> client.<span class="property">getStatusCodeReply</span>();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里委托了个 Client 进行处理：</p>
+<figure class="highlight processing"><table><tr><td class="code"><pre><span class="line">@Override</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="built_in">set</span>(<span class="keyword">final</span> <span class="built_in">String</span> <span class="built_in">key</span>, <span class="keyword">final</span> <span class="built_in">String</span> value) &#123;</span><br><span class="line">    <span class="built_in">set</span>(SafeEncoder.<span class="property">encode</span>(<span class="built_in">key</span>), SafeEncoder.<span class="property">encode</span>(value));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里调用了 BinaryClient 里的 set 方法：</p>
+<figure class="highlight processing"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="built_in">set</span>(<span class="keyword">final</span> <span class="type">byte</span>[] <span class="built_in">key</span>, <span class="keyword">final</span> <span class="type">byte</span>[] value) &#123;</span><br><span class="line">    <span class="title function_">sendCommand</span>(SET, <span class="built_in">key</span>, value);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里调用了 Connection 中的 sendCommand 方法：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">public void send<span class="constructor">Command(<span class="params">final</span> ProtocolCommand <span class="params">cmd</span>, <span class="params">final</span> <span class="params">byte</span>[]<span class="operator">...</span> <span class="params">args</span>)</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    connect<span class="literal">()</span>;</span><br><span class="line">    <span class="module-access"><span class="module"><span class="identifier">Protocol</span>.</span></span>send<span class="constructor">Command(<span class="params">outputStream</span>, <span class="params">cmd</span>, <span class="params">args</span>)</span>;</span><br><span class="line">  &#125; catch (JedisConnectionException ex) &#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * When client send request which formed by invalid protocol, Redis send back error message</span></span><br><span class="line"><span class="comment">     * before close connection. We try to read it to provide reason of failure.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      String errorMessage = <span class="module-access"><span class="module"><span class="identifier">Protocol</span>.</span></span>read<span class="constructor">ErrorLineIfPossible(<span class="params">inputStream</span>)</span>;</span><br><span class="line">      <span class="keyword">if</span> (errorMessage != null<span class="operator"> &amp;&amp; </span>errorMessage.length<span class="literal">()</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        ex = <span class="keyword">new</span> <span class="constructor">JedisConnectionException(<span class="params">errorMessage</span>, <span class="params">ex</span>.<span class="params">getCause</span>()</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">      <span class="comment">/*</span></span><br><span class="line"><span class="comment">       * Catch any IOException or JedisConnectionException occurred from InputStream#read and just</span></span><br><span class="line"><span class="comment">       * ignore. This approach is safe because reading error message is optional and connection</span></span><br><span class="line"><span class="comment">       * will eventually be closed.</span></span><br><span class="line"><span class="comment">       */</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Any other exceptions related to connection?</span></span><br><span class="line">    broken = <span class="literal">true</span>;</span><br><span class="line">    throw ex;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码中首先调用了 connect 方法与 Redis 进行连接：</p>
+<figure class="highlight haxe"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> void connect() &#123;</span><br><span class="line">  <span class="keyword">if</span> (!isConnected()) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      socket = <span class="keyword">new</span> <span class="type">Socket</span>();</span><br><span class="line">      <span class="comment">// -&gt;@wjw_add</span></span><br><span class="line">      socket.setReuseAddress(<span class="literal">true</span>);</span><br><span class="line">      socket.setKeepAlive(<span class="literal">true</span>); <span class="comment">// Will monitor the TCP connection is</span></span><br><span class="line">      <span class="comment">// valid</span></span><br><span class="line">      socket.setTcpNoDelay(<span class="literal">true</span>); <span class="comment">// Socket buffer Whetherclosed, to</span></span><br><span class="line">      <span class="comment">// ensure timely delivery of data</span></span><br><span class="line">      socket.setSoLinger(<span class="literal">true</span>, <span class="number">0</span>); <span class="comment">// Control calls close () method,</span></span><br><span class="line">      <span class="comment">// the underlying socket is closed</span></span><br><span class="line">      <span class="comment">// immediately</span></span><br><span class="line">      <span class="comment">// &lt;-@wjw_add</span></span><br><span class="line"></span><br><span class="line">      socket.connect(<span class="keyword">new</span> <span class="type">InetSocketAddress</span>(host, port), connectionTimeout);</span><br><span class="line">      socket.setSoTimeout(soTimeout);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (ssl) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">null</span> == sslSocketFactory) &#123;</span><br><span class="line">          sslSocketFactory = (SSLSocketFactory)SSLSocketFactory.getDefault();</span><br><span class="line">        &#125;</span><br><span class="line">        socket = sslSocketFactory.createSocket(socket, host, port, <span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">null</span> != sslParameters) &#123;</span><br><span class="line">          ((SSLSocket) socket).setSSLParameters(sslParameters);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> ((<span class="literal">null</span> != hostnameVerifier) &amp;&amp;</span><br><span class="line">            (!hostnameVerifier.verify(host, ((SSLSocket) socket).getSession()))) &#123;</span><br><span class="line">          <span class="keyword">String</span> message = <span class="keyword">String</span>.format(</span><br><span class="line">              <span class="string">&quot;The connection to &#x27;%s&#x27; failed ssl/tls hostname verification.&quot;</span>, host);</span><br><span class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">JedisConnectionException</span>(message);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      outputStream = <span class="keyword">new</span> <span class="type">RedisOutputStream</span>(socket.getOutputStream());</span><br><span class="line">      inputStream = <span class="keyword">new</span> <span class="type">RedisInputStream</span>(socket.getInputStream());</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">      broken = <span class="literal">true</span>;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">JedisConnectionException</span>(<span class="string">&quot;Failed connecting to host &quot;</span> </span><br><span class="line">          + host + <span class="string">&quot;:&quot;</span> + port, ex);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要是通过 Socket 通信来实现命令的发送。这里实例化了 RedisOutputStream 和 RedisInputStream 两个输入和输出流，主要用于命令的发送和响应的接收。</p>
+<p>在每一次进行query的时候都会调用connect方法来保证之前连接失效之后能新建连接并操作成功。</p>
+<p>回到 sendCommand 中，在调用完 connect 方法之后，调用了 Protocol 中的 sendCommand 方法：</p>
+<figure class="highlight gradle"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> sendCommand(<span class="keyword">final</span> RedisOutputStream os, <span class="keyword">final</span> ProtocolCommand command,</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">byte</span>[]... args) &#123;</span><br><span class="line">  sendCommand(os, command.getRaw(), args);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> sendCommand(<span class="keyword">final</span> RedisOutputStream os, <span class="keyword">final</span> <span class="keyword">byte</span>[] command,</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">byte</span>[]... args) &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    os.<span class="keyword">write</span>(ASTERISK_BYTE);</span><br><span class="line">    os.writeIntCrLf(args.length + <span class="number">1</span>);</span><br><span class="line">    os.<span class="keyword">write</span>(DOLLAR_BYTE);</span><br><span class="line">    os.writeIntCrLf(command.length);</span><br><span class="line">    os.<span class="keyword">write</span>(command);</span><br><span class="line">    os.writeCrLf();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">final</span> <span class="keyword">byte</span>[] arg : args) &#123;</span><br><span class="line">      os.<span class="keyword">write</span>(DOLLAR_BYTE);</span><br><span class="line">      os.writeIntCrLf(arg.length);</span><br><span class="line">      os.<span class="keyword">write</span>(arg);</span><br><span class="line">      os.writeCrLf();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> JedisConnectionException(e);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里利用了Protocol提供的一些请求头来构造一个请求。具体的协议内容就不细解析了，发送完请求之后返回。</p>
+<p>回到 Jedis 中的 set 方法，继续调用 Client 的 getStatusCodeReply 方法获取返回响应，代码位于父类 Connection 中：</p>
+<figure class="highlight aspectj"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function">String <span class="title">getStatusCodeReply</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  flush();</span><br><span class="line">  <span class="keyword">final</span> <span class="keyword">byte</span>[] resp = (<span class="keyword">byte</span>[]) readProtocolWithCheckingBroken();</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">null</span> == resp) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">return</span> SafeEncoder.<span class="title">encode</span><span class="params">(resp)</span></span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先调用了 flush 方法，保证之前的写入能发送出去，之后调用了 readProtocolWithCheckingBroken 来获取响应。</p>
+<figure class="highlight typescript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="title class_">Object</span> <span class="title function_">readProtocolWithCheckingBroken</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">Protocol</span>.<span class="title function_">read</span>(inputStream);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (<span class="title class_">JedisConnectionException</span> exc) &#123;</span><br><span class="line">    broken = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">throw</span> exc;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用 Protocol.read 进行对 RedisInputStream 进行读取，在这过程中可能会抛出连接异常。</p>
+<figure class="highlight aspectj"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="function">Object <span class="title">read</span><span class="params">(<span class="keyword">final</span> RedisInputStream is)</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">return</span> <span class="title">process</span><span class="params">(is)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="function">Object <span class="title">process</span><span class="params">(<span class="keyword">final</span> RedisInputStream is)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">final</span> <span class="keyword">byte</span> b = is.readByte();</span><br><span class="line">  <span class="keyword">if</span> (b == PLUS_BYTE) &#123;</span><br><span class="line">    <span class="function"><span class="keyword">return</span> <span class="title">processStatusCodeReply</span><span class="params">(is)</span></span>;</span><br><span class="line">  &#125; <span class="function"><span class="keyword">else</span> <span class="title">if</span> <span class="params">(b == DOLLAR_BYTE)</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">return</span> <span class="title">processBulkReply</span><span class="params">(is)</span></span>;</span><br><span class="line">  &#125; <span class="function"><span class="keyword">else</span> <span class="title">if</span> <span class="params">(b == ASTERISK_BYTE)</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">return</span> <span class="title">processMultiBulkReply</span><span class="params">(is)</span></span>;</span><br><span class="line">  &#125; <span class="function"><span class="keyword">else</span> <span class="title">if</span> <span class="params">(b == COLON_BYTE)</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">return</span> <span class="title">processInteger</span><span class="params">(is)</span></span>;</span><br><span class="line">  &#125; <span class="function"><span class="keyword">else</span> <span class="title">if</span> <span class="params">(b == MINUS_BYTE)</span> </span>&#123;</span><br><span class="line">    processError(is);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> JedisConnectionException(<span class="string">&quot;Unknown reply: &quot;</span> + (<span class="keyword">char</span>) b);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后在read的时候对返回的响应进行了判断，枚举出了几种响应方式，对不同的响应进行不同的处理。</p>
+<p>这里可以看出，整个交互过程就是一个Socket通信过程。按照一定的协议发送请求，之后读取返回结果。但是这里也有一个问题就是线程安全问题，显然Jedis实例是线程不安全的，对于多线程共享jedis实例是会有问题的。同时直接使用jedis不能避免的需要反复的创建和销毁Socket，开销很大。所以就引出了后面的jedisPool的使用。</p>
+<h2 id="JedisPool-的使用与实现"><a href="#JedisPool-的使用与实现" class="headerlink" title="JedisPool 的使用与实现"></a>JedisPool 的使用与实现</h2><p>JedisPool是Jedis提供的一种对Redis的连接池，利用连接池可以很好的对Jedis的连接做一个很好的掌控，能避免创建和销毁的开销，同时可以进行定期的保活，能避免反复的创建连接。</p>
+<p>下面是一个JedisPool例子：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">JedisPoolConfig config = <span class="keyword">new</span> <span class="constructor">JedisPoolConfig()</span>;</span><br><span class="line">config.set<span class="constructor">TestOnBorrow(<span class="params">true</span>)</span>;</span><br><span class="line">JedisPool pool = <span class="keyword">new</span> <span class="constructor">JedisPool(<span class="params">config</span>, <span class="params">hnp</span>.<span class="params">getHost</span>()</span>, hnp.get<span class="constructor">Port()</span>, <span class="number">2000</span>, <span class="string">&quot;foobared&quot;</span>);</span><br><span class="line">Jedis jedis = pool.get<span class="constructor">Resource()</span>;</span><br><span class="line">jedis.set(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>);</span><br><span class="line">jedis.close<span class="literal">()</span>;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到新创建了一个 JedisPoolConfig ，用于对 JedisPool 的配置。这里没有使用之前 JedisPool 的 returnResource ，该方法已经被标记为废弃，因为 jedis.close() 已经做了相关的 returnResource 方法。</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> void close() &#123;</span><br><span class="line">  <span class="keyword">if</span> (dataSource != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (client.isBroken()) &#123;</span><br><span class="line">      <span class="keyword">this</span>.dataSource.returnBrokenResource(<span class="keyword">this</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.dataSource.returnResource(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    client.close();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们先看一下JedisPoolConfig是什么：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">JedisPoolConfig</span> <span class="keyword">extends</span> <span class="title">GenericObjectPoolConfig</span> </span>&#123;</span><br><span class="line">  public <span class="type">JedisPoolConfig</span>() &#123;</span><br><span class="line">    <span class="comment">// defaults to make your life with connection pool easier :)</span></span><br><span class="line">    setTestWhileIdle(<span class="literal">true</span>);</span><br><span class="line">    setMinEvictableIdleTimeMillis(<span class="number">60000</span>);</span><br><span class="line">    setTimeBetweenEvictionRunsMillis(<span class="number">30000</span>);</span><br><span class="line">    setNumTestsPerEvictionRun(<span class="number">-1</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>JedisPoolConfig 继承了 GenericObjectPoolConfig ， GenericObjectPoolConfig 是 Apache Commons Pool 项目提供的一个对象池配置。GenericObjectPoolConfig 提供了很多参数，我们可以使用 JedisPoolConfig 也可以使用 GenericObjectPoolConfig 。</p>
+<p>JedisPool 的实例化过程：</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">JedisPool</span><span class="params">(<span class="type">String</span> host, <span class="type">int</span> port)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">this</span>(<span class="keyword">new</span> <span class="built_in">GenericObjectPoolConfig</span>(), host, port);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">JedisPool</span><span class="params">(<span class="keyword">final</span> GenericObjectPoolConfig poolConfig, <span class="keyword">final</span> <span class="type">String</span> host, <span class="keyword">final</span> <span class="type">int</span> port)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">this</span>(poolConfig, host, port, Protocol.DEFAULT_TIMEOUT);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">JedisPool</span><span class="params">(<span class="keyword">final</span> GenericObjectPoolConfig poolConfig, <span class="keyword">final</span> <span class="type">String</span> host, <span class="type">int</span> port,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="keyword">final</span> <span class="type">int</span> connectionTimeout, <span class="keyword">final</span> <span class="type">int</span> soTimeout, <span class="keyword">final</span> <span class="type">String</span> password, <span class="keyword">final</span> <span class="type">int</span> database,</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="keyword">final</span> <span class="type">String</span> clientName)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">super</span>(poolConfig, <span class="keyword">new</span> <span class="built_in">JedisFactory</span>(host, port, connectionTimeout, soTimeout, password,</span><br><span class="line">      database, clientName));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>JedisPool 的构造方法有很多，满足不同初始化参数的情况，最终执行的构造方法中，创建了一个 JedisFactory 实例，这个工厂十分关键，它实现了 commons-pool 中的 PooledObjectFactory 接口，所有对象的创建、销毁、激活和有效性校验都是在 JedisFactory 中进行的。</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">JedisFactory</span> implements PooledObjectFactory&lt;Jedis&gt; &#123;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> AtomicReference&lt;HostAndPort&gt; hostAndPort = <span class="keyword">new</span> <span class="built_in">AtomicReference</span>&lt;HostAndPort&gt;();</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> connectionTimeout;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> soTimeout;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">String</span> password;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> database;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">String</span> clientName;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">boolean</span> ssl;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> SSLSocketFactory sslSocketFactory;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> SSLParameters sslParameters;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> HostnameVerifier hostnameVerifier;</span><br><span class="line"></span><br><span class="line"><span class="built_in">JedisFactory</span>(<span class="keyword">final</span> <span class="type">String</span> host, <span class="keyword">final</span> <span class="type">int</span> port, <span class="keyword">final</span> <span class="type">int</span> connectionTimeout,</span><br><span class="line">    <span class="keyword">final</span> <span class="type">int</span> soTimeout, <span class="keyword">final</span> <span class="type">String</span> password, <span class="keyword">final</span> <span class="type">int</span> database, <span class="keyword">final</span> <span class="type">String</span> clientName,</span><br><span class="line">    <span class="keyword">final</span> <span class="type">boolean</span> ssl, <span class="keyword">final</span> SSLSocketFactory sslSocketFactory, <span class="keyword">final</span> SSLParameters sslParameters,</span><br><span class="line">    <span class="keyword">final</span> HostnameVerifier hostnameVerifier) &#123;</span><br><span class="line">  <span class="keyword">this</span>.hostAndPort.<span class="built_in">set</span>(<span class="keyword">new</span> <span class="built_in">HostAndPort</span>(host, port));</span><br><span class="line">  <span class="keyword">this</span>.connectionTimeout = connectionTimeout;</span><br><span class="line">  <span class="keyword">this</span>.soTimeout = soTimeout;</span><br><span class="line">  <span class="keyword">this</span>.password = password;</span><br><span class="line">  <span class="keyword">this</span>.database = database;</span><br><span class="line">  <span class="keyword">this</span>.clientName = clientName;</span><br><span class="line">  <span class="keyword">this</span>.ssl = ssl;</span><br><span class="line">  <span class="keyword">this</span>.sslSocketFactory = sslSocketFactory;</span><br><span class="line">  <span class="keyword">this</span>.sslParameters = sslParameters;</span><br><span class="line">  <span class="keyword">this</span>.hostnameVerifier = hostnameVerifier;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>PooledObjectFactory 提供了很多的方法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">PooledObjectFactory</span>&lt;T&gt; &#123;</span><br><span class="line">    PooledObject&lt;T&gt; <span class="title function_">makeObject</span><span class="params">()</span> <span class="keyword">throws</span> Exception;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">destroyObject</span><span class="params">(PooledObject&lt;T&gt; var1)</span> <span class="keyword">throws</span> Exception;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">validateObject</span><span class="params">(PooledObject&lt;T&gt; var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">activateObject</span><span class="params">(PooledObject&lt;T&gt; var1)</span> <span class="keyword">throws</span> Exception;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">passivateObject</span><span class="params">(PooledObject&lt;T&gt; var1)</span> <span class="keyword">throws</span> Exception;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在创建好了 JedisPool 之后呢，在使用的时候调用 getResource 来获取 jedis 的客户端：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Jedis <span class="title function_">getResource</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="type">Jedis</span> <span class="variable">jedis</span> <span class="operator">=</span> <span class="built_in">super</span>.getResource();</span><br><span class="line">  jedis.setDataSource(<span class="built_in">this</span>);</span><br><span class="line">  <span class="keyword">return</span> jedis;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>JedisPool 继承自 JedisPoolAbstract ，而 JedisPoolAbstract 继承自 Pool 。</p>
+<p>Pool 持有了一个 GenericObjectPool 的引用：</p>
+<figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="symbol">Pool</span>&lt;<span class="symbol">T</span>&gt; <span class="symbol">implements</span> <span class="symbol">Closeable</span> &#123;</span><br><span class="line">  <span class="keyword">protected</span> GenericObjectPool&lt;T&gt; <span class="built_in">int</span>ernalPool;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>internalPool 在 Pool 的构造方法中被创建：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">public <span class="constructor">Pool(<span class="params">final</span> GenericObjectPoolConfig <span class="params">poolConfig</span>, PooledObjectFactory&lt;T&gt; <span class="params">factory</span>)</span> &#123;</span><br><span class="line">  init<span class="constructor">Pool(<span class="params">poolConfig</span>, <span class="params">factory</span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void init<span class="constructor">Pool(<span class="params">final</span> GenericObjectPoolConfig <span class="params">poolConfig</span>, PooledObjectFactory&lt;T&gt; <span class="params">factory</span>)</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (this.internalPool != null) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      close<span class="constructor">InternalPool()</span>;</span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  this.internalPool = <span class="keyword">new</span> GenericObjectPool&lt;T&gt;(factory, poolConfig);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建时使用了 JedisPool 构造方法中传入的 GenericObjectPoolConfig 和 JedisFactory 实例。</p>
+<p>JedisPool 在调用 getResource 方法时，最终会调用到 Pool 中的 getResource 方法，进而调用持有的 GenericObjectPool 引用的 borrowObject 方法。</p>
+<p>同时，在 JedisPool 的 getResource 方法中，还会将自己的引用交给获取的到 Jedis 实例，便于在 close 的时候进行对象的返还。</p>
+<h2 id="Jedis-的分片"><a href="#Jedis-的分片" class="headerlink" title="Jedis 的分片"></a>Jedis 的分片</h2><p>对于单实例的 Redis 的使用，我们可以用 Jedis ，并发环境下我们可以用 JedisPool 。但是这两种方法是针对于单实例的 Redis 的情况下使用的，但是有时候我们的业务可能不是单实例 Redis 能支撑的，那么我们这时候需要引入多个实例进行“数据分区”。其实好多人都说，用 Redis 集群不就搞定了吗？但是 Redis 集群无论部署还是维护成本都比较高，对于一些业务来说，使用起来还是成本很高。所以，对我们来说更好的方案可能是在客户端实现对数据的手动分区.</p>
+<p>数据分区就是 Shard ，其实 Redis 已经对 Shard 有很好的支持了。接下来简单的看一下数据分片的使用：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> redis.clients.jedis.tests;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.junit.Before;</span><br><span class="line"><span class="keyword">import</span> org.junit.Test;</span><br><span class="line"><span class="keyword">import</span> redis.clients.jedis.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * ShardJedis的测试类</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShardJedisTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ShardedJedisPool sharedPool;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Before</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">initJedis</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">JedisPoolConfig</span> <span class="variable">config</span> <span class="operator">=</span><span class="keyword">new</span> <span class="title class_">JedisPoolConfig</span>();<span class="comment">//Jedis池配置</span></span><br><span class="line">        config.setTestOnBorrow(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">hostA</span> <span class="operator">=</span> <span class="string">&quot;127.0.0.1&quot;</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">portA</span> <span class="operator">=</span> <span class="number">6381</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">hostB</span> <span class="operator">=</span> <span class="string">&quot;127.0.0.1&quot;</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">portB</span> <span class="operator">=</span> <span class="number">6382</span>;</span><br><span class="line">        List&lt;JedisShardInfo&gt; jdsInfoList =<span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;JedisShardInfo&gt;(<span class="number">2</span>);</span><br><span class="line">        <span class="type">JedisShardInfo</span> <span class="variable">infoA</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JedisShardInfo</span>(hostA, portA);</span><br><span class="line">        <span class="type">JedisShardInfo</span> <span class="variable">infoB</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JedisShardInfo</span>(hostB, portB);</span><br><span class="line">        jdsInfoList.add(infoA);</span><br><span class="line">        jdsInfoList.add(infoB);</span><br><span class="line">        sharedPool =<span class="keyword">new</span> <span class="title class_">ShardedJedisPool</span>(config, jdsInfoList);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testSetKV</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">50</span>;i++)&#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> <span class="string">&quot;test&quot;</span>+i;</span><br><span class="line">                <span class="type">ShardedJedis</span> <span class="variable">jedisClient</span> <span class="operator">=</span> sharedPool.getResource();</span><br><span class="line">                System.out.println(key+<span class="string">&quot;:&quot;</span>+jedisClient.getShard(key).getClient().getHost()+<span class="string">&quot;:&quot;</span>+jedisClient.getShard(key).getClient().getPort());</span><br><span class="line">                System.out.println(jedisClient.set(key,Math.random()+<span class="string">&quot;&quot;</span>));</span><br><span class="line">                jedisClient.close();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<figure class="highlight apache"><table><tr><td class="code"><pre><span class="line"><span class="attribute">test0</span>:<span class="number">127.0.0.1:6382</span></span><br><span class="line"><span class="attribute">OK</span></span><br><span class="line"><span class="attribute">test1</span>:<span class="number">127.0.0.1:6382</span></span><br><span class="line"><span class="attribute">OK</span></span><br><span class="line"><span class="attribute">test2</span>:<span class="number">127.0.0.1:6381</span></span><br><span class="line"><span class="attribute">OK</span></span><br><span class="line"><span class="attribute">test3</span>:<span class="number">127.0.0.1:6382</span></span><br><span class="line"><span class="attribute">OK</span></span><br><span class="line"><span class="attribute">test4</span>:<span class="number">127.0.0.1:6382</span></span><br><span class="line"><span class="attribute">OK</span></span><br><span class="line"><span class="attribute">test5</span>:<span class="number">127.0.0.1:6382</span></span><br><span class="line"><span class="attribute">OK</span></span><br><span class="line"><span class="attribute">test6</span>:<span class="number">127.0.0.1:6382</span></span><br><span class="line"><span class="attribute">OK</span></span><br><span class="line"><span class="attribute">test7</span>:<span class="number">127.0.0.1:6382</span></span><br><span class="line"><span class="attribute">OK</span></span><br><span class="line"><span class="attribute">test8</span>:<span class="number">127.0.0.1:6381</span></span><br><span class="line"><span class="attribute">OK</span></span><br><span class="line"><span class="attribute">test9</span>:<span class="number">127.0.0.1:6381</span></span><br></pre></td></tr></table></figure>
+
+<p>其实 Shard 使用起来很简单，接下来我们看看 ShardedJedisPool 的具体的实现。</p>
+<p>首先在初始化 ShardedJedisPool 的时候我们需要创建一个 JedisShardInfo 实例， JedisShardInfo 主要是对单个连接的相关配置：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JedisShardInfo</span> <span class="keyword">extends</span> <span class="title class_">ShardInfo</span>&lt;Jedis&gt; &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">REDISS</span> <span class="operator">=</span> <span class="string">&quot;rediss&quot;</span>;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">int</span> connectionTimeout;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">int</span> soTimeout;</span><br><span class="line">  <span class="keyword">private</span> String host;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">int</span> port;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">String</span> <span class="variable">password</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">  <span class="comment">// Default Redis DB</span></span><br><span class="line">  <span class="keyword">private</span> <span class="type">int</span> <span class="variable">db</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">private</span> <span class="type">boolean</span> ssl;</span><br><span class="line">  <span class="keyword">private</span> SSLSocketFactory sslSocketFactory;</span><br><span class="line">  <span class="keyword">private</span> SSLParameters sslParameters;</span><br><span class="line">  <span class="keyword">private</span> HostnameVerifier hostnameVerifier;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>同时还需要进行 JedisPoolConfig 的设置，可以猜到 ShardedJedisPool 也是基于 commons-pool 来实现的。</p>
+<p>看一下 ShardedJedisPool 的构造方法：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">public <span class="class"><span class="keyword">class</span> <span class="title">ShardedJedisPool</span> <span class="keyword">extends</span> <span class="title">Pool&lt;ShardedJedis&gt;</span> </span>&#123;</span><br><span class="line">  public <span class="type">ShardedJedisPool</span>(<span class="keyword">final</span> <span class="type">GenericObjectPoolConfig</span> poolConfig, <span class="type">List</span>&lt;<span class="type">JedisShardInfo</span>&gt; shards) &#123;</span><br><span class="line">    <span class="keyword">this</span>(poolConfig, shards, <span class="type">Hashing</span>.<span class="type">MURMUR_HASH</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  public <span class="type">ShardedJedisPool</span>(<span class="keyword">final</span> <span class="type">GenericObjectPoolConfig</span> poolConfig, <span class="type">List</span>&lt;<span class="type">JedisShardInfo</span>&gt; shards,</span><br><span class="line">      <span class="type">Hashing</span> algo) &#123;</span><br><span class="line">    <span class="keyword">this</span>(poolConfig, shards, algo, <span class="literal">null</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  public <span class="type">ShardedJedisPool</span>(<span class="keyword">final</span> <span class="type">GenericObjectPoolConfig</span> poolConfig, <span class="type">List</span>&lt;<span class="type">JedisShardInfo</span>&gt; shards,</span><br><span class="line">      <span class="type">Pattern</span> keyTagPattern) &#123;</span><br><span class="line">    <span class="keyword">this</span>(poolConfig, shards, <span class="type">Hashing</span>.<span class="type">MURMUR_HASH</span>, keyTagPattern);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  public <span class="type">ShardedJedisPool</span>(<span class="keyword">final</span> <span class="type">GenericObjectPoolConfig</span> poolConfig, <span class="type">List</span>&lt;<span class="type">JedisShardInfo</span>&gt; shards,</span><br><span class="line">      <span class="type">Hashing</span> algo, <span class="type">Pattern</span> keyTagPattern) &#123;</span><br><span class="line">    <span class="keyword">super</span>(poolConfig, <span class="keyword">new</span> <span class="type">ShardedJedisFactory</span>(shards, algo, keyTagPattern));</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>多个重载的构造方法中最终会创建一个 ShardedJedisFactory 实例。 ShardedJedisFactory 继承自 PooledObjectFactory ，与 JedisFactory 功能一样，用于管理 Pool 中的对象， makeObject 方法中会创建一个 ShardedJedis 实例。</p>
+<p>ShardedJedis 功能与 Jedis 类似，继承关系也类似，只是代表了分片时的情况。看一下 ShardedJedis 的构造方法：</p>
+<figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="symbol">ShardedJedis</span> <span class="symbol">extends</span> <span class="symbol">BinaryShardedJedis</span> <span class="symbol">implements</span> <span class="symbol">JedisCommands, <span class="symbol">Closeable</span></span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">protected</span> ShardedJedisPool dataSource = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> ShardedJedis(List&lt;JedisShardInfo&gt; shards) &#123;</span><br><span class="line">    <span class="keyword">super</span>(shards);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> ShardedJedis(List&lt;JedisShardInfo&gt; shards, Hashing algo) &#123;</span><br><span class="line">    <span class="keyword">super</span>(shards, algo);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> ShardedJedis(List&lt;JedisShardInfo&gt; shards, Pattern keyTagPattern) &#123;</span><br><span class="line">    <span class="keyword">super</span>(shards, keyTagPattern);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> ShardedJedis(List&lt;JedisShardInfo&gt; shards, Hashing algo, Pattern keyTagPattern) &#123;</span><br><span class="line">    <span class="keyword">super</span>(shards, algo, keyTagPattern);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>同 Jedis 一样，持有了一个连接池的引用，便于 close 时进行资源的回收。构造方法中层层调用了父类的构造方法，最终进入 Sharded 的构造方法：</p>
+<figure class="highlight aspectj"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Sharded</span><span class="params">(List&lt;S&gt; shards, Hashing algo, Pattern tagPattern)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.algo = algo;</span><br><span class="line">  <span class="keyword">this</span>.tagPattern = tagPattern;</span><br><span class="line">  initialize(shards);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">void</span> <span class="title">initialize</span><span class="params">(List&lt;S&gt; shards)</span> </span>&#123;</span><br><span class="line">  nodes = <span class="keyword">new</span> TreeMap&lt;Long, S&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i != shards.size(); ++i) &#123;</span><br><span class="line">    <span class="keyword">final</span> S shardInfo = shards.get(i);</span><br><span class="line">    <span class="keyword">if</span> (shardInfo.getName() == <span class="keyword">null</span>) <span class="keyword">for</span> (<span class="keyword">int</span> n = <span class="number">0</span>; n &lt; <span class="number">160</span> * shardInfo.getWeight(); n++) &#123;</span><br><span class="line">      nodes.put(<span class="keyword">this</span>.algo.hash(<span class="string">&quot;SHARD-&quot;</span> + i + <span class="string">&quot;-NODE-&quot;</span> + n), shardInfo);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">else</span> <span class="title">for</span> <span class="params">(<span class="keyword">int</span> n = <span class="number">0</span>; n &lt; <span class="number">160</span> * shardInfo.getWeight()</span></span>; n++) &#123;</span><br><span class="line">      nodes.put(<span class="keyword">this</span>.algo.hash(shardInfo.getName() + <span class="string">&quot;*&quot;</span> + n), shardInfo);</span><br><span class="line">    &#125;</span><br><span class="line">    resources.put(shardInfo, shardInfo.createResource());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>algo 就是从一开始 ShardedJedisPool 层层传入的 Hasing 实例，表示哈希算法，默认使用了 MURMUR_HASH 算法。</p>
+<p>tagPattern 同样是从 ShardedJedisPool 中传入的 Pattern 实例，这个参数默认为空，如果设置了，可以只使用 key 中符合 Pattern 的那部分参与哈希计算。</p>
+<p>initialize 方法中根据分片信息构造具体的 Jedis 实例，放入了 TreeMap 中。这段代码实现了一致性哈希的算法，可以参考其他文章，这里不具体分析了。</p>
+<p>至此就完成了 ShardedJedisPool 的构建。</p>
+<p>在 ShardedJedis 使用时，其 get 或 set 方法首先会调用 getShard 方法获取分片：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">public R get<span class="constructor">Shard(String <span class="params">key</span>)</span> &#123;</span><br><span class="line">  return resources.get(get<span class="constructor">ShardInfo(<span class="params">key</span>)</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public S get<span class="constructor">ShardInfo(String <span class="params">key</span>)</span> &#123;</span><br><span class="line">  return get<span class="constructor">ShardInfo(SafeEncoder.<span class="params">encode</span>(<span class="params">getKeyTag</span>(<span class="params">key</span>)</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public S get<span class="constructor">ShardInfo(<span class="params">byte</span>[] <span class="params">key</span>)</span> &#123;</span><br><span class="line">  SortedMap&lt;Long, S&gt; tail = nodes.tail<span class="constructor">Map(<span class="params">algo</span>.<span class="params">hash</span>(<span class="params">key</span>)</span>);</span><br><span class="line">  <span class="keyword">if</span> (tail.is<span class="constructor">Empty()</span>) &#123;</span><br><span class="line">    return nodes.get(nodes.first<span class="constructor">Key()</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  return tail.get(tail.first<span class="constructor">Key()</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终根据哈希算法从 TreeMap 中获取一个 Jedis 链接，然后再继续操作。</p>
+<p>从上面的分析中可以看出，每一个ShardedJedis都维护了所有的分片，将多个实例当成一个整体去使用。而且，这种分片方式是静态、不可扩容的，只在初始时进行分片。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Jedis/" rel="tag"># Jedis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017-12-08-java-performance/" rel="prev" title="Java 性能调优工具">
+                  <i class="fa fa-angle-left"></i> Java 性能调优工具
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2017-12-20-redis-dict/" rel="next" title="Redis 中的字典">
+                  Redis 中的字典 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="最近公司项目使用的Redis迁移到百度公有云，迁移后发现启动不起来，报错如下： 2023-12-07T13:34:37.714994466+08:00 stdout F Error starting ApplicationContext. To display the conditions report re-run your application with &amp;#x27;debug&amp;#x27;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KeyExpirationEventMessageListener的一个小坑">
+<meta property="og:url" content="https://godshang.github.io/2023-12-07-redis-key-expiration-event-message-listener/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="最近公司项目使用的Redis迁移到百度公有云，迁移后发现启动不起来，报错如下： 2023-12-07T13:34:37.714994466+08:00 stdout F Error starting ApplicationContext. To display the conditions report re-run your application with &amp;#x27;debug&amp;#x27;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-12-06T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.698Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://godshang.github.io/2023-12-07-redis-key-expiration-event-message-listener/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2023-12-07-redis-key-expiration-event-message-listener/","path":"2023-12-07-redis-key-expiration-event-message-listener/","title":"KeyExpirationEventMessageListener的一个小坑"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>KeyExpirationEventMessageListener的一个小坑 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2023-12-07-redis-key-expiration-event-message-listener/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="KeyExpirationEventMessageListener的一个小坑 | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          KeyExpirationEventMessageListener的一个小坑
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-12-07 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-07T00:00:00+08:00">2023-12-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>最近公司项目使用的Redis迁移到百度公有云，迁移后发现启动不起来，报错如下：</p>
+<figure class="highlight subunit"><table><tr><td class="code"><pre><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.714994466<span class="string">+08</span>:00 stdout F Error starting ApplicationContext. To display the conditions report re-run your application with &#x27;debug&#x27; enabled.</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721703211<span class="string">+08</span>:00 stdout F 2023<span class="string">-12</span><span class="string">-07</span> 13:34:37.721 ERROR [/] 1 --- [           main] o.s.boot.SpringApplication               : [] [UID:] Application run failed</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721713715<span class="string">+08</span>:00 stdout F </span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721718341<span class="string">+08</span>:00 stdout F org.springframework.beans.factory.BeanCreationException: Error creating bean with name &#x27;redisKeyExpirationListener&#x27; defined in URL [jar:file:/hawkeye-msg.jar!/BOOT-INF/classes!/com/xxx/femonitor/consumer/RedisKeyExpirationListener.class]: Invocation of init method failed; nested exception is org.springframework.data.redis.RedisSystemException: Error in execution; nested exception is io.lettuce.core.RedisCommandExecutionException: ERR this user has no permissions to run the config SET command</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721721076<span class="string">+08</span>:00 stdout F 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1769)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721723359<span class="string">+08</span>:00 stdout F 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:592)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721725452<span class="string">+08</span>:00 stdout F 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:514)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.72172771<span class="string">+08</span>:00 stdout F 	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:321)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.72172991<span class="string">+08</span>:00 stdout F 	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:226)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721732317<span class="string">+08</span>:00 stdout F 	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:319)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721736367<span class="string">+08</span>:00 stdout F 	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721738675<span class="string">+08</span>:00 stdout F 	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:863)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721741049<span class="string">+08</span>:00 stdout F 	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:878)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721743319<span class="string">+08</span>:00 stdout F 	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:550)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721745571<span class="string">+08</span>:00 stdout F 	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:141)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721748047<span class="string">+08</span>:00 stdout F 	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:744)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721750151<span class="string">+08</span>:00 stdout F 	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:391)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721752544<span class="string">+08</span>:00 stdout F 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:312)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721754637<span class="string">+08</span>:00 stdout F 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1215)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721756742<span class="string">+08</span>:00 stdout F 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1204)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721759114<span class="string">+08</span>:00 stdout F 	at com.xxx.femonitor.ErrormessageConsumerApplication.main(ErrormessageConsumerApplication.java:10)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721761878<span class="string">+08</span>:00 stdout F 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721770424<span class="string">+08</span>:00 stdout F 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721772679<span class="string">+08</span>:00 stdout F 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721774794<span class="string">+08</span>:00 stdout F 	at java.lang.reflect.Method.invoke(Method.java:498)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721776898<span class="string">+08</span>:00 stdout F 	at org.springframework.boot.loader.MainMethodRunner.run(MainMethodRunner.java:48)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721779039<span class="string">+08</span>:00 stdout F 	at org.springframework.boot.loader.Launcher.launch(Launcher.java:87)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721781165<span class="string">+08</span>:00 stdout F 	at org.springframework.boot.loader.Launcher.launch(Launcher.java:50)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721784829<span class="string">+08</span>:00 stdout F 	at org.springframework.boot.loader.JarLauncher.main(JarLauncher.java:51)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721787735<span class="string">+08</span>:00 stdout F Caused by: org.springframework.data.redis.RedisSystemException: Error in execution; nested exception is io.lettuce.core.RedisCommandExecutionException: ERR this user has no permissions to run the config SET command</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721789884<span class="string">+08</span>:00 stdout F 	at org.springframework.data.redis.connection.lettuce.LettuceExceptionConverter.convert(LettuceExceptionConverter.java:54)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721792012<span class="string">+08</span>:00 stdout F 	at org.springframework.data.redis.connection.lettuce.LettuceExceptionConverter.convert(LettuceExceptionConverter.java:52)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721794098<span class="string">+08</span>:00 stdout F 	at org.springframework.data.redis.connection.lettuce.LettuceExceptionConverter.convert(LettuceExceptionConverter.java:41)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721796184<span class="string">+08</span>:00 stdout F 	at org.springframework.data.redis.PassThroughExceptionTranslationStrategy.translate(PassThroughExceptionTranslationStrategy.java:44)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.72179832<span class="string">+08</span>:00 stdout F 	at org.springframework.data.redis.FallbackExceptionTranslationStrategy.translate(FallbackExceptionTranslationStrategy.java:42)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721806298<span class="string">+08</span>:00 stdout F 	at org.springframework.data.redis.connection.lettuce.LettuceConnection.convertLettuceAccessException(LettuceConnection.java:268)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721808656<span class="string">+08</span>:00 stdout F 	at org.springframework.data.redis.connection.lettuce.LettuceServerCommands.convertLettuceAccessException(LettuceServerCommands.java:571)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721810797<span class="string">+08</span>:00 stdout F 	at org.springframework.data.redis.connection.lettuce.LettuceServerCommands.setConfig(LettuceServerCommands.java:332)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721812867<span class="string">+08</span>:00 stdout F 	at org.springframework.data.redis.connection.DefaultedRedisConnection.setConfig(DefaultedRedisConnection.java:1204)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721814958<span class="string">+08</span>:00 stdout F 	at org.springframework.data.redis.listener.KeyspaceEventMessageListener.init(KeyspaceEventMessageListener.java:92)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721817123<span class="string">+08</span>:00 stdout F 	at org.springframework.data.redis.listener.KeyspaceEventMessageListener.afterPropertiesSet(KeyspaceEventMessageListener.java:137)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721819348<span class="string">+08</span>:00 stdout F 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1828)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721821562<span class="string">+08</span>:00 stdout F 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1765)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721823871<span class="string">+08</span>:00 stdout F 	... 24 common frames omitted</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721826104<span class="string">+08</span>:00 stdout F Caused by: io.lettuce.core.RedisCommandExecutionException: ERR this user has no permissions to run the config SET command</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.72182828<span class="string">+08</span>:00 stdout F 	at io.lettuce.core.ExceptionFactory.createExecutionException(ExceptionFactory.java:135)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721830427<span class="string">+08</span>:00 stdout F 	at io.lettuce.core.ExceptionFactory.createExecutionException(ExceptionFactory.java:108)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721832645<span class="string">+08</span>:00 stdout F 	at io.lettuce.core.protocol.AsyncCommand.completeResult(AsyncCommand.java:120)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721834744<span class="string">+08</span>:00 stdout F 	at io.lettuce.core.protocol.AsyncCommand.complete(AsyncCommand.java:111)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721840479<span class="string">+08</span>:00 stdout F 	at io.lettuce.core.protocol.CommandHandler.complete(CommandHandler.java:646)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.72184299<span class="string">+08</span>:00 stdout F 	at io.lettuce.core.protocol.CommandHandler.decode(CommandHandler.java:604)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721845314<span class="string">+08</span>:00 stdout F 	at io.lettuce.core.protocol.CommandHandler.channelRead(CommandHandler.java:556)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721847524<span class="string">+08</span>:00 stdout F 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:379)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721849604<span class="string">+08</span>:00 stdout F 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:365)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721851665<span class="string">+08</span>:00 stdout F 	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:357)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721853804<span class="string">+08</span>:00 stdout F 	at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1410)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721855949<span class="string">+08</span>:00 stdout F 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:379)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721857989<span class="string">+08</span>:00 stdout F 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:365)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721860096<span class="string">+08</span>:00 stdout F 	at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:919)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721862169<span class="string">+08</span>:00 stdout F 	at io.netty.channel.epoll.AbstractEpollStreamChannel$EpollStreamUnsafe.epollInReady(AbstractEpollStreamChannel.java:792)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721864248<span class="string">+08</span>:00 stdout F 	at io.netty.channel.epoll.EpollEventLoop.processReady(EpollEventLoop.java:475)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721866343<span class="string">+08</span>:00 stdout F 	at io.netty.channel.epoll.EpollEventLoop.run(EpollEventLoop.java:378)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721868401<span class="string">+08</span>:00 stdout F 	at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:989)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721870478<span class="string">+08</span>:00 stdout F 	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721872554<span class="string">+08</span>:00 stdout F 	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721874997<span class="string">+08</span>:00 stdout F 	at java.lang.Thread.run(Thread.java:748)</span><br><span class="line">2023<span class="string">-12</span><span class="string">-07</span>T13:34:37.721876982<span class="string">+08</span>:00 stdout F </span><br></pre></td></tr></table></figure>
+
+<p>大致意思是<code>RedisKeyExpirationListener</code>没有权限执行 config set 命令。</p>
+<p>咨询运维后，果然新的集群不支持 config set 命令了，这是管理命令，业务上不应该对此有依赖。不过<code>RedisKeyExpirationListener</code>代码里并没有使用 config set 命令，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RedisKeyExpirationListener</span> <span class="keyword">extends</span> <span class="title class_">KeyExpirationEventMessageListener</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">RedisKeyExpirationListener</span><span class="params">(RedisMessageListenerContainer listenerContainer)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(listenerContainer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onMessage</span><span class="params">(Message message, <span class="type">byte</span>[] pattern)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">expiredKey</span> <span class="operator">=</span> message.toString();</span><br><span class="line">        log.info(<span class="string">&quot;redis key过期：&#123;&#125;&quot;</span>, expiredKey);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 过期键的业务处理</span></span><br><span class="line">        <span class="comment">// ......</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>大致意思是监听到Redis的过期键后进行的一些业务操作。</p>
+<p><code>RedisKeyExpirationListener</code>继承自<code>org.springframework.data.redis.listener.KeyExpirationEventMessageListener</code>，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">KeyExpirationEventMessageListener</span> <span class="keyword">extends</span> <span class="title class_">KeyspaceEventMessageListener</span> <span class="keyword">implements</span> <span class="title class_">ApplicationEventPublisherAware</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Topic</span> <span class="variable">KEYEVENT_EXPIRED_TOPIC</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PatternTopic</span>(<span class="string">&quot;__keyevent@*__:expired&quot;</span>);</span><br><span class="line">    <span class="meta">@Nullable</span></span><br><span class="line">    <span class="keyword">private</span> ApplicationEventPublisher publisher;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">KeyExpirationEventMessageListener</span><span class="params">(RedisMessageListenerContainer listenerContainer)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(listenerContainer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doRegister</span><span class="params">(RedisMessageListenerContainer listenerContainer)</span> &#123;</span><br><span class="line">        listenerContainer.addMessageListener(<span class="built_in">this</span>, KEYEVENT_EXPIRED_TOPIC);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doHandleMessage</span><span class="params">(Message message)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.publishEvent(<span class="keyword">new</span> <span class="title class_">RedisKeyExpiredEvent</span>(message.getBody()));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">publishEvent</span><span class="params">(RedisKeyExpiredEvent event)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.publisher != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="built_in">this</span>.publisher.publishEvent(event);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setApplicationEventPublisher</span><span class="params">(ApplicationEventPublisher applicationEventPublisher)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.publisher = applicationEventPublisher;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>org.springframework.data.redis.listener.KeyExpirationEventMessageListener</code>又继承自<code>org.springframework.data.redis.listener.KeyspaceEventMessageListener</code>，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">KeyspaceEventMessageListener</span> <span class="keyword">implements</span> <span class="title class_">MessageListener</span>, InitializingBean, DisposableBean &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Topic</span> <span class="variable">TOPIC_ALL_KEYEVENTS</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PatternTopic</span>(<span class="string">&quot;__keyevent@*&quot;</span>);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> RedisMessageListenerContainer listenerContainer;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">keyspaceNotificationsConfigParameter</span> <span class="operator">=</span> <span class="string">&quot;EA&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">KeyspaceEventMessageListener</span><span class="params">(RedisMessageListenerContainer listenerContainer)</span> &#123;</span><br><span class="line">        Assert.notNull(listenerContainer, <span class="string">&quot;RedisMessageListenerContainer to run in must not be null!&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.listenerContainer = listenerContainer;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onMessage</span><span class="params">(Message message, <span class="meta">@Nullable</span> <span class="type">byte</span>[] pattern)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (message != <span class="literal">null</span> &amp;&amp; !ObjectUtils.isEmpty(message.getChannel()) &amp;&amp; !ObjectUtils.isEmpty(message.getBody())) &#123;</span><br><span class="line">            <span class="built_in">this</span>.doHandleMessage(message);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title function_">doHandleMessage</span><span class="params">(Message var1)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.hasText(<span class="built_in">this</span>.keyspaceNotificationsConfigParameter)) &#123;</span><br><span class="line">            <span class="type">RedisConnection</span> <span class="variable">connection</span> <span class="operator">=</span> <span class="built_in">this</span>.listenerContainer.getConnectionFactory().getConnection();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">Properties</span> <span class="variable">config</span> <span class="operator">=</span> connection.getConfig(<span class="string">&quot;notify-keyspace-events&quot;</span>);</span><br><span class="line">                <span class="keyword">if</span> (!StringUtils.hasText(config.getProperty(<span class="string">&quot;notify-keyspace-events&quot;</span>))) &#123;</span><br><span class="line">                    connection.setConfig(<span class="string">&quot;notify-keyspace-events&quot;</span>, <span class="built_in">this</span>.keyspaceNotificationsConfigParameter);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                connection.close();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">this</span>.doRegister(<span class="built_in">this</span>.listenerContainer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doRegister</span><span class="params">(RedisMessageListenerContainer container)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.listenerContainer.addMessageListener(<span class="built_in">this</span>, TOPIC_ALL_KEYEVENTS);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">destroy</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="built_in">this</span>.listenerContainer.removeMessageListener(<span class="built_in">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setKeyspaceNotificationsConfigParameter</span><span class="params">(String keyspaceNotificationsConfigParameter)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.keyspaceNotificationsConfigParameter = keyspaceNotificationsConfigParameter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="built_in">this</span>.init();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，在<code>init</code>方法中调用了<code>setConfig</code>方法，设置了<code>notify-keyspace-events</code>参数为<code>keyspaceNotificationsConfigParameter</code>，<code>keyspaceNotificationsConfigParameter</code>的默认是<code>EA</code>。关于<code>notify-keyspace-events</code>参数，可以参考Redis<a target="_blank" rel="noopener" href="https://redis.io/docs/manual/keyspace-notifications/">官方文档</a>。</p>
+<p>这个其实Spring替我们做了Redis的配置，我估计初衷是避免Redis Server没配该参数时导致监听不生效，但对于生产环境直接在客户端进行配置，可能不是一个太好的方案。</p>
+<p>在<code>init</code>方法中，其实是先判断了<code>keyspaceNotificationsConfigParameter</code>不为空才<code>setConfig</code>，同时也有一个<code>setKeyspaceNotificationsConfigParameter</code>方法，因此我们可以在构造自己的listener时将<code>keyspaceNotificationsConfigParameter</code>设置为空，这样就不会执行 config set 命令了。</p>
+<p>因此，我们去掉<code>RedisKeyExpirationListener</code>上的<code>@Component</code>注解，改为自己进行Bean的创建，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RedisConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    RedisMessageListenerContainer <span class="title function_">redisMessageListenerContainer</span><span class="params">(RedisConnectionFactory connectionFactory)</span> &#123;</span><br><span class="line">        <span class="type">RedisMessageListenerContainer</span> <span class="variable">redisMessageListenerContainer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RedisMessageListenerContainer</span>();</span><br><span class="line">        redisMessageListenerContainer.setConnectionFactory(connectionFactory);</span><br><span class="line">        <span class="keyword">return</span> redisMessageListenerContainer;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    RedisKeyExpirationListener <span class="title function_">redisKeyExpirationListener</span><span class="params">(RedisMessageListenerContainer redisMessageListenerContainer)</span> &#123;</span><br><span class="line">        <span class="type">RedisKeyExpirationListener</span> <span class="variable">redisKeyExpirationListener</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RedisKeyExpirationListener</span>(redisMessageListenerContainer);</span><br><span class="line">        redisKeyExpirationListener.setKeyspaceNotificationsConfigParameter(<span class="string">&quot;&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> redisKeyExpirationListener;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>改完再启动项目就没问题了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023-07-05-product-thinking/" rel="prev" title="《产品思维》读书笔记">
+                  <i class="fa fa-angle-left"></i> 《产品思维》读书笔记
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="GRPCChannelManagerSkywalking Agent会定期将收集到的数据发送到后端的OAP集群，GRPCChannelManager就负责维护Agent与OAP集群之间通信的网络连接。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Skywalking BootService分析">
+<meta property="og:url" content="https://godshang.github.io/2022-10-25-skywalking-bootservice/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="GRPCChannelManagerSkywalking Agent会定期将收集到的数据发送到后端的OAP集群，GRPCChannelManager就负责维护Agent与OAP集群之间通信的网络连接。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://godshang.github.io/img/2022-10-25/7480a060b4bb5e5ba955aa59e17db207.png">
+<meta property="article:published_time" content="2022-10-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.698Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://godshang.github.io/img/2022-10-25/7480a060b4bb5e5ba955aa59e17db207.png">
+
+
+<link rel="canonical" href="https://godshang.github.io/2022-10-25-skywalking-bootservice/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2022-10-25-skywalking-bootservice/","path":"2022-10-25-skywalking-bootservice/","title":"Skywalking BootService分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Skywalking BootService分析 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GRPCChannelManager"><span class="nav-number">1.</span> <span class="nav-text">GRPCChannelManager</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ServiceManagementClient"><span class="nav-number">2.</span> <span class="nav-text">ServiceManagementClient</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CommandService"><span class="nav-number">3.</span> <span class="nav-text">CommandService</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CommandExecutorService"><span class="nav-number">4.</span> <span class="nav-text">CommandExecutorService</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ConfigurationDiscoveryService"><span class="nav-number">5.</span> <span class="nav-text">ConfigurationDiscoveryService</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SamplingService"><span class="nav-number">6.</span> <span class="nav-text">SamplingService</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JVMService"><span class="nav-number">7.</span> <span class="nav-text">JVMService</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#KafkaXxxService"><span class="nav-number">8.</span> <span class="nav-text">KafkaXxxService</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#StatusCheckService"><span class="nav-number">9.</span> <span class="nav-text">StatusCheckService</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2022-10-25-skywalking-bootservice/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Skywalking BootService分析 | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Skywalking BootService分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-10-25 00:00:00" itemprop="dateCreated datePublished" datetime="2022-10-25T00:00:00+08:00">2022-10-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="GRPCChannelManager"><a href="#GRPCChannelManager" class="headerlink" title="GRPCChannelManager"></a>GRPCChannelManager</h1><p><code>Skywalking Agent</code>会定期将收集到的数据发送到后端的<code>OAP</code>集群，<code>GRPCChannelManager</code>就负责维护<code>Agent</code>与<code>OAP</code>集群之间通信的网络连接。</p>
+<p><code>Agent</code>与<code>OAP</code>之间是采用<code>gRPC</code>进行通信的，在<code>gRPC</code>中有两个重要的组件：</p>
+<ul>
+<li><code>ManagedChannel</code>：是<code>gRPC</code>客户端的核心类之一，它表示一个通信通道，底层持有一个<code>TCP</code>连接，并负责维护此连接的活性。在<code>RPC</code>调用的任何时机，如果检测到底层连接处于关闭状态，它会重新尝试建立连接。通常情况下，我们不需要在<code>RPC</code>调用结束后关闭连接，该连接可以一直重用，直到应用程序关闭。</li>
+<li><code>ManagedChannelBuilder</code>：负责创建客户端Channel，常用的<code>ManagedChannelBuilder</code>有三种，<code>NettyChannelBuilder</code>、<code>OkHttpChannelBuilder</code>、<code>InProcessChannelBuilder</code>，<code>Skywalking Agent</code>中使用的是<code>NettyChannelBuilder</code>，底层是基于<code>Netty</code>实现的。</li>
+</ul>
+<p><img src="../img/2022-10-25/7480a060b4bb5e5ba955aa59e17db207.png"></p>
+<p><code>Skywaling</code>在<code>ManagedChannel</code>的基础上封装了<code>GRPCChannel</code>，可以添加一些装饰器，目前有<code>AgentIDDecorator</code>和<code>AuthenticationDecorator</code>两种。</p>
+<p><code>GRPCChannelManager</code>中维护了一个<code>GRPCChannel</code>连接以及注册的<code>Listener</code>监听器，主要的属性有：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="type">GRPCChannel</span> <span class="variable">managedChannel</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> ScheduledFuture&lt;?&gt; connectCheckFuture;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="type">boolean</span> <span class="variable">reconnect</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Random</span> <span class="variable">random</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Random</span>();</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> List&lt;GRPCChannelListener&gt; listeners = Collections.synchronizedList(<span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;&gt;());</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> List&lt;String&gt; grpcServers;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="type">int</span> <span class="variable">selectedIdx</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="type">int</span> <span class="variable">reconnectCount</span> <span class="operator">=</span> <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>GRPCChannelManager</code>除了实现了<code>BootService</code>接口外，还实现了<code>Runnable</code>接口。<code>GRPCChannelManager</code>启动时会创建一个线程池定时调度执行<code>run</code>方法，定时时间可在参数<code>Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL</code>中设置。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">boot</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (Config.Collector.BACKEND_SERVICE.trim().length() == <span class="number">0</span>) &#123;</span><br><span class="line">        LOGGER.error(<span class="string">&quot;Collector server addresses are not set.&quot;</span>);</span><br><span class="line">        LOGGER.error(<span class="string">&quot;Agent will not uplink any data.&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    grpcServers = Arrays.asList(Config.Collector.BACKEND_SERVICE.split(<span class="string">&quot;,&quot;</span>));</span><br><span class="line">    connectCheckFuture = Executors.newSingleThreadScheduledExecutor(</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">DefaultNamedThreadFactory</span>(<span class="string">&quot;GRPCChannelManager&quot;</span>)</span><br><span class="line">    ).scheduleAtFixedRate(</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">RunnableWithExceptionProtection</span>(</span><br><span class="line">            <span class="built_in">this</span>,</span><br><span class="line">            t -&gt; LOGGER.error(<span class="string">&quot;unexpected exception.&quot;</span>, t)</span><br><span class="line">        ), <span class="number">0</span>, Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>run</code>方法被线程池定时调度执行，其中主要的逻辑有3点：</p>
+<ol>
+<li>通过DNS解析来保证后端<code>OAP</code>服务地址的可用性。<code>Config.Collector.IS_RESOLVE_DNS_PERIODICALLY</code>参数定义该功能是否启用，默认值是<code>false</code>，即不启用。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (IS_RESOLVE_DNS_PERIODICALLY &amp;&amp; reconnect) &#123;</span><br><span class="line">    grpcServers = Arrays.stream(Config.Collector.BACKEND_SERVICE.split(<span class="string">&quot;,&quot;</span>))</span><br><span class="line">            .filter(StringUtil::isNotBlank)</span><br><span class="line">            .map(eachBackendService -&gt; eachBackendService.split(<span class="string">&quot;:&quot;</span>))</span><br><span class="line">            .filter(domainPortPairs -&gt; &#123;</span><br><span class="line">                <span class="keyword">if</span> (domainPortPairs.length &lt; <span class="number">2</span>) &#123;</span><br><span class="line">                    LOGGER.debug(<span class="string">&quot;Service address [&#123;&#125;] format error. The expected format is IP:port&quot;</span>, domainPortPairs[<span class="number">0</span>]);</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;)</span><br><span class="line">            .flatMap(domainPortPairs -&gt; &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="keyword">return</span> Arrays.stream(InetAddress.getAllByName(domainPortPairs[<span class="number">0</span>]))</span><br><span class="line">                            .map(InetAddress::getHostAddress)</span><br><span class="line">                            .map(ip -&gt; String.format(<span class="string">&quot;%s:%s&quot;</span>, ip, domainPortPairs[<span class="number">1</span>]));</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">                    LOGGER.error(t, <span class="string">&quot;Failed to resolve &#123;&#125; of backend service.&quot;</span>, domainPortPairs[<span class="number">0</span>]);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> Stream.empty();</span><br><span class="line">            &#125;)</span><br><span class="line">            .distinct()</span><br><span class="line">            .collect(Collectors.toList());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>建立<code>gRPC</code>连接并保持该连接的活性。<code>reconnect</code>表示是否进行连接，默认是<code>true</code>，当连接建立起来后置为<code>false</code>。创建连接时会随机从<code>Config.Collector.BACKEND_SERVICE</code>参数配置的后端服务地址中选择一个，创建一个<code>GRPCChannel</code>实例，创建过程使用了<code>Builder</code>模式，并添加了<code>StandardChannelBuilder</code>、<code>TLSChannelBuilder</code>两个<code>ChannelBuilder</code>实例，以及<code>AgentIDDecorator</code>和<code>AuthenticationDecorator</code>两个<code>ChannelDecorator</code>实例。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (reconnect) &#123;</span><br><span class="line">    <span class="keyword">if</span> (grpcServers.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">server</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> Math.abs(random.nextInt()) % grpcServers.size();</span><br><span class="line">            <span class="keyword">if</span> (index != selectedIdx) &#123;</span><br><span class="line">                selectedIdx = index;</span><br><span class="line"></span><br><span class="line">                server = grpcServers.get(index);</span><br><span class="line">                String[] ipAndPort = server.split(<span class="string">&quot;:&quot;</span>);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (managedChannel != <span class="literal">null</span>) &#123;</span><br><span class="line">                    managedChannel.shutdownNow();</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                managedChannel = GRPCChannel.newBuilder(ipAndPort[<span class="number">0</span>], Integer.parseInt(ipAndPort[<span class="number">1</span>]))</span><br><span class="line">                                            .addManagedChannelBuilder(<span class="keyword">new</span> <span class="title class_">StandardChannelBuilder</span>())</span><br><span class="line">                                            .addManagedChannelBuilder(<span class="keyword">new</span> <span class="title class_">TLSChannelBuilder</span>())</span><br><span class="line">                                            .addChannelDecorator(<span class="keyword">new</span> <span class="title class_">AgentIDDecorator</span>())</span><br><span class="line">                                            .addChannelDecorator(<span class="keyword">new</span> <span class="title class_">AuthenticationDecorator</span>())</span><br><span class="line">                                            .build();</span><br><span class="line">                reconnectCount = <span class="number">0</span>;</span><br><span class="line">                reconnect = <span class="literal">false</span>;</span><br><span class="line">                notify(GRPCChannelStatus.CONNECTED);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (managedChannel.isConnected(++reconnectCount &gt; Config.Agent.FORCE_RECONNECTION_PERIOD)) &#123;</span><br><span class="line">                <span class="comment">// Reconnect to the same server is automatically done by GRPC,</span></span><br><span class="line">                <span class="comment">// therefore we are responsible to check the connectivity and</span></span><br><span class="line">                <span class="comment">// set the state and notify listeners</span></span><br><span class="line">                reconnectCount = <span class="number">0</span>;</span><br><span class="line">                reconnect = <span class="literal">false</span>;</span><br><span class="line">                notify(GRPCChannelStatus.CONNECTED);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">            LOGGER.error(t, <span class="string">&quot;Create channel to &#123;&#125; fail.&quot;</span>, server);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>gRPC</code>会自动进行重连，因此如果随机选择到的后端服务就是上次连接失败的那个，直接通过<code>managedChannel.isConnected</code>方法判断是否已经重连成功，如果重连成功那么将<code>reconnect</code>置为<code>false</code>。</p>
+<p>当网络出现异常时会将<code>reconnect</code>重置为<code>true</code>，待下次定时任务执行时进行重连。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reportError</span><span class="params">(Throwable throwable)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (isNetworkError(throwable)) &#123;</span><br><span class="line">        reconnect = <span class="literal">true</span>;</span><br><span class="line">        notify(GRPCChannelStatus.DISCONNECT);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>当网络状态发生变化时通知已注册的<code>listener</code>。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">notify</span><span class="params">(GRPCChannelStatus status)</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (GRPCChannelListener listener : listeners) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            listener.statusChanged(status);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">            LOGGER.error(t, <span class="string">&quot;Fail to notify &#123;&#125; about channel connected.&quot;</span>, listener.getClass().getName());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过以上机制，<code>GRPCChannelManager</code>实现了<code>gRPC</code>连接的建立和保活。</p>
+<h1 id="ServiceManagementClient"><a href="#ServiceManagementClient" class="headerlink" title="ServiceManagementClient"></a>ServiceManagementClient</h1><p><code>ServiceManagementClient</code>也是一个<code>BootService</code>，同时还实现了<code>GRPCChannelListener</code>、<code>Runnable</code>接口。</p>
+<p>在<code>GRPCChannelListener</code>的回调方法<code>statusChanged</code>中，如果发现重连，会重新创建一个<code>ManagementServiceBlockingStub</code>的实例用于和<code>OAP</code>通信。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">statusChanged</span><span class="params">(GRPCChannelStatus status)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (GRPCChannelStatus.CONNECTED.equals(status)) &#123;</span><br><span class="line">        <span class="type">Channel</span> <span class="variable">channel</span> <span class="operator">=</span> ServiceManager.INSTANCE.findService(GRPCChannelManager.class).getChannel();</span><br><span class="line">        managementServiceBlockingStub = ManagementServiceGrpc.newBlockingStub(channel);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        managementServiceBlockingStub = <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">this</span>.status = status;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>prepare</code>阶段，<code>ServiceManagementClient</code>会将自己作为<code>GRPCChannelListener</code>注册到<code>GRPCChannelManager</code>中。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">prepare</span><span class="params">()</span> &#123;</span><br><span class="line">    ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(<span class="built_in">this</span>);</span><br><span class="line"></span><br><span class="line">    SERVICE_INSTANCE_PROPERTIES = InstanceJsonPropertiesUtil.parseProperties();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>boot</code>阶段，<code>ServiceManagementClient</code>会启动一个定时调度的线程池用于执行心跳任务，定时时间在<code>Config.Collector.HEARTBEAT_PERIOD</code>参数中配置，单位是秒，默认值30。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">boot</span><span class="params">()</span> &#123;</span><br><span class="line">    heartbeatFuture = Executors.newSingleThreadScheduledExecutor(</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">DefaultNamedThreadFactory</span>(<span class="string">&quot;ServiceManagementClient&quot;</span>)</span><br><span class="line">    ).scheduleAtFixedRate(</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">RunnableWithExceptionProtection</span>(</span><br><span class="line">            <span class="built_in">this</span>,</span><br><span class="line">            t -&gt; LOGGER.error(<span class="string">&quot;unexpected exception.&quot;</span>, t)</span><br><span class="line">        ), <span class="number">0</span>, Config.Collector.HEARTBEAT_PERIOD,</span><br><span class="line">        TimeUnit.SECONDS</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>定时任务执行时实际调用的就是<code>ServiceManagementClient</code>的<code>run</code>方法，只不过被<code>RunnableWithExceptionProtection</code>又包装了一层，增加了异常时的处理。定时任务的逻辑主要包括信息上报以及心跳消息。</p>
+<p><code>ServiceManagementClient</code>每间隔若干次（<code>Config.Collector.PROPERTIES_REPORT_PERIOD_FACTOR</code>配置，默认10，由于定时任务的默认间隔是30秒，因此默认每300秒即5分钟上报一次信息）就就行信息上报，主要包括操作系统信息和JVM信息，否则发送心跳消息。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">    LOGGER.debug(<span class="string">&quot;ServiceManagementClient running, status:&#123;&#125;.&quot;</span>, status);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (GRPCChannelStatus.CONNECTED.equals(status)) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (managementServiceBlockingStub != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (Math.abs(</span><br><span class="line">                    sendPropertiesCounter.getAndAdd(<span class="number">1</span>)) % Config.Collector.PROPERTIES_REPORT_PERIOD_FACTOR == <span class="number">0</span>) &#123;</span><br><span class="line"></span><br><span class="line">                    managementServiceBlockingStub</span><br><span class="line">                        .withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)</span><br><span class="line">                        .reportInstanceProperties(InstanceProperties.newBuilder()</span><br><span class="line">                                                                    .setService(Config.Agent.SERVICE_NAME)</span><br><span class="line">                                                                    .setServiceInstance(Config.Agent.INSTANCE_NAME)</span><br><span class="line">                                                                    .addAllProperties(OSUtil.buildOSInfo(</span><br><span class="line">                                                                        Config.OsInfo.IPV4_LIST_SIZE))</span><br><span class="line">                                                                    .addAllProperties(SERVICE_INSTANCE_PROPERTIES)</span><br><span class="line">                                                                    .addAllProperties(</span><br><span class="line">                                                                        LoadedLibraryCollector.buildJVMInfo())</span><br><span class="line">                                                                    .build());</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">final</span> <span class="type">Commands</span> <span class="variable">commands</span> <span class="operator">=</span> managementServiceBlockingStub.withDeadlineAfter(</span><br><span class="line">                        GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS</span><br><span class="line">                    ).keepAlive(InstancePingPkg.newBuilder()</span><br><span class="line">                                                .setService(Config.Agent.SERVICE_NAME)</span><br><span class="line">                                                .setServiceInstance(Config.Agent.INSTANCE_NAME)</span><br><span class="line">                                                .build());</span><br><span class="line"></span><br><span class="line">                    ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">            LOGGER.error(t, <span class="string">&quot;ServiceManagementClient execute fail.&quot;</span>);</span><br><span class="line">            ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(t);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="CommandService"><a href="#CommandService" class="headerlink" title="CommandService"></a>CommandService</h1><p><code>CommandService#receiveCommand</code>执行<code>OAP</code>下发的命令，包括两类：</p>
+<ul>
+<li>ProfileTaskCommand：在SkyWalking UI性能剖析功能中，新建任务，会下发给Agent性能追踪任务</li>
+<li>ConfigurationDiscoveryCommand：当前版本SkyWalking Agent支持运行时动态调整配置</li>
+</ul>
+<p><code>CommandService</code>同样也是一个<code>BootService</code>，并实现了<code>Runnable</code>接口，内部维护了一个<code>Command</code>队列以及一个序列号缓存。</p>
+<p>在<code>boot</code>方法中会向线程池提交一个执行<code>Command</code>的任务，实际会调用到<code>CommandService</code>中的<code>run</code>方法。在<code>run</code>方法中会不断从<code>commands</code>队列中取出命令并执行，如果<code>commands</code>队列为空，<code>take</code>方法会被阻塞；如果该命令的序列号已在序列号缓存中，表示已经执行过则会直接忽略；否则交给<code>CommandExecutorService</code>完成命令的实际执行。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">CommandExecutorService</span> <span class="variable">commandExecutorService</span> <span class="operator">=</span> ServiceManager.INSTANCE.findService(CommandExecutorService.class);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (isRunning) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">BaseCommand</span> <span class="variable">command</span> <span class="operator">=</span> commands.take();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (isCommandExecuted(command)) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            commandExecutorService.execute(command);</span><br><span class="line">            serialNumberCache.add(command.getSerialNumber());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (CommandExecutionException e) &#123;</span><br><span class="line">            LOGGER.error(e, <span class="string">&quot;Failed to execute command[&#123;&#125;].&quot;</span>, e.command().getCommand());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">            LOGGER.error(e, <span class="string">&quot;There is unexpected exception&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>CommandSerialNumberCache</code>维护了一个最近执行命令的缓存，内部使用一个<code>LinkedBlockingDeque</code>记录最近执行命令的序列号。队列的默认最大长度是64，当向缓存添加命令时，如果超过了队列最大长度，会从头部将最早的命令出队，避免队列长度的不停增长。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CommandSerialNumberCache</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">DEFAULT_MAX_CAPACITY</span> <span class="operator">=</span> <span class="number">64</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Deque&lt;String&gt; queue;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> maxCapacity;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CommandSerialNumberCache</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>(DEFAULT_MAX_CAPACITY);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CommandSerialNumberCache</span><span class="params">(<span class="type">int</span> maxCapacity)</span> &#123;</span><br><span class="line">        queue = <span class="keyword">new</span> <span class="title class_">LinkedBlockingDeque</span>&lt;String&gt;(maxCapacity);</span><br><span class="line">        <span class="built_in">this</span>.maxCapacity = maxCapacity;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">add</span><span class="params">(String number)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (queue.size() &gt;= maxCapacity) &#123;</span><br><span class="line">            queue.pollFirst();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        queue.add(number);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">contain</span><span class="params">(String command)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> queue.contains(command);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="CommandExecutorService"><a href="#CommandExecutorService" class="headerlink" title="CommandExecutorService"></a>CommandExecutorService</h1><p><code>CommandExecutorService</code>依然是一个<code>BootService</code>，实现了<code>CommandExecutor</code>接口，<code>CommandExecutor</code>接口仅有一个<code>execute</code>方法用于命令的执行。</p>
+<p><code>CommandExecutorService</code>在<code>prepare</code>方法中创建了一个<code>commandExecutorMap</code>，并添加了两个<code>CommandExecutor</code>的实例，根据命令种类的不同交由不同的<code>CommandExecutor</code>执行。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">prepare</span><span class="params">()</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">    commandExecutorMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, CommandExecutor&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Profile task executor</span></span><br><span class="line">    commandExecutorMap.put(ProfileTaskCommand.NAME, <span class="keyword">new</span> <span class="title class_">ProfileTaskCommandExecutor</span>());</span><br><span class="line"></span><br><span class="line">    <span class="comment">//Get ConfigurationDiscoveryCommand executor.</span></span><br><span class="line">    commandExecutorMap.put(ConfigurationDiscoveryCommand.NAME, <span class="keyword">new</span> <span class="title class_">ConfigurationDiscoveryCommandExecutor</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>命令执行时根据类型从<code>commandExecutorMap</code>找到实际的<code>CommandExecutor</code>才真正执行。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">execute</span><span class="params">(<span class="keyword">final</span> BaseCommand command)</span> <span class="keyword">throws</span> CommandExecutionException &#123;</span><br><span class="line">    executorForCommand(command).execute(command);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> CommandExecutor <span class="title function_">executorForCommand</span><span class="params">(<span class="keyword">final</span> BaseCommand command)</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">CommandExecutor</span> <span class="variable">executor</span> <span class="operator">=</span> commandExecutorMap.get(command.getCommand());</span><br><span class="line">    <span class="keyword">if</span> (executor != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> executor;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> NoopCommandExecutor.INSTANCE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>NoopCommandExecutor</code>是一个不含逻辑的空<code>CommandExecutor</code>，仅用于未知命令类型时的兼容处理。<code>ProfileTaskCommandExecutor</code>用于执行<code>ProfileTaskCommand</code>。<code>ConfigurationDiscoveryCommandExecutor</code>用于执行<code>ConfigurationDiscoveryCommand</code>。</p>
+<h1 id="ConfigurationDiscoveryService"><a href="#ConfigurationDiscoveryService" class="headerlink" title="ConfigurationDiscoveryService"></a>ConfigurationDiscoveryService</h1><p><code>ConfigurationDiscoveryService</code>实现了<code>BootService</code>和<code>GRPCChannelListener</code>接口。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConfigurationDiscoveryService</span> <span class="keyword">implements</span> <span class="title class_">BootService</span>, GRPCChannelListener &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Register</span> <span class="variable">register</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Register</span>();</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>ConfigurationDiscoveryService</code>内部有一个<code>Register</code>内部类，实际上是一个<code>Map</code>，value类型是内部类<code>WatcherHolder</code>，<code>WatcherHolder</code>中包含了<code>AgentConfigChangeWatcher</code>属性。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Register</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, List&lt;WatcherHolder&gt;&gt; register = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">WatcherHolder</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AgentConfigChangeWatcher watcher;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String key;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过<code>registerAgentConfigChangeWatcher()</code>方法注册<code>watcher</code>，注册时会将<code>watcher</code>包装为一个<code>WatcherHolder</code>对象加入<code>register</code>中。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">registerAgentConfigChangeWatcher</span><span class="params">(AgentConfigChangeWatcher watcher)</span> &#123;</span><br><span class="line">    <span class="type">WatcherHolder</span> <span class="variable">holder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">WatcherHolder</span>(watcher);</span><br><span class="line">    <span class="keyword">if</span> (register.containsKey(holder.getKey())) &#123;</span><br><span class="line">        List&lt;WatcherHolder&gt; watcherHolderList = register.get(holder.getKey());</span><br><span class="line">        <span class="keyword">for</span> (WatcherHolder watcherHolder : watcherHolderList) &#123;</span><br><span class="line">            <span class="keyword">if</span> (watcherHolder.getWatcher().getClass().equals(watcher.getClass())) &#123;</span><br><span class="line">                LOGGER.debug(<span class="string">&quot;Duplicate register, watcher=&#123;&#125;&quot;</span>, watcher);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    register.put(holder.getKey(), holder);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>AgentConfigChangeWatcher</code>用于监听<code>SkyWalking Agent</code>的某项配置的值的变化，主要的实现包括：<code>IgnoreSuffixPatternsWatcher</code>、<code>SamplingRateWatcher</code>、<code>SpanLimitWatcher</code>、 <code>TraceIgnorePatternWatcher</code>、<code>TraceSqlParametersWatcher</code>，具体后面再讲。</p>
+<p><code>ConfigurationDiscoveryService</code>启动后有一个后台线程定时调用<code>getAgentDynamicConfig</code>方法，通过<code>RPC</code>请求获取动态配置：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">getAgentDynamicConfig</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (GRPCChannelStatus.CONNECTED.equals(status)) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ConfigurationSyncRequest.<span class="type">Builder</span> <span class="variable">builder</span> <span class="operator">=</span> ConfigurationSyncRequest.newBuilder();</span><br><span class="line">            builder.setService(Config.Agent.SERVICE_NAME);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Some plugin will register watcher later.</span></span><br><span class="line">            <span class="keyword">final</span> <span class="type">int</span> <span class="variable">size</span> <span class="operator">=</span> register.keys().size();</span><br><span class="line">            <span class="keyword">if</span> (lastRegisterWatcherSize != size) &#123;</span><br><span class="line">                <span class="comment">// reset uuid, avoid the same uuid causing the configuration not to be updated.</span></span><br><span class="line">                uuid = <span class="literal">null</span>;</span><br><span class="line">                lastRegisterWatcherSize = size;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (<span class="literal">null</span> != uuid) &#123;</span><br><span class="line">                builder.setUuid(uuid);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (configurationDiscoveryServiceBlockingStub != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">final</span> <span class="type">Commands</span> <span class="variable">commands</span> <span class="operator">=</span> configurationDiscoveryServiceBlockingStub.withDeadlineAfter(</span><br><span class="line">                    GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS</span><br><span class="line">                ).fetchConfigurations(builder.build());</span><br><span class="line">                ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">            LOGGER.error(t, <span class="string">&quot;ConfigurationDiscoveryService execute fail.&quot;</span>);</span><br><span class="line">            ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(t);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>方法处理逻辑如下：</p>
+<ol>
+<li>因为有些插件会延迟注册watcher，当watcher的数量发生了变动，代表有新的配置项需要监听，需要重置uuid，避免同样的uuid导致配置信息没有被更新。</li>
+<li>调用<code>ConfigurationDiscoveryServiceBlockingStub</code>的<code>fetchConfigurations()</code>方法拉取配置，调用CommandService的<code>receiveCommand()</code>将命令添加到待处理命令列表，该方法拿到的command序列化后为ConfigurationDiscoveryCommand类型，走执行command中讲的流程，最终由<code>ConfigurationDiscoveryService</code>的<code>handleConfigurationDiscoveryCommand()</code>来处理配置变更的命令</li>
+</ol>
+<p><code>handleConfigurationDiscoveryCommand()</code>方法的主要逻辑是查找出配置的变更项，并触发<code>Watcher</code>通知：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleConfigurationDiscoveryCommand</span><span class="params">(ConfigurationDiscoveryCommand configurationDiscoveryCommand)</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">String</span> <span class="variable">responseUuid</span> <span class="operator">=</span> configurationDiscoveryCommand.getUuid();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (responseUuid != <span class="literal">null</span> &amp;&amp; Objects.equals(<span class="built_in">this</span>.uuid, responseUuid)) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    List&lt;KeyStringValuePair&gt; config = readConfig(configurationDiscoveryCommand);</span><br><span class="line"></span><br><span class="line">    config.forEach(property -&gt; &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">propertyKey</span> <span class="operator">=</span> property.getKey();</span><br><span class="line">        List&lt;WatcherHolder&gt; holderList = register.get(propertyKey);</span><br><span class="line">        <span class="keyword">for</span> (WatcherHolder holder : holderList) &#123;</span><br><span class="line">            <span class="keyword">if</span> (holder != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="type">AgentConfigChangeWatcher</span> <span class="variable">watcher</span> <span class="operator">=</span> holder.getWatcher();</span><br><span class="line">                <span class="type">String</span> <span class="variable">newPropertyValue</span> <span class="operator">=</span> property.getValue();</span><br><span class="line">                <span class="keyword">if</span> (StringUtil.isBlank(newPropertyValue)) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (watcher.value() != <span class="literal">null</span>) &#123;</span><br><span class="line">                        <span class="comment">// Notify watcher, the new value is null with delete event type.</span></span><br><span class="line">                        watcher.notify(</span><br><span class="line">                                <span class="keyword">new</span> <span class="title class_">AgentConfigChangeWatcher</span>.ConfigChangeEvent(</span><br><span class="line">                                        <span class="literal">null</span>, AgentConfigChangeWatcher.EventType.DELETE</span><br><span class="line">                                ));</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="comment">// Don&#x27;t need to notify, stay in null.</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (!newPropertyValue.equals(watcher.value())) &#123;</span><br><span class="line">                        watcher.notify(<span class="keyword">new</span> <span class="title class_">AgentConfigChangeWatcher</span>.ConfigChangeEvent(</span><br><span class="line">                                newPropertyValue, AgentConfigChangeWatcher.EventType.MODIFY</span><br><span class="line">                        ));</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="comment">// Don&#x27;t need to notify, stay in the same config value.</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                LOGGER.warn(<span class="string">&quot;Config &#123;&#125; from OAP, doesn&#x27;t match any watcher, ignore.&quot;</span>, propertyKey);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="built_in">this</span>.uuid = responseUuid;</span><br><span class="line"></span><br><span class="line">    LOGGER.trace(<span class="string">&quot;Current configurations after the sync, configurations:&#123;&#125;&quot;</span>, register.toString());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="SamplingService"><a href="#SamplingService" class="headerlink" title="SamplingService"></a>SamplingService</h1><p><code>SamplingService</code>是来控制是否要采样该链路。每条链路都是被追踪到的，但是考虑到序列化/反序列化的CPU消耗以及网络带宽，如果开启采样，<code>SkyWalking Agent</code>并不会把所有的链路都发送给<code>OAP</code>。默认采样是开启的，可以通过修改<code>agent.config</code>中的<code>agent.sample_n_per_3_secs</code>配置项控制每3秒最多采样多少条链路</p>
+<p><code>boot()</code>方法中创建了一个<code>SamplingRateWatcher</code>并向<code>ConfigurationDiscoveryService</code>注册该<code>Watcher</code>。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">boot</span><span class="params">()</span> &#123;</span><br><span class="line">    samplingRateWatcher = <span class="keyword">new</span> <span class="title class_">SamplingRateWatcher</span>(<span class="string">&quot;agent.sample_n_per_3_secs&quot;</span>, <span class="built_in">this</span>);</span><br><span class="line">    ServiceManager.INSTANCE.findService(ConfigurationDiscoveryService.class)</span><br><span class="line">                            .registerAgentConfigChangeWatcher(samplingRateWatcher);</span><br><span class="line"></span><br><span class="line">    handleSamplingRateChanged();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>SamplingRateWatcher</code>监听的是<code>agent.sample_n_per_3_secs</code>配置的变更，如果该配置发生了变化，会调用<code>notify</code>方法，<code>SamplingRateWatcher</code>修改配置后，再调用<code>SamplingService</code>的<code>handleSamplingRateChanged()</code>方法，通知每3秒能够采集的最大链路数的配置变更。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">notify</span><span class="params">(<span class="keyword">final</span> ConfigChangeEvent value)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (EventType.DELETE.equals(value.getEventType())) &#123;</span><br><span class="line">        activeSetting(String.valueOf(getDefaultValue()));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        activeSetting(value.getNewValue());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">activeSetting</span><span class="params">(String config)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (LOGGER.isDebugEnable()) &#123;</span><br><span class="line">        LOGGER.debug(<span class="string">&quot;Updating using new static config: &#123;&#125;&quot;</span>, config);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.samplingRate.set(Integer.parseInt(config));</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">            * We need to notify samplingService the samplingRate changed.</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">        samplingService.handleSamplingRateChanged();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NumberFormatException ex) &#123;</span><br><span class="line">        LOGGER.error(ex, <span class="string">&quot;Cannot load &#123;&#125; from: &#123;&#125;&quot;</span>, getPropertyKey(), config);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>handleSamplingRateChanged()</code>方法中判断如果开启采样，初始化定时任务，每3秒重置一次<code>samplingFactorHolder</code>，<code>samplingFactorHolder</code>是用于累加3秒内已经采样的次数：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleSamplingRateChanged</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (samplingRateWatcher.getSamplingRate() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!on) &#123;</span><br><span class="line">            on = <span class="literal">true</span>;</span><br><span class="line">            <span class="built_in">this</span>.resetSamplingFactor();</span><br><span class="line">            <span class="type">ScheduledExecutorService</span> <span class="variable">service</span> <span class="operator">=</span> Executors.newSingleThreadScheduledExecutor(</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">DefaultNamedThreadFactory</span>(<span class="string">&quot;SamplingService&quot;</span>));</span><br><span class="line">            scheduledFuture = service.scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">RunnableWithExceptionProtection</span>(</span><br><span class="line">                <span class="built_in">this</span>::resetSamplingFactor, t -&gt; LOGGER.error(<span class="string">&quot;unexpected exception.&quot;</span>, t)), <span class="number">0</span>, <span class="number">3</span>, TimeUnit.SECONDS);</span><br><span class="line">            LOGGER.debug(</span><br><span class="line">                <span class="string">&quot;Agent sampling mechanism started. Sample &#123;&#125; traces in 3 seconds.&quot;</span>,</span><br><span class="line">                samplingRateWatcher.getSamplingRate()</span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (on) &#123;</span><br><span class="line">            <span class="keyword">if</span> (scheduledFuture != <span class="literal">null</span>) &#123;</span><br><span class="line">                scheduledFuture.cancel(<span class="literal">true</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            on = <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">resetSamplingFactor</span><span class="params">()</span> &#123;</span><br><span class="line">    samplingFactorHolder = <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每一条链路是否要采样取决于<code>SamplingService</code>的<code>trySampling()</code>方法的返回，如果返回值为true，则该链路会被采样，trySampling()方法代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">trySampling</span><span class="params">(String operationName)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (on) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">factor</span> <span class="operator">=</span> samplingFactorHolder.get();</span><br><span class="line">        <span class="keyword">if</span> (factor &lt; samplingRateWatcher.getSamplingRate()) &#123;</span><br><span class="line">            <span class="keyword">return</span> samplingFactorHolder.compareAndSet(factor, factor + <span class="number">1</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>forceSampled()</code>方法强制进行采样：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">forceSampled</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (on) &#123;</span><br><span class="line">        samplingFactorHolder.incrementAndGet();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="JVMService"><a href="#JVMService" class="headerlink" title="JVMService"></a>JVMService</h1><p><code>JVMService</code>负责收集JVM的CPU、内存、GC、线程、类等信息，然后将收集到的信息通过GRPCChannelManager提供的网络连接发送给OAP。</p>
+<p><code>prepare()</code>方法中初始化JVM信息的发送工具，<code>boot()</code>方法中初始化收集JVM信息的定时任务<code>collectMetricFuture</code>和发送JVM信息的定时任务<code>sendMetricFuture</code>。</p>
+<p><code>collectMetricFuture</code>实际上执行的是JVMService的<code>run()</code>方法，<code>sendMetricFuture</code>实际上执行的是<code>JVMMetricsSender的run()</code>方法。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JVMService</span> <span class="keyword">implements</span> <span class="title class_">BootService</span>, Runnable &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">ILog</span> <span class="variable">LOGGER</span> <span class="operator">=</span> LogManager.getLogger(JVMService.class);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> ScheduledFuture&lt;?&gt; collectMetricFuture;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> ScheduledFuture&lt;?&gt; sendMetricFuture;</span><br><span class="line">    <span class="keyword">private</span> JVMMetricsSender sender;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="type">double</span> cpuUsagePercent;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">prepare</span><span class="params">()</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        sender = ServiceManager.INSTANCE.findService(JVMMetricsSender.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">boot</span><span class="params">()</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        collectMetricFuture = Executors.newSingleThreadScheduledExecutor(</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">DefaultNamedThreadFactory</span>(<span class="string">&quot;JVMService-produce&quot;</span>))</span><br><span class="line">                                       .scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">RunnableWithExceptionProtection</span>(</span><br><span class="line">                                           <span class="built_in">this</span>,</span><br><span class="line">                                           <span class="keyword">new</span> <span class="title class_">RunnableWithExceptionProtection</span>.CallbackWhenException() &#123;</span><br><span class="line">                                               <span class="meta">@Override</span></span><br><span class="line">                                               <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handle</span><span class="params">(Throwable t)</span> &#123;</span><br><span class="line">                                                   LOGGER.error(<span class="string">&quot;JVMService produces metrics failure.&quot;</span>, t);</span><br><span class="line">                                               &#125;</span><br><span class="line">                                           &#125;</span><br><span class="line">                                       ), <span class="number">0</span>, <span class="number">1</span>, TimeUnit.SECONDS);</span><br><span class="line">        sendMetricFuture = Executors.newSingleThreadScheduledExecutor(</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">DefaultNamedThreadFactory</span>(<span class="string">&quot;JVMService-consume&quot;</span>))</span><br><span class="line">                                    .scheduleAtFixedRate(<span class="keyword">new</span> <span class="title class_">RunnableWithExceptionProtection</span>(</span><br><span class="line">                                        sender,</span><br><span class="line">                                        <span class="keyword">new</span> <span class="title class_">RunnableWithExceptionProtection</span>.CallbackWhenException() &#123;</span><br><span class="line">                                            <span class="meta">@Override</span></span><br><span class="line">                                            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handle</span><span class="params">(Throwable t)</span> &#123;</span><br><span class="line">                                                LOGGER.error(<span class="string">&quot;JVMService consumes and upload failure.&quot;</span>, t);</span><br><span class="line">                                            &#125;</span><br><span class="line">                                        &#125;</span><br><span class="line">                                    ), <span class="number">0</span>, <span class="number">1</span>, TimeUnit.SECONDS);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>run()</code>方法就是构建JVM信息交给<code>JVMMetricsSender</code>，后续由<code>JVMMetricsSender</code>负责发送给<code>OAP</code>。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">currentTimeMillis</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            JVMMetric.<span class="type">Builder</span> <span class="variable">jvmBuilder</span> <span class="operator">=</span> JVMMetric.newBuilder();</span><br><span class="line">            jvmBuilder.setTime(currentTimeMillis);</span><br><span class="line">            jvmBuilder.setCpu(CPUProvider.INSTANCE.getCpuMetric());</span><br><span class="line">            jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());</span><br><span class="line">            jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricsList());</span><br><span class="line">            jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());</span><br><span class="line">            jvmBuilder.setThread(ThreadProvider.INSTANCE.getThreadMetrics());</span><br><span class="line">            jvmBuilder.setClazz(ClassProvider.INSTANCE.getClassMetrics());</span><br><span class="line"></span><br><span class="line">            <span class="type">JVMMetric</span> <span class="variable">jvmMetric</span> <span class="operator">=</span> jvmBuilder.build();</span><br><span class="line">            sender.offer(jvmMetric);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// refresh cpu usage percent</span></span><br><span class="line">            cpuUsagePercent = jvmMetric.getCpu().getUsagePercent();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            LOGGER.error(e, <span class="string">&quot;Collect JVM info fail.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>JVMMetricsSender</code>中维护了一个阻塞队列，长度由参数<code>Config.Jvm.BUFFER_SIZE</code>控制，默认长度是600。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JVMMetricsSender</span> <span class="keyword">implements</span> <span class="title class_">BootService</span>, Runnable, GRPCChannelListener &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">ILog</span> <span class="variable">LOGGER</span> <span class="operator">=</span> LogManager.getLogger(JVMMetricsSender.class);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="type">GRPCChannelStatus</span> <span class="variable">status</span> <span class="operator">=</span> GRPCChannelStatus.DISCONNECT;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> JVMMetricReportServiceGrpc.<span class="type">JVMMetricReportServiceBlockingStub</span> <span class="variable">stub</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> LinkedBlockingQueue&lt;JVMMetric&gt; queue;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">prepare</span><span class="params">()</span> &#123;</span><br><span class="line">        queue = <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;&gt;(Config.Jvm.BUFFER_SIZE);</span><br><span class="line">        ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(<span class="built_in">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>发送的逻辑在<code>run()</code>方法中，通过<code>gRPC</code>将队列中的内容发送出去：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (status == GRPCChannelStatus.CONNECTED) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            JVMMetricCollection.<span class="type">Builder</span> <span class="variable">builder</span> <span class="operator">=</span> JVMMetricCollection.newBuilder();</span><br><span class="line">            LinkedList&lt;JVMMetric&gt; buffer = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;&gt;();</span><br><span class="line">            queue.drainTo(buffer);</span><br><span class="line">            <span class="keyword">if</span> (buffer.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                builder.addAllMetrics(buffer);</span><br><span class="line">                builder.setService(Config.Agent.SERVICE_NAME);</span><br><span class="line">                builder.setServiceInstance(Config.Agent.INSTANCE_NAME);</span><br><span class="line">                <span class="type">Commands</span> <span class="variable">commands</span> <span class="operator">=</span> stub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)</span><br><span class="line">                                        .collect(builder.build());</span><br><span class="line">                ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">            LOGGER.error(t, <span class="string">&quot;send JVM metrics to Collector fail.&quot;</span>);</span><br><span class="line">            ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(t);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="KafkaXxxService"><a href="#KafkaXxxService" class="headerlink" title="KafkaXxxService"></a>KafkaXxxService</h1><p>SkyWalking Agent上报数据有两种模式：</p>
+<ul>
+<li>使用<code>gRPC</code>直连<code>OAP</code>上报数据</li>
+<li><code>Agent</code>发送数据到<code>Kafka</code>，<code>OAP</code>从<code>Kafka</code>中消费数据</li>
+</ul>
+<p>如果使用发送<code>Kafka</code>的模式，<code>Agent</code>和<code>OAP</code>依然存在GRPC直连，只是大部分的采集数据上报都改为发送<code>Kafka</code>的模式</p>
+<p><code>KafkaXxxService</code>就是对应服务的<code>Kafka</code>实现，例如：<code>GRPCChannelManager</code>是负责<code>Agent</code>到<code>OAP</code>的网络连接，对应<code>KafkaProducerManager</code>是负责<code>Agent</code>到<code>OAP</code>的<code>Kafka</code>的连接；<code>KafkaJVMMetricsSender</code>负责<code>JVM</code>信息的发送对应<code>gRPC</code>的<code>JVMMetricsSender</code>；<code>KafkaServiceManagementServiceClient</code>负责<code>Agent Client</code>信息的上报对应<code>GRPC</code>的<code>ServiceManagementClient</code></p>
+<h1 id="StatusCheckService"><a href="#StatusCheckService" class="headerlink" title="StatusCheckService"></a>StatusCheckService</h1><p><code>StatusCheckService</code>是用来判断哪些异常不算异常，核心就是<code>statuscheck.ignored_exceptions</code>和<code>statuscheck.max_recursive_depth</code>两个配置项，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">StatusCheckService</span> <span class="keyword">implements</span> <span class="title class_">BootService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Getter</span></span><br><span class="line">    <span class="keyword">private</span> String[] ignoredExceptionNames;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> StatusChecker statusChecker;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">prepare</span><span class="params">()</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        ignoredExceptionNames = Arrays.stream(Config.StatusCheck.IGNORED_EXCEPTIONS.split(<span class="string">&quot;,&quot;</span>))</span><br><span class="line">                                      .filter(StringUtil::isNotEmpty)</span><br><span class="line">                                      .toArray(String[]::<span class="keyword">new</span>);</span><br><span class="line">        statusChecker = Config.StatusCheck.MAX_RECURSIVE_DEPTH &gt; <span class="number">0</span> ? HIERARCHY_MATCH : OFF;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isError</span><span class="params">(Throwable e)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> statusChecker.checkStatus(e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022-10-20-skywalking-trace/" rel="prev" title="Skywalking Trace链路分析">
+                  <i class="fa fa-angle-left"></i> Skywalking Trace链路分析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023-06-30-the-innovator's-dilemma/" rel="next" title="《创新者的窘境》读书笔记">
+                  《创新者的窘境》读书笔记 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

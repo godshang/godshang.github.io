@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="HashMap是面试题中老生常谈的话题，自己面试时也曾经侃侃而谈。万万没想到，老司机在开发过程中也载到这上了。 具体场景是这样的。有一个列表查询的数据，某个字段的状态需要从其他接口中查询获取，为了优化查询速度，用了CompletableFuture.runAsync()的方式并行调用接口查询，查询结果放到一个HashMap中供后面使用。大致简化后的代码如下：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="更新丢失：当HashMap遇见CompletableFuture">
+<meta property="og:url" content="https://godshang.github.io/2021-06-25-hashmap/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="HashMap是面试题中老生常谈的话题，自己面试时也曾经侃侃而谈。万万没想到，老司机在开发过程中也载到这上了。 具体场景是这样的。有一个列表查询的数据，某个字段的状态需要从其他接口中查询获取，为了优化查询速度，用了CompletableFuture.runAsync()的方式并行调用接口查询，查询结果放到一个HashMap中供后面使用。大致简化后的代码如下：">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.694Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://godshang.github.io/2021-06-25-hashmap/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2021-06-25-hashmap/","path":"2021-06-25-hashmap/","title":"更新丢失：当HashMap遇见CompletableFuture"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>更新丢失：当HashMap遇见CompletableFuture | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2021-06-25-hashmap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="更新丢失：当HashMap遇见CompletableFuture | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          更新丢失：当HashMap遇见CompletableFuture
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-25 00:00:00" itemprop="dateCreated datePublished" datetime="2021-06-25T00:00:00+08:00">2021-06-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><code>HashMap</code>是面试题中老生常谈的话题，自己面试时也曾经侃侃而谈。万万没想到，老司机在开发过程中也载到这上了。</p>
+<p>具体场景是这样的。有一个列表查询的数据，某个字段的状态需要从其他接口中查询获取，为了优化查询速度，用了<code>CompletableFuture.runAsync()</code>的方式并行调用接口查询，查询结果放到一个<code>HashMap</code>中供后面使用。大致简化后的代码如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">task</span><span class="params">()</span> &#123;</span><br><span class="line">    Map&lt;Long, Boolean&gt; contractsMap = Maps.newHashMap();</span><br><span class="line">    List&lt;CompletableFuture&gt; futures = Lists.newArrayList();</span><br><span class="line">    Lists.newArrayList(<span class="number">123L</span>, <span class="number">456L</span>).forEach(uid -&gt; &#123;</span><br><span class="line">        futures.add(CompletableFuture.runAsync(() -&gt; &#123;</span><br><span class="line">            <span class="type">Boolean</span> <span class="variable">effect</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line">            contractsMap.put(uid, effect);</span><br><span class="line">        &#125;));</span><br><span class="line">    &#125;);</span><br><span class="line">    CompletableFuture.allOf(futures.toArray(<span class="keyword">new</span> <span class="title class_">CompletableFuture</span>[]&#123;&#125;)).join();</span><br><span class="line">    System.out.println(contractsMap);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个查询的列表多刷新几次，就会发现每次的状态值都不同。在查询之后打断点后发现，<code>contractsMap</code>有时候<code>size</code>都不一样，有些数据莫名其妙的丢失了。</p>
+<p>上面这个简化后的<code>task</code>方法，多运行几次后很容易就能复现出这个现象。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">        task();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line">&#123;<span class="attribute">456</span>=<span class="literal">false</span>, <span class="attribute">123</span>=<span class="literal">true</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>确认了逻辑没问题后，猛然想起这个<code>HashMap</code>用到了多线程环境中，换成了<code>ConcurrentHashMap</code>之后果然不再出现。</p>
+<p>在网上搜索了一番后，很多文章都提到了JDK 8中<code>HashMap</code>可能会出现的数据丢失问题，但基本都在说哈希冲突时的情况。但上面的例子，其实就两个key，哈希值还绝不相同，那么就不可能是哈希冲突时出现的数据丢失。</p>
+<p>来看一下<code>HashMap</code>中的<code>putVal</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">final</span> V <span class="title function_">putVal</span><span class="params">(<span class="type">int</span> hash, K key, V value, <span class="type">boolean</span> onlyIfAbsent,</span></span><br><span class="line"><span class="params">                   <span class="type">boolean</span> evict)</span> &#123;</span><br><span class="line">        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="type">int</span> n, i;</span><br><span class="line">        <span class="keyword">if</span> ((tab = table) == <span class="literal">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">            n = (tab = resize()).length;</span><br><span class="line">        <span class="keyword">if</span> ((p = tab[i = (n - <span class="number">1</span>) &amp; hash]) == <span class="literal">null</span>)</span><br><span class="line">            tab[i] = newNode(hash, key, value, <span class="literal">null</span>);</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            Node&lt;K,V&gt; e; K k;</span><br><span class="line">            <span class="keyword">if</span> (p.hash == hash &amp;&amp;</span><br><span class="line">                ((k = p.key) == key || (key != <span class="literal">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                e = p;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">                e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="built_in">this</span>, tab, hash, key, value);</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">binCount</span> <span class="operator">=</span> <span class="number">0</span>; ; ++binCount) &#123;</span><br><span class="line">                    <span class="keyword">if</span> ((e = p.next) == <span class="literal">null</span>) &#123;</span><br><span class="line">                        p.next = newNode(hash, key, value, <span class="literal">null</span>);</span><br><span class="line">                        <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="number">1</span>) <span class="comment">// -1 for 1st</span></span><br><span class="line">                            treeifyBin(tab, hash);</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                        ((k = e.key) == key || (key != <span class="literal">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    p = e;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (e != <span class="literal">null</span>) &#123; <span class="comment">// existing mapping for key</span></span><br><span class="line">                <span class="type">V</span> <span class="variable">oldValue</span> <span class="operator">=</span> e.value;</span><br><span class="line">                <span class="keyword">if</span> (!onlyIfAbsent || oldValue == <span class="literal">null</span>)</span><br><span class="line">                    e.value = value;</span><br><span class="line">                afterNodeAccess(e);</span><br><span class="line">                <span class="keyword">return</span> oldValue;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ++modCount;</span><br><span class="line">        <span class="keyword">if</span> (++size &gt; threshold)</span><br><span class="line">            resize();</span><br><span class="line">        afterNodeInsertion(evict);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>总共三个分支，第一个是初次使用<code>HashMap</code>时发现<code>tab</code>为空，于是调用<code>resize</code>来构造<code>tab</code>；第二个分支是没有哈希冲突时，构造一个节点并直接放到<code>tab</code>的槽位上；第三个复杂的分支是用来处理哈希冲突的情况。</p>
+<p>对于上面的例子而言，并不存在哈希冲突的情况，因此发生数据丢失只可能在第一和第二个分支的处理过程。</p>
+<p>个人猜测的可能是</p>
+<ol>
+<li>第一个线程进到<code>putVal</code>方法时，发现<code>tab</code>为空，于是准备<code>resize</code>方法；</li>
+<li>但在构造<code>tab</code>前，切换到第二个线程执行，同样发现<code>tab</code>为空，于是进入到<code>resize</code>方法并构造了<code>tab</code>；然后进入第二个分支将键值对放入<code>tab</code>。</li>
+<li>切换回第一个线程，构造了一个<code>tab</code>并赋值，于是将第二步中的<code>tab</code>覆盖；然后进入第二个分支将键值对放入<code>tab</code>。</li>
+</ol>
+<p>为了验证猜想，需要明确<code>resize</code>方法和<code>newNode</code>方法的执行相对顺序。但并发条件又不好打断点，于是选择了采用Java Agent的方式，来修改<code>resize</code>和<code>newNode</code>方法，在方法进入前和进入后打印日志。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JvmAgentDemo</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">premain</span><span class="params">(String args, Instrumentation instrumentation)</span>&#123;</span><br><span class="line">        instrumentation.addTransformer(<span class="keyword">new</span> <span class="title class_">TestTransformer</span>(), <span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            instrumentation.retransformClasses(Test.class);</span><br><span class="line">            instrumentation.retransformClasses(HashMap.class);</span><br><span class="line">            System.out.println(<span class="string">&quot;agent load done&quot;</span>);</span><br><span class="line">        &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;agent load failed&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestTransformer</span> <span class="keyword">implements</span> <span class="title class_">ClassFileTransformer</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">byte</span>[] transform(ClassLoader loader, String className, Class&lt;?&gt; classBeingRedefined, ProtectionDomain protectionDomain, <span class="type">byte</span>[] classfileBuffer) <span class="keyword">throws</span> IllegalClassFormatException &#123;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;Transforming &quot;</span> + className);       </span><br><span class="line">        <span class="keyword">if</span> (<span class="string">&quot;java/util/HashMap&quot;</span>.equals(className)) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">ClassPool</span> <span class="variable">cp</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">                <span class="type">CtClass</span> <span class="variable">cc</span> <span class="operator">=</span> cp.get(<span class="string">&quot;java.util.HashMap&quot;</span>);</span><br><span class="line">                </span><br><span class="line">                <span class="type">CtMethod</span> <span class="variable">m</span> <span class="operator">=</span> cc.getDeclaredMethod(<span class="string">&quot;resize&quot;</span>);</span><br><span class="line">                m.insertBefore(<span class="string">&quot;&#123; System.out.println(Thread.currentThread().getName() + \&quot;: resize start\&quot;); &#125;&quot;</span>);</span><br><span class="line">                m.insertAfter(<span class="string">&quot;&#123; System.out.println(Thread.currentThread().getName() + \&quot;: resize end\&quot;);; &#125;&quot;</span>);</span><br><span class="line">                </span><br><span class="line">                <span class="type">CtMethod</span> <span class="variable">m2</span> <span class="operator">=</span> cc.getDeclaredMethod(<span class="string">&quot;newNode&quot;</span>);</span><br><span class="line">                m2.insertBefore(<span class="string">&quot;&#123; System.out.println(Thread.currentThread().getName() + \&quot;: newNode start\&quot;); &#125;&quot;</span>);</span><br><span class="line">                m2.insertAfter(<span class="string">&quot;&#123; System.out.println(Thread.currentThread().getName() + \&quot;: newNode end\&quot;); &#125;&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> cc.toBytecode();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将上述Agent打成jar，运行前面<code>task</code>用例时加载这个agent，观察控制台的输出：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: resize start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: resize <span class="keyword">end</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: newNode start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: newNode start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: newNode <span class="keyword">end</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: newNode <span class="keyword">end</span></span><br><span class="line">&#123;<span class="number">456</span>=<span class="literal">false</span>, <span class="number">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: resize start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: resize <span class="keyword">end</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: newNode start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: newNode <span class="keyword">end</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: resize start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: resize <span class="keyword">end</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: newNode start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: newNode <span class="keyword">end</span></span><br><span class="line">&#123;<span class="number">456</span>=<span class="literal">false</span>, <span class="number">123</span>=<span class="literal">true</span>&#125;</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: resize start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: resize start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: resize <span class="keyword">end</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: newNode start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">3</span>: newNode <span class="keyword">end</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: resize <span class="keyword">end</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: newNode start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: newNode <span class="keyword">end</span></span><br><span class="line">&#123;<span class="number">123</span>=<span class="literal">true</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>截取了三次运行时的日志，第一次和第二次都是正常情况，<code>resize</code>和<code>newNode</code>的执行顺序没什么问题，无非是第二次多了一次<code>resize</code>的，但<code>resize</code>内部在创建新的<code>tab</code>时会将老的<code>tab</code>内容复制过来，因此最终结果也是正常的。</p>
+<p>但第三次的执行序列和前面的猜想是一致的，<code>worker-2</code>线程进入<code>resize</code>方法后、返回前，<code>worker-3</code>线程也进入到了<code>resize</code>方法中，从<code>resize</code>返回后进入<code>newNode</code>方法创建了一个节点；之后<code>worker-2</code>线程继续执行，覆盖了<code>worker-3</code>线程写入的数据。</p>
+<p>还有一些执行序列也会导致数据丢失，但我没太想明白可能的执行顺序，比如：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">1</span>: resize start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: resize start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: resize <span class="keyword">end</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">1</span>: resize <span class="keyword">end</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">1</span>: newNode start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">1</span>: newNode <span class="keyword">end</span></span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: newNode start</span><br><span class="line"><span class="module-access"><span class="module"><span class="identifier">ForkJoinPool</span>.</span></span>commonPool-worker-<span class="number">2</span>: newNode <span class="keyword">end</span></span><br><span class="line">&#123;<span class="number">456</span>=<span class="literal">false</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上便是整个分析的过程。虽然大家都知道<code>HashMap</code>是非线程安全的，但开发过程中还是很容易就在多线程环境下使用上了。面经看了很多，但和最终的应用还是有点距离。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020-07-29-kafka-consumer/" rel="prev" title="Apache Kafka Consumer">
+                  <i class="fa fa-angle-left"></i> Apache Kafka Consumer
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021-09-04-timezone/" rel="next" title="一个时区偏移转换导致的问题">
+                  一个时区偏移转换导致的问题 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

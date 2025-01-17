@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在开发过程中，我们常常需要获取设备的一个唯一标识，以便后续做相应的处理或者数据分析。在iOS平台中，随着各个版本的变迁，这一简单需求也充满了与苹果的斗智斗勇。 UDID">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS获取设备唯一ID">
+<meta property="og:url" content="https://godshang.github.io/2016-10-25-ios-device-id/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="在开发过程中，我们常常需要获取设备的一个唯一标识，以便后续做相应的处理或者数据分析。在iOS平台中，随着各个版本的变迁，这一简单需求也充满了与苹果的斗智斗勇。 UDID">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-10-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.682Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://godshang.github.io/2016-10-25-ios-device-id/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2016-10-25-ios-device-id/","path":"2016-10-25-ios-device-id/","title":"iOS获取设备唯一ID"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>iOS获取设备唯一ID | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#UDID"><span class="nav-number">1.</span> <span class="nav-text">UDID</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E5%8D%A1%E5%9C%B0%E5%9D%80"><span class="nav-number">2.</span> <span class="nav-text">网卡地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IDFV"><span class="nav-number">3.</span> <span class="nav-text">IDFV</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IDFA"><span class="nav-number">4.</span> <span class="nav-text">IDFA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KeyChain"><span class="nav-number">5.</span> <span class="nav-text">KeyChain</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%BC%E5%90%88%E6%96%B9%E6%A1%88"><span class="nav-number">6.</span> <span class="nav-text">综合方案</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2016-10-25-ios-device-id/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="iOS获取设备唯一ID | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS获取设备唯一ID
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2016-10-25 00:00:00" itemprop="dateCreated datePublished" datetime="2016-10-25T00:00:00+08:00">2016-10-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在开发过程中，我们常常需要获取设备的一个唯一标识，以便后续做相应的处理或者数据分析。在iOS平台中，随着各个版本的变迁，这一简单需求也充满了与苹果的斗智斗勇。</p>
+<h3 id="UDID"><a href="#UDID" class="headerlink" title="UDID"></a>UDID</h3><p>UDID的全称是Unique Device Identifier，它是苹果iOS设备的唯一识别码，由40个字符的字母和数字组成。在很多需要限制一台设备一个账号的应用中经常会用到。在iOS5中可以获取到设备的UDID，iOS5之后该方法标记为废弃，在iOS7中已经移除了该方法。这个是目前为止唯一可以确认唯一的标示符。苹果禁止这个API是出去安全的考虑，许多开发者把UDID跟用户的真实姓名、密码、住址、其它数据关联起来。从一个应用可能拿不到这个用户的隐私数据，但是从多个应用，就有可能拼凑出用户的隐私数据。</p>
+<p>获取方法</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">[[<span class="built_in">UIDevice</span> currentDevice] uniqueIdentifier]</span><br></pre></td></tr></table></figure>
+
+<h3 id="网卡地址"><a href="#网卡地址" class="headerlink" title="网卡地址"></a>网卡地址</h3><p>MAC地址在网络上用来区分设备的唯一性，接入网络的设备都有一个MAC地址，他们肯定都是不同的，是唯一的。一部iPhone上可能有多个MAC地址，包括WIFI的、SIM的等，但是iTouch和iPad上就有一个WIFI的，因此只需获取WIFI的MAC地址就好了，也就是en0的地址。MAC地址就如同我们身份证上的身份证号码，具有全球唯一性。但在iOS7之后，如果请求Mac地址都会返回一个固定值。</p>
+<h3 id="IDFV"><a href="#IDFV" class="headerlink" title="IDFV"></a>IDFV</h3><p>iOS 6.0系统新增用于替换uniqueIdentifier的接口。是给Vendor标识用户用的，每个设备在所属同一个Vender的应用里，都有相同的值。其中的Vender是指应用提供商，但准确点说，是通过BundleID的DNS反转的前两部分进行匹配，如果相同就是同一个Vender，例如对于com.somecompany.appone,com.somecompany.apptwo这两个BundleID来说，就属于同一个Vender，共享同一个idfv的值。和idfa不同的是，idfv的值是一定能取到的，所以非常适合于作为内部用户行为分析的主id，来标识用户，替代OpenUDID。如果用户将属于此Vender的所有App卸载，则idfv的值会被重置，即再重装此Vender的App，idfv的值和之前不同。</p>
+<p>获取方法</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">[[[<span class="built_in">UIDevice</span> currentDevice] identifierForVendor] UUIDString]</span><br></pre></td></tr></table></figure>
+
+<h3 id="IDFA"><a href="#IDFA" class="headerlink" title="IDFA"></a>IDFA</h3><p>广告标示符，适用于对外：例如广告推广，换量等跨应用的用户追踪等。但如果用户完全重置系统（(设置程序 -&gt; 通用 -&gt; 还原 -&gt; 还原位置与隐私) ，这个广告标示符会重新生成。另外如果用户明确的还原广告(设置程序-&gt; 通用 -&gt; 关于本机 -&gt; 广告 -&gt; 还原广告标示符) ，那么广告标示符也会重新生成。注意：如果程序在后台运行，此时用户“还原广告标示符”，然后再回到程序中，此时获取广 告标示符并不会立即获得还原后的标示符。必须要终止程序，然后再重新启动程序，才能获得还原后的广告标示符。在同一个设备上的所有App都会取到相同的值，是苹果专门给各广告提供商用来追踪用户而设的，用户可以在 设置 -&gt; 隐私 -&gt; 广告追踪 里重置此id的值，或限制此id的使用。</p>
+<p>获取方法</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">[[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];</span><br></pre></td></tr></table></figure>
+
+<h3 id="KeyChain"><a href="#KeyChain" class="headerlink" title="KeyChain"></a>KeyChain</h3><p>iOS整个系统有一个KeyChain，每个程序都可以往KeyChain中记录数据，而且只能读取到自己程序记录在KeyChain中的数据。而且就算我们程序删除掉，系统经过升级以后再安装回来，依旧可以获取到之前存入的数据。因此我们可以将设备的唯一id的字符串存储到KeyChain中，然后下次直接从KeyChain获取UUID字符串。注意，KeyChain中的数据并不是一直都在，在更改了应用的provisioning profile后，KeyChain中的数据是会丢失的。虽然这种情况很少，但还是有这样的可能性。</p>
+<h3 id="综合方案"><a href="#综合方案" class="headerlink" title="综合方案"></a>综合方案</h3><p>使用IDFA或者UUID的方法，产生一个唯一标识字符串。这个字符串有可能发生变化，因此需要将它存入KeyChain中，以后都从KeyChain中查询</p>
+<p>首先，我们获取IDFA作为设备的唯一标识，这里会先检查AdSupport框架是否可用。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">- (<span class="built_in">NSString</span> *)appleIFA &#123;</span><br><span class="line">    <span class="built_in">NSString</span> *ifa = <span class="literal">nil</span>;</span><br><span class="line">    Class ASIdentifierManagerClass = <span class="built_in">NSClassFromString</span>(<span class="string">@&quot;ASIdentifierManager&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (ASIdentifierManagerClass) &#123; <span class="comment">// a dynamic way of checking if AdSupport.framework is available</span></span><br><span class="line">        SEL sharedManagerSelector = <span class="built_in">NSSelectorFromString</span>(<span class="string">@&quot;sharedManager&quot;</span>);</span><br><span class="line">        <span class="type">id</span> sharedManager = ((<span class="type">id</span> (*)(<span class="type">id</span>, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector])(ASIdentifierManagerClass, sharedManagerSelector);</span><br><span class="line">        </span><br><span class="line">        SEL advertisingIdentifierSelector = <span class="built_in">NSSelectorFromString</span>(<span class="string">@&quot;advertisingIdentifier&quot;</span>);</span><br><span class="line">        <span class="built_in">NSUUID</span> *advertisingIdentifier = ((<span class="built_in">NSUUID</span>* (*)(<span class="type">id</span>, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector])(sharedManager, advertisingIdentifierSelector);</span><br><span class="line">        </span><br><span class="line">        ifa = [advertisingIdentifier UUIDString];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ifa;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果IDFA不可用，那么产生一个UUID作为设备唯一标识：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">- (<span class="built_in">NSString</span> *)randomUUID &#123;</span><br><span class="line">    <span class="keyword">return</span> [[<span class="built_in">NSUUID</span> UUID] UUIDString];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样，我们就有了一个可以唯一标识设备的字符串。接下来，将生成的唯一标识存入KeyChain，这里封装一下关于KeyChain的读写方法：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> mark - Keychain</span></span><br><span class="line"></span><br><span class="line">- (<span class="built_in">NSMutableDictionary</span> *)keychainItemForKey:(<span class="built_in">NSString</span> *)key service:(<span class="built_in">NSString</span> *)service &#123;</span><br><span class="line">    <span class="built_in">NSMutableDictionary</span> *keychainItem = [[<span class="built_in">NSMutableDictionary</span> alloc] init];</span><br><span class="line">    keychainItem[(__bridge <span class="type">id</span>)kSecClass] = (__bridge <span class="type">id</span>)kSecClassGenericPassword;</span><br><span class="line">    keychainItem[(__bridge <span class="type">id</span>)kSecAttrAccessible] = (__bridge <span class="type">id</span>)kSecAttrAccessibleAlways;</span><br><span class="line">    keychainItem[(__bridge <span class="type">id</span>)kSecAttrAccount] = key;</span><br><span class="line">    keychainItem[(__bridge <span class="type">id</span>)kSecAttrService] = service;</span><br><span class="line">    <span class="keyword">return</span> keychainItem;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (OSStatus)setValue:(<span class="built_in">NSString</span> *)value forKeychainKey:(<span class="built_in">NSString</span> *)key inService:(<span class="built_in">NSString</span> *)service &#123;</span><br><span class="line">    <span class="built_in">NSMutableDictionary</span> *keychainItem = [<span class="keyword">self</span> keychainItemForKey:key service:service];</span><br><span class="line">    keychainItem[(__bridge <span class="type">id</span>)kSecValueData] = [value dataUsingEncoding:<span class="built_in">NSUTF8StringEncoding</span>];</span><br><span class="line">    <span class="keyword">return</span> SecItemAdd((__bridge <span class="built_in">CFDictionaryRef</span>)keychainItem, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">NSString</span> *)valueForKeychainKey:(<span class="built_in">NSString</span> *)key service:(<span class="built_in">NSString</span> *)service &#123;</span><br><span class="line">    OSStatus status;</span><br><span class="line">    <span class="built_in">NSMutableDictionary</span> *keychainItem = [<span class="keyword">self</span> keychainItemForKey:key service:service];</span><br><span class="line">    keychainItem[(__bridge <span class="type">id</span>)kSecReturnData] = (__bridge <span class="type">id</span>)kCFBooleanTrue;</span><br><span class="line">    keychainItem[(__bridge <span class="type">id</span>)kSecReturnAttributes] = (__bridge <span class="type">id</span>)kCFBooleanTrue;</span><br><span class="line">    <span class="built_in">CFDictionaryRef</span> result = <span class="literal">nil</span>;</span><br><span class="line">    status = SecItemCopyMatching((__bridge <span class="built_in">CFDictionaryRef</span>)keychainItem, (<span class="built_in">CFTypeRef</span> *)&amp;result);</span><br><span class="line">    <span class="keyword">if</span> (status != noErr) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">NSDictionary</span> *resultDict = (__bridge_transfer <span class="built_in">NSDictionary</span> *)result;</span><br><span class="line">    <span class="built_in">NSData</span> *data = resultDict[(__bridge <span class="type">id</span>)kSecValueData];</span><br><span class="line">    <span class="keyword">if</span> (!data) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> [[<span class="built_in">NSString</span> alloc] initWithData:data encoding:<span class="built_in">NSUTF8StringEncoding</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="type">void</span>)deleteForKeychainKey:(<span class="built_in">NSString</span> *)key inService:(<span class="built_in">NSString</span> *)service &#123;</span><br><span class="line">    <span class="built_in">NSMutableDictionary</span> *keychainItem = [<span class="keyword">self</span> keychainItemForKey:key service:service];</span><br><span class="line">    SecItemDelete((<span class="built_in">CFDictionaryRef</span>)keychainItem);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于KeyChain中的数据在更改了应用的provisioning profile后会丢失，这里在NSUserDefaults里再存储一份，作为备份。同样，提供NSUserDefaults的简便封装方法：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> mark - NSUserDefaults</span></span><br><span class="line"></span><br><span class="line">- (<span class="type">BOOL</span>)setValue:(<span class="built_in">NSString</span> *)value forUserDefaultsKey:(<span class="built_in">NSString</span> *)key &#123;</span><br><span class="line">    [[<span class="built_in">NSUserDefaults</span> standardUserDefaults] setObject:value forKey:key];</span><br><span class="line">    <span class="keyword">return</span> [[<span class="built_in">NSUserDefaults</span> standardUserDefaults] synchronize];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">NSString</span> *)valueForUserDefaultsKey:(<span class="built_in">NSString</span> *)key &#123;</span><br><span class="line">    <span class="keyword">return</span> [[<span class="built_in">NSUserDefaults</span> standardUserDefaults] objectForKey:key];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么，就可以调用deviceId方法，获取设备的唯一标识了。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> mark - DeviceId</span></span><br><span class="line"></span><br><span class="line">- (<span class="built_in">NSString</span> *)deviceId &#123;</span><br><span class="line">    <span class="keyword">if</span> (!_deviceId) &#123;</span><br><span class="line">        _deviceId = [<span class="keyword">self</span> valueForKeychainKey:DEVICE_ID_KEY service:DEVICE_ID_KEY];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!_deviceId) &#123;</span><br><span class="line">        _deviceId = [<span class="keyword">self</span> valueForUserDefaultsKey:DEVICE_ID_KEY];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!_deviceId) &#123;</span><br><span class="line">        _deviceId = [<span class="keyword">self</span> appleIFA];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!_deviceId) &#123;</span><br><span class="line">        _deviceId = [<span class="keyword">self</span> randomUUID];</span><br><span class="line">    &#125;</span><br><span class="line">    [<span class="keyword">self</span> save:_deviceId];</span><br><span class="line">    <span class="keyword">return</span> _deviceId;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="type">void</span>)save:(<span class="built_in">NSString</span> *)deviceId &#123;</span><br><span class="line">    <span class="keyword">if</span> (![<span class="keyword">self</span> valueForUserDefaultsKey:DEVICE_ID_KEY]) &#123;</span><br><span class="line">        [<span class="keyword">self</span> setValue:deviceId forUserDefaultsKey:DEVICE_ID_KEY];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (![<span class="keyword">self</span> valueForKeychainKey:DEVICE_ID_KEY service:DEVICE_ID_KEY]) &#123;</span><br><span class="line">        [<span class="keyword">self</span> setValue:deviceId forKeychainKey:DEVICE_ID_KEY inService:DEVICE_ID_KEY];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2016-10-09-ios-notification/" rel="prev" title="iOS 10 推送适配">
+                  <i class="fa fa-angle-left"></i> iOS 10 推送适配
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2016-11-25-diary/" rel="next" title="梦">
+                  梦 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

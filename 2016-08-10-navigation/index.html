@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="UINavigationController是iOS中最常用的多视图控制器之一，主要管理有层级关系的控制器。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS导航">
+<meta property="og:url" content="https://godshang.github.io/2016-08-10-navigation/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="UINavigationController是iOS中最常用的多视图控制器之一，主要管理有层级关系的控制器。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://godshang.github.io/img/2016-08-10/navigation_interface_2x.png">
+<meta property="article:published_time" content="2016-08-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.678Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="iOS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://godshang.github.io/img/2016-08-10/navigation_interface_2x.png">
+
+
+<link rel="canonical" href="https://godshang.github.io/2016-08-10-navigation/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2016-08-10-navigation/","path":"2016-08-10-navigation/","title":"iOS导航"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>iOS导航 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAUINavigationController"><span class="nav-number">1.</span> <span class="nav-text">创建UINavigationController</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">基本的使用方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%90%E8%97%8F%E5%AF%BC%E8%88%AA%E6%A0%8F"><span class="nav-number">3.</span> <span class="nav-text">隐藏导航栏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%BC%E8%88%AA%E6%A0%8F%E8%AE%BE%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">导航栏设置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%AF%BC%E8%88%AA%E6%A0%8F%E5%B7%A6%E5%88%99"><span class="nav-number">4.1.</span> <span class="nav-text">设置导航栏左则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%AF%BC%E8%88%AA%E6%A0%8F%E4%B8%AD%E9%83%A8"><span class="nav-number">4.2.</span> <span class="nav-text">设置导航栏中部</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%AF%BC%E8%88%AA%E6%A0%8F%E5%8F%B3%E4%BE%A7"><span class="nav-number">4.3.</span> <span class="nav-text">设置导航栏右侧</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UINavigationItem"><span class="nav-number"></span> <span class="nav-text">UINavigationItem</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UINavigationBar"><span class="nav-number"></span> <span class="nav-text">UINavigationBar</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AEUINavigationBar%E7%9A%84%E5%A4%96%E8%A7%82"><span class="nav-number">1.</span> <span class="nav-text">设置UINavigationBar的外观</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2016-08-10-navigation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="iOS导航 | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS导航
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2016-08-10 00:00:00" itemprop="dateCreated datePublished" datetime="2016-08-10T00:00:00+08:00">2016-08-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>UINavigationController是iOS中最常用的多视图控制器之一，主要管理有层级关系的控制器。</p>
+<p><img src="../img/2016-08-10/navigation_interface_2x.png"></p>
+<h2 id="创建UINavigationController"><a href="#创建UINavigationController" class="headerlink" title="创建UINavigationController"></a>创建UINavigationController</h2><p>UINavigationController用栈的方式来管理所控制的视图控制器，至少要有一个被管理的视图控制器，称作根控制器。</p>
+<p>创建UINavigationController可以指定根控制器，任何继承自UIViewController的类都可以作为根控制器：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">RootViewController *rootVC = [[RootViewController alloc] init];</span><br><span class="line"></span><br><span class="line"><span class="built_in">UINavigationController</span>* navigationController = [[<span class="built_in">UINavigationController</span> alloc] initWithRootViewController:rootVC];</span><br><span class="line"></span><br><span class="line"><span class="keyword">self</span>.window.rootViewController = navigationController;</span><br></pre></td></tr></table></figure>
+
+<h2 id="基本的使用方法"><a href="#基本的使用方法" class="headerlink" title="基本的使用方法"></a>基本的使用方法</h2><p>UINavigationController中的viewControllers属性存储栈中的所有被管理的控制器。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">copy</span>) <span class="built_in">NSArray</span>&lt;__kindof <span class="built_in">UIViewController</span> *&gt; *viewControllers;</span><br></pre></td></tr></table></figure>
+
+<p>入栈和出栈的基本操作有：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line">pushViewController:animated:     <span class="comment">// 进入下一个视图控制器</span></span><br><span class="line">popViewControllerAnimated:       <span class="comment">// 返回上一个视图控制器</span></span><br><span class="line">popToViewController:animated:    <span class="comment">// 返回到指定的视图控制器</span></span><br><span class="line">popToRootViewControllerAnimated: <span class="comment">// 返回到根视图控制器</span></span><br></pre></td></tr></table></figure>
+
+<p>也提供一些属性，方便使用：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 返回栈顶的控制器</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nullable</span>, <span class="keyword">nonatomic</span>,<span class="keyword">readonly</span>,<span class="keyword">strong</span>) <span class="built_in">UIViewController</span> *topViewController;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 返回栈中最上层的控制器，而visibleViewController代表当前可见的VC，它可能是topViewController，也可能是当前topViewController present出来的VC。因此UINavigationController的这两个属性通常情况下是一样，但也有可能不同。</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nullable</span>, <span class="keyword">nonatomic</span>,<span class="keyword">readonly</span>,<span class="keyword">strong</span>) <span class="built_in">UIViewController</span> *visibleViewController;</span><br></pre></td></tr></table></figure>
+
+<h2 id="隐藏导航栏"><a href="#隐藏导航栏" class="headerlink" title="隐藏导航栏"></a>隐藏导航栏</h2><p>直接设置navigationBarHidden属性为YES，导航栏将被隐藏。也可以通过setNavigationBarHidden:animated:方法设置隐藏。</p>
+<p>还有一些属性用于设置某种情形下导航栏的隐藏：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 值为YES时，如果有没处理的点击手势就会隐藏和现实navigationBar</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">readwrite</span>, <span class="keyword">assign</span>) <span class="type">BOOL</span> hidesBarsOnTap <span class="built_in">NS_AVAILABLE_IOS</span>(<span class="number">8</span>_0) __TVOS_PROHIBITED;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 值为YES时，滑动手势就会隐藏和现实navigationBar</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">readwrite</span>, <span class="keyword">assign</span>) <span class="type">BOOL</span> hidesBarsOnSwipe <span class="built_in">NS_AVAILABLE_IOS</span>(<span class="number">8</span>_0) __TVOS_PROHIBITED;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 值为YES时，屏幕为横向方向时隐藏NavigationBar</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">readwrite</span>, <span class="keyword">assign</span>) <span class="type">BOOL</span> hidesBarsWhenVerticallyCompact <span class="built_in">NS_AVAILABLE_IOS</span>(<span class="number">8</span>_0) __TVOS_PROHIBITED;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 值为YES时，键盘出现时隐藏NavigationBar </span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">readwrite</span>, <span class="keyword">assign</span>) <span class="type">BOOL</span> hidesBarsWhenKeyboardAppears <span class="built_in">NS_AVAILABLE_IOS</span>(<span class="number">8</span>_0) __TVOS_PROHIBITED;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取能够隐藏navigationBar的点击手势 </span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">readonly</span>, <span class="keyword">assign</span>) <span class="built_in">UITapGestureRecognizer</span> *barHideOnTapGestureRecognizer <span class="built_in">NS_AVAILABLE_IOS</span>(<span class="number">8</span>_0) __TVOS_PROHIBITED;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取能够隐藏navigationBar的滑动手势</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">readonly</span>, <span class="keyword">strong</span>) <span class="built_in">UIPanGestureRecognizer</span> *barHideOnSwipeGestureRecognizer <span class="built_in">NS_AVAILABLE_IOS</span>(<span class="number">8</span>_0) __TVOS_PROHIBITED;</span><br></pre></td></tr></table></figure>
+
+<h2 id="导航栏设置"><a href="#导航栏设置" class="headerlink" title="导航栏设置"></a>导航栏设置</h2><p>每当更改了栈顶的视图控制器时，导航栏上的内容会相应的改变。具体来说，导航栏的左、中、右侧会根据不同的控制器发生变化。可以根据需要，设置自定义的按钮或者使用系统提供的标准按钮。导航栏按钮是UIBarButtonItem类的实例</p>
+<h3 id="设置导航栏左则"><a href="#设置导航栏左则" class="headerlink" title="设置导航栏左则"></a>设置导航栏左则</h3><p>导航栏左侧的按钮用于返回上一个视图控制器。左侧按钮的展现遵循如下规则：</p>
+<ul>
+<li>如果栈顶的控制器有自定义的左侧按钮，那么将展现自定义的按钮。可以通过设置navigationItem的leftBarButtonItem属性，设置视图控制器的左侧按钮。</li>
+<li>如果栈顶的控制器没有自定义的左侧按钮，但前一个控制器的navigationItem设置了backBarButtonItem属性，那么导航栏将展现该属性所设置的按钮。</li>
+<li>如果都没有设置，那么将会展现一个默认的返回按钮，按钮的title来自前一个控制器的title属性。如果栈中只有一个控制器，将不显示任何按钮。</li>
+</ul>
+<p>为了避免backBarButton的title过长、超出了显示的空间范围，导航栏会进行title字符串的裁剪。这仅仅针对前一个控制器设置的backBarButtonItem属性，如果栈顶的控制器设置了leftBarButtonItem或leftBarButtonItems属性，那么不会有任何影响。</p>
+<h3 id="设置导航栏中部"><a href="#设置导航栏中部" class="headerlink" title="设置导航栏中部"></a>设置导航栏中部</h3><p>导航栏中部的展现遵循如下规则：</p>
+<ul>
+<li>如果栈顶的控制器设置了titleView属性，指定了一个自定义的view，那么导航栏将展现这个view。</li>
+<li>否则，导航栏将展现一个label。label显示的值来自于控制器的title属性</li>
+</ul>
+<h3 id="设置导航栏右侧"><a href="#设置导航栏右侧" class="headerlink" title="设置导航栏右侧"></a>设置导航栏右侧</h3><p>导航栏右侧的展现遵循如下规则：</p>
+<ul>
+<li>如果栈顶的控制器有自定义的右侧按钮，那么将展现自定义的按钮。可以通过设置navigationItem的rightBarButtonItem属性，设置视图控制器的右侧按钮。</li>
+<li>否则，导航栏的右侧将什么也不现实。</li>
+</ul>
+<h1 id="UINavigationItem"><a href="#UINavigationItem" class="headerlink" title="UINavigationItem"></a>UINavigationItem</h1><p>UINavigationController会为每一个入栈的UIViewController生成一个UINavigationItem，它包含了展示在导航栏上的按钮和视图，提供了一些配置属性和方法，上面已经提及到：</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@property</span>(<span class="keyword">nullable</span>, <span class="keyword">nonatomic</span>,<span class="keyword">copy</span>)   <span class="built_in">NSString</span>        *title; </span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nullable</span>, <span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">UIView</span>          *titleView;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 出现在title上方</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nullable</span>,<span class="keyword">nonatomic</span>,<span class="keyword">copy</span>)   <span class="built_in">NSString</span> *prompt __TVOS_PROHIBITED;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nullable</span>,<span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">UIBarButtonItem</span> *backBarButtonItem __TVOS_PROHIBITED;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">assign</span>) <span class="type">BOOL</span> hidesBackButton __TVOS_PROHIBITED;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当设置了左侧的导航栏按钮时，默认会替换掉返回按钮。如果这个属性设置了YES，那么将不会替换，自定义的左侧导航按钮将添加在返回按钮之后。默认为NO。</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>) <span class="type">BOOL</span> leftItemsSupplementBackButton <span class="built_in">NS_AVAILABLE_IOS</span>(<span class="number">5</span>_0) __TVOS_PROHIBITED;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nullable</span>,<span class="keyword">nonatomic</span>,<span class="keyword">copy</span>) <span class="built_in">NSArray</span>&lt;<span class="built_in">UIBarButtonItem</span> *&gt; *leftBarButtonItems <span class="built_in">NS_AVAILABLE_IOS</span>(<span class="number">5</span>_0);</span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nullable</span>,<span class="keyword">nonatomic</span>,<span class="keyword">copy</span>) <span class="built_in">NSArray</span>&lt;<span class="built_in">UIBarButtonItem</span> *&gt; *rightBarButtonItems <span class="built_in">NS_AVAILABLE_IOS</span>(<span class="number">5</span>_0);</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nullable</span>, <span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">UIBarButtonItem</span> *leftBarButtonItem;</span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nullable</span>, <span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">UIBarButtonItem</span> *rightBarButtonItem;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="UINavigationBar"><a href="#UINavigationBar" class="headerlink" title="UINavigationBar"></a>UINavigationBar</h1><p>UINavigationBar是导航栏的视图View，一般是同UINavigationController一起使用。如果使用UINavigationController管理视图，UINavigationController会自动创建一个UINavigationBar。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">readonly</span>) <span class="built_in">UINavigationBar</span> *navigationBar; <span class="comment">// The navigation bar managed by the controller. Pushing, popping or setting navigation items on a managed navigation bar is not supported.</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="设置UINavigationBar的外观"><a href="#设置UINavigationBar的外观" class="headerlink" title="设置UINavigationBar的外观"></a>设置UINavigationBar的外观</h2><p>UINavigationBar的外观可以通过一系列的属性设置，设置时可以通过[UINavigationBar appearance]这个代理进行。</p>
+<figure class="highlight objectivec"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 设置导航栏的背景色</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nullable</span>, <span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">UIColor</span> *barTintColor <span class="built_in">NS_AVAILABLE_IOS</span>(<span class="number">7</span>_0) <span class="built_in">UI_APPEARANCE_SELECTOR</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置导航栏底部阴影，即默认那条1px高的线。需要注意的是，要同时调用setBackgroundImage:forBarMetrics:方法设置背景才会生效</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">null_resettable</span>, <span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">UIColor</span> *tintColor;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置导航栏按钮文字、图片的颜色</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">null_resettable</span>, <span class="keyword">nonatomic</span>,<span class="keyword">strong</span>) <span class="built_in">UIColor</span> *tintColor;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置导航栏是否半透明</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">assign</span>,<span class="keyword">getter</span>=isTranslucent) <span class="type">BOOL</span> translucent <span class="built_in">NS_AVAILABLE_IOS</span>(<span class="number">3</span>_0) <span class="built_in">UI_APPEARANCE_SELECTOR</span>;</span><br></pre></td></tr></table></figure>
+
+<p>iOS7下可以通过设置translucent属性为NO，强制背景为不透明。如果没有明确的设定translucent的值，则系统会由当前上下文推断出一个值来。如果导航栏的背景图为自定义，translucent的值将从背景图的alpha值推断而来，背景图只要有一个像素的alpha值&lt;1.0，则translucent的值就推断为YES。</p>
+<p>如果设置translucent为YES，而自定义背景图却是不透明的，则系统会给图片加上一个小于1.0的系统预定义的透明度。</p>
+<p>如果translucent置为NO，而自定义的背景图却是半透明的，如果bar设置了barTintColor的值， 系统将会给背景图设置一个barTintColor色的不透明背景。如果bar的barTintColor的值为nil，背景图的不透明背景由状态栏的barStyle决定，如果状态栏的barStyle值为UIBarStyleBlack则为黑色，为UIBarStyleDefault则为白色。</p>
+<p>在iOS6及之前，translucent的默认值为NO。之后，如果barStyle设为UIBarStyleBlackTranslucent则其值为YES。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2016-07-24-java-memory-model/" rel="prev" title="java内存模型">
+                  <i class="fa fa-angle-left"></i> java内存模型
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2016-10-09-ios-notification/" rel="next" title="iOS 10 推送适配">
+                  iOS 10 推送适配 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

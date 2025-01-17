@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="What is jQuery ?jQuery是一套跨浏览器的JavaScript库，简化了HTML与JavaScript之间的操作。jQuery的语法设计使得许多操作变得容易，如操作文档对象（document）、选择DOM元素、创建动画效果、处理事件、以及开发Ajax程序。jQuery 也提供了给开发人员在其上创建插件的能力。这使开发人员可以对底层交互与动画、高级效果和高级主题化的组件进行抽象化。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jQuery学习笔记">
+<meta property="og:url" content="https://godshang.github.io/2013-04-02-jQuery-note/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="What is jQuery ?jQuery是一套跨浏览器的JavaScript库，简化了HTML与JavaScript之间的操作。jQuery的语法设计使得许多操作变得容易，如操作文档对象（document）、选择DOM元素、创建动画效果、处理事件、以及开发Ajax程序。jQuery 也提供了给开发人员在其上创建插件的能力。这使开发人员可以对底层交互与动画、高级效果和高级主题化的组件进行抽象化。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2013-04-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.666Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="JavaScript">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://godshang.github.io/2013-04-02-jQuery-note/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2013-04-02-jQuery-note/","path":"2013-04-02-jQuery-note/","title":"jQuery学习笔记"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>jQuery学习笔记 | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#What-is-jQuery"><span class="nav-number">1.</span> <span class="nav-text">What is jQuery ?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">$</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dom%E5%AF%B9%E8%B1%A1%E5%92%8CjQuery%E5%8C%85%E8%A3%85%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.</span> <span class="nav-text">Dom对象和jQuery包装对象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Dom%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.1.</span> <span class="nav-text">Dom对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jQuery%E5%8C%85%E8%A3%85%E9%9B%86"><span class="nav-number">3.2.</span> <span class="nav-text">jQuery包装集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dom%E5%AF%B9%E8%B1%A1%E5%92%8CjQuery%E5%AF%B9%E8%B1%A1%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="nav-number">3.3.</span> <span class="nav-text">Dom对象和jQuery对象的转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Dom%E8%BD%ACjQuery%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.3.1.</span> <span class="nav-text">Dom转jQuery对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#jQuery%E5%AF%B9%E8%B1%A1%E8%BD%ACDom%E5%AF%B9%E8%B1%A1"><span class="nav-number">3.3.2.</span> <span class="nav-text">jQuery对象转Dom对象</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jQuery%E9%80%89%E6%8B%A9%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">jQuery选择器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E5%85%83%E7%B4%A0%E7%9A%84%E5%B1%9E%E6%80%A7%E5%92%8C%E6%A0%B7%E5%BC%8F"><span class="nav-number">5.</span> <span class="nav-text">操作元素的属性和样式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6"><span class="nav-number">6.</span> <span class="nav-text">事件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E5%87%BD%E6%95%B0"><span class="nav-number">7.</span> <span class="nav-text">工具函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E5%B7%A5%E5%85%B7%E5%87%BD%E6%95%B0"><span class="nav-number">7.1.</span> <span class="nav-text">字符工具函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7%E5%87%BD%E6%95%B0"><span class="nav-number">7.2.</span> <span class="nav-text">测试工具函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E5%90%88%E5%B9%B6%E5%87%BD%E6%95%B0"><span class="nav-number">7.3.</span> <span class="nav-text">对象合并函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3"><span class="nav-number">7.4.</span> <span class="nav-text">迭代</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2013-04-02-jQuery-note/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="jQuery学习笔记 | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          jQuery学习笔记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2013-04-02 00:00:00" itemprop="dateCreated datePublished" datetime="2013-04-02T00:00:00+08:00">2013-04-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="What-is-jQuery"><a href="#What-is-jQuery" class="headerlink" title="What is jQuery ?"></a>What is jQuery ?</h2><p>jQuery是一套跨浏览器的JavaScript库，简化了HTML与JavaScript之间的操作。jQuery的语法设计使得许多操作变得容易，如操作文档对象（document）、选择DOM元素、创建动画效果、处理事件、以及开发Ajax程序。jQuery 也提供了给开发人员在其上创建插件的能力。这使开发人员可以对底层交互与动画、高级效果和高级主题化的组件进行抽象化。模块化的方式使 jQuery 函数库能够创建功能强大的动态网页以及网络应用程序。</p>
+<h2 id=""><a href="#" class="headerlink" title="$"></a>$</h2><p>$是jQuery中最常见的符号。它可以接受一个字符，也可以接受一个文档对象，亦或者一个函数，也可以调用一个函数。那么$到底是什么东西呢？</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> jQuery = (<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">	<span class="comment">//创建jQuery对象,给所有的jQuery方法提供统一的入口,避免繁琐难记</span></span><br><span class="line">	<span class="keyword">var</span> jQuery = <span class="keyword">function</span>(<span class="params"> selector, context </span>) &#123;</span><br><span class="line">		<span class="comment">//jQuery的构造对象,调用了jQuery.fn.init方法</span></span><br><span class="line">		<span class="comment">//最后返回jQuery.fn.init的对象</span></span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> jQuery.<span class="property">fn</span>.<span class="title function_">init</span>( selector, context, rootjQuery );</span><br><span class="line">	&#125;,</span><br><span class="line">	.....</span><br><span class="line">	<span class="comment">//定义jQuery的原型,jQuery.fn指向jQuery.prototype对象</span></span><br><span class="line">	jQuery.<span class="property">fn</span> = jQuery.<span class="property"><span class="keyword">prototype</span></span> = &#123;</span><br><span class="line">	<span class="comment">//重新指定构造函数属性,因为默认指向jQuery.fn.init</span></span><br><span class="line">	<span class="attr">constructor</span>: jQuery,</span><br><span class="line">	<span class="attr">init</span>: <span class="keyword">function</span>(<span class="params"> selector, context, rootjQuery </span>) &#123;.....&#125;,</span><br><span class="line">	......</span><br><span class="line">	&#125;</span><br><span class="line">	......</span><br><span class="line">	<span class="comment">//返回jQuery变量,同时定义将全局变量window.jQuery和window.$指向jQuery</span></span><br><span class="line">	<span class="keyword">return</span> (<span class="variable language_">window</span>.<span class="property">jQuery</span> = <span class="variable language_">window</span>.<span class="property">$</span> = jQuery);</span><br><span class="line"></span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+
+<p>当首次执行完毕后，全局变量$和jQuery，都是指向了var jQuery=function（selector，context）{}这个函数，这里，就可以下个结论，$就是jQuery的别名。通过$，可以方便的引用jQuery。</p>
+<h2 id="Dom对象和jQuery包装对象"><a href="#Dom对象和jQuery包装对象" class="headerlink" title="Dom对象和jQuery包装对象"></a>Dom对象和jQuery包装对象</h2><p>无论是在写程序还是看API文档,  我们要时刻注意区分Dom对象和jQuery包装集。</p>
+<h3 id="Dom对象"><a href="#Dom对象" class="headerlink" title="Dom对象"></a>Dom对象</h3><p>在传统的javascript开发中,我们都是首先获取Dom对象,然后再对Dom对象进行操作：</p>
+<figure class="highlight abnf"><table><tr><td class="code"><pre><span class="line">var div <span class="operator">=</span> document.getElementById(<span class="string">&quot;testDiv&quot;</span>)<span class="comment">;</span></span><br><span class="line">var divs <span class="operator">=</span> document.getElementsByTagName(<span class="string">&quot;div&quot;</span>)<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们经常使用 document.getElementById 方法根据id获取单个Dom对象, 或者使用 document.getElementsByTagName 方法根据HTML标签名称获取Dom对象集合。这里获取到的都是Dom对象, Dom对象也有不同的类型比如input, div, span等。Dom对象只有有限的属性和方法。</p>
+<h3 id="jQuery包装集"><a href="#jQuery包装集" class="headerlink" title="jQuery包装集"></a>jQuery包装集</h3><p>jQuery包装集可以说是Dom对象的扩充.在jQuery的世界中将所有的对象, 无论是一个还是一组, 都封装成一个jQuery包装集,比如获取包含一个元素的jQuery包装集:</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> jQueryObject = $(<span class="string">&quot;#testDiv&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>jQuery包装集都是作为一个对象一起调用的. jQuery包装集拥有丰富的属性和方法, 这些都是jQuery特有的。</p>
+<h3 id="Dom对象和jQuery对象的转换"><a href="#Dom对象和jQuery对象的转换" class="headerlink" title="Dom对象和jQuery对象的转换"></a>Dom对象和jQuery对象的转换</h3><h4 id="Dom转jQuery对象"><a href="#Dom转jQuery对象" class="headerlink" title="Dom转jQuery对象"></a>Dom转jQuery对象</h4><p>将Dom对象转换为jQuery对象十分简单，使用jQuery选择器就可以完成：</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;#testDiv&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>上面语句构造的包装集只含有一个id是testDiv的元素。</p>
+<p>或者我们已经获取了一个Dom元素,比如:</p>
+<figure class="highlight abnf"><table><tr><td class="code"><pre><span class="line">var div <span class="operator">=</span> document.getElementById(<span class="string">&quot;testDiv&quot;</span>)<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的代码中div是一个Dom元素, 我们可以将Dom元素转换成jQuery包装集:</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> domToJQueryObject = $(div);</span><br></pre></td></tr></table></figure>
+
+<h4 id="jQuery对象转Dom对象"><a href="#jQuery对象转Dom对象" class="headerlink" title="jQuery对象转Dom对象"></a>jQuery对象转Dom对象</h4><p>jQuery包装集是一个集合, 所以我们可以通过索引器访问其中的某一个元素:</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> domObject = $(<span class="string">&quot;#testDiv&quot;</span>)[<span class="number">0</span>];</span><br></pre></td></tr></table></figure>
+
+<p>注意, 通过索引器返回的不再是jQuery包装集, 而是一个Dom对象!</p>
+<p>jQuery包装集的某些遍历方法,比如each()中, 可以传递遍历函数, 在遍历函数中的this也是Dom元素,比如:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;#testDiv&quot;</span>).<span class="title function_">each</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123; <span class="title function_">alert</span>(<span class="variable language_">this</span>) &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>如果我们要使用jQuery的方法操作Dom对象,怎么办? 用上面介绍过的转换方法即可:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;#testDiv&quot;</span>).<span class="title function_">each</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123; $(<span class="variable language_">this</span>).<span class="title function_">html</span>(<span class="string">&quot;修改内容&quot;</span>) &#125;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="jQuery选择器"><a href="#jQuery选择器" class="headerlink" title="jQuery选择器"></a>jQuery选择器</h2><p>在jQuery中，通过其提供的强大的选择器可以帮助我们获取页面上的对象，并将对象以jQuery包装集的形式返回。</p>
+<p>选择器就是”一个表示特殊语意的字符串”. 只要把选择器字符串传入上面的方法中就能够选择不同的Dom对象并且以jQuery包装集的形式返回。</p>
+<p>jQuery的选择器类似于CSS中的选择器，同时提供了强大的选择和过滤等功能。</p>
+<p>一些简单的选择器：</p>
+<ul>
+<li>id选择器：#id，根据元素id选择</li>
+<li>元素选择器：根据元素名称选择</li>
+<li>类选择器：.class，根据元素class类选择</li>
+<li>。。。</li>
+</ul>
+<p>此外，还能选择兄弟元素、父元素、祖先元素，按照索引选择、按奇偶选择，按照属性选择，等等丰富的选择功能。</p>
+<p>从jQuery的选择器就很能看出一个开发人员的功底了。</p>
+<h2 id="操作元素的属性和样式"><a href="#操作元素的属性和样式" class="headerlink" title="操作元素的属性和样式"></a>操作元素的属性和样式</h2><p>jQuery提供了API来操作元素的属性和样式。</p>
+<p>取得元素属性：</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;#testInput&quot;</span>).attr(<span class="string">&#x27;checked&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>设置元素属性：</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;#testInput&quot;</span>).attr(<span class="string">&#x27;checked&#x27;</span>, <span class="string">&#x27;checked&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>取得CSS样式：</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;p&quot;</span>).css(<span class="string">&quot;color&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>设置CSS样式：</p>
+<figure class="highlight maxima"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;p&quot;</span>).css(&#123; <span class="built_in">color</span>: <span class="string">&quot;#ff0011&quot;</span>, <span class="built_in">background</span>: <span class="string">&quot;blue&quot;</span> &#125;); </span><br></pre></td></tr></table></figure>
+
+<p>不像Java，jQuery的set和get方法的名字是一样的，只是以参数来区别。</p>
+<h2 id="事件"><a href="#事件" class="headerlink" title="事件"></a>事件</h2><p>jQuery使用bind函数来讲事件同元素绑定起来：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$</span><span class="language-bash">(<span class="string">&quot;#testDiv4&quot;</span>).<span class="built_in">bind</span>(<span class="string">&quot;click&quot;</span>, showMsg);</span></span><br></pre></td></tr></table></figure>
+
+<p>这样就为id是testDiv4的元素, 添加列click事件的事件处理函数showMsg.</p>
+<p>虽然可以使用事件处理函数完成对象事件的几乎所有操作, 但是jQuery提供了对常用事件的封装. 比如单击事件对应的两个方法click()和click(fn)分别用来触发单击事件和设置单击事件。</p>
+<p>设置单击事件:</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;#testDiv&quot;</span>).click(<span class="keyword">function</span>(<span class="params">event</span>) &#123; alert(<span class="string">&quot;test div clicked ! &quot;</span>); &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>等效于:</p>
+<figure class="highlight arcade"><table><tr><td class="code"><pre><span class="line">$(<span class="string">&quot;#testDiv&quot;</span>).bind(<span class="string">&quot;click&quot;</span>, <span class="keyword">function</span>(<span class="params">event</span>) &#123; alert(<span class="string">&quot;test div clicked ! &quot;</span>); &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>此外还有blur、change、dbclick、focus、keydown、keyup等等各种常用的事件。</p>
+<h2 id="工具函数"><a href="#工具函数" class="headerlink" title="工具函数"></a>工具函数</h2><h3 id="字符工具函数"><a href="#字符工具函数" class="headerlink" title="字符工具函数"></a>字符工具函数</h3><p>$.trim</p>
+<p>说明:去掉字符串起始和结尾的空格。</p>
+<h3 id="测试工具函数"><a href="#测试工具函数" class="headerlink" title="测试工具函数"></a>测试工具函数</h3><p>jQuery.isArray( obj )</p>
+<p>jQuery.isFunction( obj )</p>
+<h3 id="对象合并函数"><a href="#对象合并函数" class="headerlink" title="对象合并函数"></a>对象合并函数</h3><p>$.extend</p>
+<p>说明：用一个或多个其他对象来扩展一个对象，返回被扩展的对象。</p>
+<h3 id="迭代"><a href="#迭代" class="headerlink" title="迭代"></a>迭代</h3><p>$.each(object, callback)</p>
+<p>说明：通用例遍方法，可用于例遍对象和数组。不同于例遍 jQuery 对象的 $().each() 方法，此方法可用于例遍任何对象。回调函数拥有两个参数：第一个为对象的成员或数组的索引，第二个为对应变量或内容。如果需要退出 each 循环可使回调函数返回 false，其它返回值将被忽略。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2013-04-01-seajs-note/" rel="prev" title="SeaJS学习笔记">
+                  <i class="fa fa-angle-left"></i> SeaJS学习笔记
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2013-04-11-word-to-pdf/" rel="next" title="使用OpenOffice将word转换为pdf">
+                  使用OpenOffice将word转换为pdf <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

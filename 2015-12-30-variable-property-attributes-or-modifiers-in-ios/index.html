@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"godshang.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Variable property attributes or ModifiersProperty Attributes Indicate Data Accessibility and Storage Considerations">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Variable property attributes or Modifiers in iOS">
+<meta property="og:url" content="https://godshang.github.io/2015-12-30-variable-property-attributes-or-modifiers-in-ios/index.html">
+<meta property="og:site_name" content="上元君的博客">
+<meta property="og:description" content="Variable property attributes or ModifiersProperty Attributes Indicate Data Accessibility and Storage Considerations">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2015-12-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-15T15:17:02.678Z">
+<meta property="article:author" content="alan">
+<meta property="article:tag" content="Objective-C">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://godshang.github.io/2015-12-30-variable-property-attributes-or-modifiers-in-ios/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://godshang.github.io/2015-12-30-variable-property-attributes-or-modifiers-in-ios/","path":"2015-12-30-variable-property-attributes-or-modifiers-in-ios/","title":"Variable property attributes or Modifiers in iOS"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Variable property attributes or Modifiers in iOS | 上元君的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">上元君的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">静听星空夜语 淡看物是人非</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-note"><a href="https://godshang.github.io/note/" rel="section"><i class="fa fa-book fa-fw"></i>note</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Variable-property-attributes-or-Modifiers"><span class="nav-number">1.</span> <span class="nav-text">Variable property attributes or Modifiers</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#01-atomic"><span class="nav-number">1.1.</span> <span class="nav-text">01. atomic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#02-nonatomic"><span class="nav-number">1.2.</span> <span class="nav-text">02. nonatomic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#03-strong-iOS4-retain"><span class="nav-number">1.3.</span> <span class="nav-text">03. strong ( iOS4 &#x3D; retain )</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#04-weak-iOS4-unsafe-unretained"><span class="nav-number">1.4.</span> <span class="nav-text">04. weak ( iOS4 &#x3D; unsafe_unretained )</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#05-retain-strong"><span class="nav-number">1.5.</span> <span class="nav-text">05. retain &#x3D; strong</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#06-assign"><span class="nav-number">1.6.</span> <span class="nav-text">06. assign</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#07-unsafe-unretained"><span class="nav-number">1.7.</span> <span class="nav-text">07. unsafe_unretained</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#08-copy"><span class="nav-number">1.8.</span> <span class="nav-text">08. copy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#09-readonly"><span class="nav-number">1.9.</span> <span class="nav-text">09. readonly</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-readwrite"><span class="nav-number">1.10.</span> <span class="nav-text">10. readwrite</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">alan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://godshang.github.io/2015-12-30-variable-property-attributes-or-modifiers-in-ios/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Variable property attributes or Modifiers in iOS | 上元君的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Variable property attributes or Modifiers in iOS
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2015-12-30 00:00:00" itemprop="dateCreated datePublished" datetime="2015-12-30T00:00:00+08:00">2015-12-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-15 23:17:02" itemprop="dateModified" datetime="2025-01-15T23:17:02+08:00">2025-01-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="Variable-property-attributes-or-Modifiers"><a href="#Variable-property-attributes-or-Modifiers" class="headerlink" title="Variable property attributes or Modifiers"></a>Variable property attributes or Modifiers</h2><p>Property Attributes Indicate Data Accessibility and Storage Considerations</p>
+<p>Use Accessor Methods to Get or Set Property Values</p>
+<pre><code>01. atomic              //default
+02. nonatomic
+03. strong=retain       //default
+04. weak= unsafe_unretained
+05. retain
+06. assign              //default
+07. unsafe_unretained
+08. copy
+09. readonly
+10. readwrite           //default
+</code></pre>
+<h3 id="01-atomic"><a href="#01-atomic" class="headerlink" title="01. atomic"></a>01. atomic</h3><ul>
+<li>Atomic means only one thread access the variable(static type).</li>
+<li>Atomic is thread safe.</li>
+<li>but it is slow in performance</li>
+<li>atomic is default behavior</li>
+<li>Atomic accessors in a non garbage collected environment (i.e. when using retain/release/autorelease) will use a lock to ensure that another thread doesn’t interfere with the correct setting/getting of the value.</li>
+<li>it is not actually a keyword.</li>
+</ul>
+<p>Example :</p>
+<pre><code>@property (retain) NSString *name;
+
+@synthesize name;
+</code></pre>
+<h3 id="02-nonatomic"><a href="#02-nonatomic" class="headerlink" title="02. nonatomic"></a>02. nonatomic</h3><ul>
+<li>Nonatomic means multiple thread access the variable(dynamic type).</li>
+<li>Nonatomic is thread unsafe.</li>
+<li>but it is fast in performance</li>
+<li>Nonatomic is NOT default behavior,we need to add nonatomic keyword in property attribute.</li>
+<li>it may result in unexpected behavior, when two different process (threads) access the same variable at the same time.</li>
+</ul>
+<p>Example:</p>
+<pre><code>@property (nonatomic, retain) NSString *name;
+
+@synthesize name;
+</code></pre>
+<p>Explain:</p>
+<p>Suppose there is an atomic string property called “name”, and if you call [self setName:@”A”] from thread A,<br>call [self setName:@”B”] from thread B, and call [self name] from thread C, then all operation on different thread will be performed serially which means if one thread is executing setter or getter, then other threads will wait. This makes property “name” read/write safe but if another thread D calls [name release] simultaneously then this operation might produce a crash because there is no setter/getter call involved here. Which means an object is read/write safe (ATOMIC) but not thread safe as another threads can simultaneously send any type of messages to the object. Developer should ensure thread safety for such objects.</p>
+<p>If the property “name” was nonatomic, then all threads in above example - A,B, C and D will execute simultaneously producing any unpredictable result. In case of atomic, Either one of A, B or C will execute first but D can still execute in parallel.</p>
+<h3 id="03-strong-iOS4-retain"><a href="#03-strong-iOS4-retain" class="headerlink" title="03. strong ( iOS4 = retain )"></a>03. strong ( iOS4 = retain )</h3><ul>
+<li>it says “keep this in the heap until I don’t point to it anymore”</li>
+<li>in other words “ I’am the owner, you cannot dealloc this before aim fine with that same as retain”</li>
+<li>You use strong only if you need to retain the object.</li>
+<li>By default all instance variables and local variables are strong pointers.</li>
+<li>We generally use strong for UIViewControllers (UI item’s parents)</li>
+<li>strong is used with ARC and it basically helps you , by not having to worry about the retain count of an object. ARC automatically releases it for you      when you are done with it.Using the keyword strong means that you own the object.</li>
+</ul>
+<p>Example:</p>
+<pre><code>@property (strong, nonatomic) ViewController *viewController;
+
+@synthesize viewController;
+</code></pre>
+<h3 id="04-weak-iOS4-unsafe-unretained"><a href="#04-weak-iOS4-unsafe-unretained" class="headerlink" title="04. weak ( iOS4 = unsafe_unretained )"></a>04. weak ( iOS4 = unsafe_unretained )</h3><ul>
+<li>it says “keep this as long as someone else points to it strongly”</li>
+<li>the same thing as assign, no retain or release</li>
+<li>A “weak” reference is a reference that you do not retain.</li>
+<li>We generally use weak for IBOutlets (UIViewController’s Childs).This works because the child object only<br>needs to exist as long as the parent object does.</li>
+<li>a weak reference is a reference that does not protect the referenced object from collection by a garbage collector.</li>
+<li>Weak is essentially assign, a unretained property. Except the when the object is deallocated the weak pointer is automatically set to nil</li>
+</ul>
+<p>Example :</p>
+<pre><code>@property (weak, nonatomic) IBOutlet UIButton *myButton;
+
+@synthesize myButton;
+</code></pre>
+<p>Explain:</p>
+<p>Imagine our object is a dog, and that the dog wants to run away (be deallocated).</p>
+<p>Strong pointers are like a leash on the dog. As long as you have the leash attached to the dog, the dog will not run away. If five people attach their leash to one dog, (five strong pointers to one object), then the dog will not run away until all five leashes are detached.</p>
+<p>Weak pointers, on the other hand, are like little kids pointing at the dog and saying “Look! A dog!” As long as the dog is still on the leash, the little kids can still see the dog, and they’ll still point to it. As soon as all the leashes are detached, though, the dog runs away no matter how many little kids are pointing to it.</p>
+<p>As soon as the last strong pointer (leash) no longer points to an object, the object will be deallocated, and all weak pointers will be zeroed out.</p>
+<p>When we use weak?</p>
+<p>The only time you would want to use weak, is if you wanted to avoid retain cycles<br>(e.g. the parent retains the child and the child retains the parent so neither is ever released).</p>
+<h3 id="05-retain-strong"><a href="#05-retain-strong" class="headerlink" title="05. retain = strong"></a>05. retain = strong</h3><ul>
+<li>it is retained, old value is released and it is assigned</li>
+<li>retain specifies the new value should be sent -retain on assignment and the old value sent -release</li>
+<li>retain is the same as strong.</li>
+<li>apple says if you write retain it will auto converted/work like strong only.</li>
+<li>methods like “alloc” include an implicit “retain”</li>
+</ul>
+<p>Example:</p>
+<pre><code>@property (nonatomic, retain) NSString *name;
+
+@synthesize name;
+</code></pre>
+<h3 id="06-assign"><a href="#06-assign" class="headerlink" title="06. assign"></a>06. assign</h3><ul>
+<li>assign is the default and simply performs a variable assignment</li>
+<li>assign is a property attribute that tells the compiler how to synthesize the property’s setter implementation</li>
+<li>I would use assign for C primitive properties and weak for weak references to Objective-C objects.</li>
+</ul>
+<p>Example:</p>
+<pre><code>@property (nonatomic, assign) NSString *address;
+
+@synthesize address;
+</code></pre>
+<h3 id="07-unsafe-unretained"><a href="#07-unsafe-unretained" class="headerlink" title="07. unsafe_unretained"></a>07. unsafe_unretained</h3><ul>
+<li>unsafe_unretained is an ownership qualifier that tells ARC how to insert retain/release calls</li>
+<li>unsafe_unretained is the ARC version of assign.</li>
+</ul>
+<p>Example:</p>
+<pre><code>@property (nonatomic, unsafe_unretained) NSString *nickName;
+
+@synthesize nickName;
+</code></pre>
+<h3 id="08-copy"><a href="#08-copy" class="headerlink" title="08. copy"></a>08. copy</h3><ul>
+<li>copy is required when the object is mutable.</li>
+<li>copy specifies the new value should be sent -copy on assignment and the old value sent -release.</li>
+<li>copy is like retain returns an object which you must explicitly release (e.g., in dealloc) in non-garbage collected environments.</li>
+<li>if you use copy then you still need to release that in dealloc.</li>
+<li>Use this if you need the value of the object as it is at this moment, and you don’t want that value to reflect any changes made by other owners of the object. You will need to release the object when you are finished with it because you are retaining the copy.</li>
+</ul>
+<p>Example:</p>
+<pre><code>@property (nonatomic, copy) NSArray *myArray;
+
+@synthesize myArray;
+</code></pre>
+<h3 id="09-readonly"><a href="#09-readonly" class="headerlink" title="09. readonly"></a>09. readonly</h3><ul>
+<li>declaring your property as readonly you tell compiler to not generate setter method automatically.</li>
+<li>Indicates that the property is read-only.</li>
+<li>If you specify readonly, only a getter method is required in the @implementation block. If you use the @synthesize directive in the @implementation block, only the getter method is synthesized. Moreover, if you attempt to assign a value using the dot syntax, you get a compiler error.</li>
+</ul>
+<p>Example:</p>
+<pre><code>@property (nonatomic, readonly) NSString *name;
+
+@synthesize name;
+</code></pre>
+<h3 id="10-readwrite"><a href="#10-readwrite" class="headerlink" title="10. readwrite"></a>10. readwrite</h3><ul>
+<li>setter and getter generated.</li>
+<li>Indicates that the property should be treated as read/write.</li>
+<li>This attribute is the default.</li>
+<li>Both a getter and setter method are required in the @implementation block. If you use the @synthesize directive in the @implementation block, the getter and setter methods are synthesized.</li>
+</ul>
+<p>Example:</p>
+<pre><code>@property (nonatomic, readwrite) NSString *name;
+
+@synthesize name;
+</code></pre>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Objective-C/" rel="tag"># Objective-C</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2015-12-26-diary/" rel="prev" title="2015.12.26">
+                  <i class="fa fa-angle-left"></i> 2015.12.26
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2016-03-06-ios-checklist/" rel="next" title="iOS Checklist">
+                  iOS Checklist <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">alan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
